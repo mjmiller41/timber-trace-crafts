@@ -8,13 +8,13 @@
 @php
     $images = $product->media
         ->filter(fn($m) => $m->media && str_contains($m->media->mime_type ?? '', 'image'))
-        ->map(fn($m) => asset('storage/' . $m->media->path))
+        ->map(fn($m) => $m->media->url())
         ->values()
         ->toArray();
 
     $videos = $product->media
         ->filter(fn($m) => $m->media && str_contains($m->media->mime_type ?? '', 'video'))
-        ->map(fn($m) => asset('storage/' . $m->media->path))
+        ->map(fn($m) => $m->media->url())
         ->values()
         ->toArray();
 

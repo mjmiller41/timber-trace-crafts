@@ -172,7 +172,7 @@
                         {{-- Image --}}
                         <a href="{{ route('journal.show', $post->slug) }}" class="block mb-5">
                             @if(isset($post->featured_image) && $post->featured_image)
-                                <img src="{{ asset('storage/' . $post->featured_image) }}"
+                                <img src="{{ $post->featuredImage?->url() }}"
                                      alt="{{ $post->title }}"
                                      class="w-full aspect-video object-cover">
                             @else

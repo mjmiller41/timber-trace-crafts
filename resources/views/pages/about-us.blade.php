@@ -20,7 +20,7 @@
     </div>
     {{-- Background image --}}
     <div class="absolute inset-0 opacity-20">
-        <img src="{{ asset('storage/products/workshop-1.jpg') }}"
+        <img src="{{ Storage::disk('r2')->url('products/workshop-1.jpg') }}"
              alt="Timber Trace Crafts workshop"
              class="w-full h-full object-cover object-center">
     </div>
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div>
-            <img src="{{ asset('storage/products/workshop-2.jpg') }}"
+            <img src="{{ Storage::disk('r2')->url('products/workshop-2.jpg') }}"
                  alt="Michael J. Miller at work in his studio"
                  class="w-full aspect-square object-cover object-center">
         </div>
@@ -54,7 +54,7 @@
 {{-- DIVIDER IMAGE --}}
 {{-- ============================================================ --}}
 <div class="w-full h-72 md:h-96 overflow-hidden">
-    <img src="{{ asset('storage/products/lifestyle-1.png') }}"
+    <img src="{{ Storage::disk('r2')->url('products/lifestyle-1.png') }}"
          alt="Finished pieces from Timber Trace Crafts"
          class="w-full h-full object-cover object-center">
 </div>
@@ -66,7 +66,7 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div class="order-2 md:order-1">
-                <img src="{{ asset('storage/products/workshop-3.jpg') }}"
+                <img src="{{ Storage::disk('r2')->url('products/workshop-3.jpg') }}"
                      alt="Laser engraver in action at Timber Trace Crafts"
                      class="w-full aspect-square object-cover object-center">
             </div>
@@ -115,7 +115,7 @@
             </div>
         </div>
         <div class="relative">
-            <img src="{{ asset('storage/products/lifestyle-2.png') }}"
+            <img src="{{ Storage::disk('r2')->url('products/lifestyle-2.png') }}"
                  alt="Premium hand-selected wood materials"
                  class="w-full aspect-square object-cover object-center">
         </div>
@@ -129,7 +129,7 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div>
-                <img src="{{ asset('storage/products/workshop-4.jpg') }}"
+                <img src="{{ Storage::disk('r2')->url('products/workshop-4.jpg') }}"
                      alt="Timber Trace Crafts finished products"
                      class="w-full aspect-square object-cover object-center">
             </div>

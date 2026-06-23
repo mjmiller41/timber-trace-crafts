@@ -79,7 +79,7 @@
         <div style="position: relative; aspect-ratio: 1; background: #f3f4f6; overflow: hidden;">
             @if(Str::startsWith($media->mime_type, 'image/'))
                 <img
-                    src="{{ asset('storage/' . $media->path) }}"
+                    src="{{ $media->url() }}"
                     alt="{{ $media->alt_text ?? $media->original_name }}"
                     style="width: 100%; height: 100%; object-fit: cover; display: block;"
                     loading="lazy"
@@ -116,14 +116,14 @@
                 @endif
                 <div style="background: rgba(255,255,255,0.15); border-radius: 0.125rem; padding: 0.25rem 0.375rem; cursor: text;">
                     <p style="font-size: 0.625rem; color: rgba(255,255,255,0.9); word-break: break-all; font-family: monospace;">
-                        {{ asset('storage/' . $media->path) }}
+                        {{ $media->url() }}
                     </p>
                 </div>
             </div>
             <div style="display: flex; gap: 0.375rem; justify-content: space-between; align-items: center;">
                 <button
                     type="button"
-                    onclick="navigator.clipboard.writeText('{{ asset('storage/' . $media->path) }}')"
+                    onclick="navigator.clipboard.writeText('{{ $media->url() }}')"
                     style="font-size: 0.625rem; background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: 0.125rem; cursor: pointer; font-family: 'Montserrat', sans-serif;"
                     @click.stop
                 >

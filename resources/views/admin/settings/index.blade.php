@@ -27,7 +27,7 @@
         ];
         $brandKeys = ['store.name', 'store.tagline', 'store.logo_path'];
         $logoPath  = $settings['store']?->firstWhere('key', 'store.logo_path')?->value ?? '';
-        $logoUrl   = $logoPath ? asset('storage/'.$logoPath) : asset('images/logo.png');
+        $logoUrl   = $logoPath ? Storage::disk(config('filesystems.default'))->url($logoPath) : asset('images/logo.png');
     @endphp
 
     {{-- Brand Identity card --}}

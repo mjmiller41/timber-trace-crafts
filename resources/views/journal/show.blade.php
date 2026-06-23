@@ -43,7 +43,7 @@
         {{-- Featured image --}}
         @if($post->featured_image)
             <div class="mb-12 -mx-4 sm:mx-0">
-                <img src="{{ asset('storage/' . $post->featured_image) }}"
+                <img src="{{ $post->featuredImage?->url() }}"
                      alt="{{ $post->title }}"
                      class="w-full aspect-video object-cover">
             </div>
