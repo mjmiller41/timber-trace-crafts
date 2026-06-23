@@ -52,7 +52,7 @@ class Product extends Model
             return null;
         }
 
-        return asset('storage/'.$primary->media->path);
+        return $primary->media->url();
     }
 
     public function isOnSale(): bool
