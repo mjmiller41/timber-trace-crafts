@@ -53,12 +53,40 @@ The script will:
 
 ### Ongoing deploys
 
-Push to `main` — Hostinger auto-deploys. If the push includes new migrations, SSH in and run:
+Push to `main` — Hostinger auto-deploys. A pre-push git hook automatically runs `npm run build` and commits the built assets before every push, so the server always gets up-to-date CSS/JS.
+
+If the push includes new migrations, SSH in and run:
 
 ```bash
 cd ~/public_html
 php artisan migrate --force
 php artisan config:cache
+```
+
+### Frontend assets
+
+`public/build/` is committed to the repo because Node.js is unavailable on Hostinger shared hosting. The pre-push hook handles this automatically, but if you ever need to build manually:
+
+```bash
+npm run build
+git add public/build/
+git commit -m "chore: rebuild frontend assets"
+git push
+```
+
+To install the pre-push hook on a new machine after cloning:
+
+```bash
+cat > .git/hooks/pre-push << 'EOF'
+#!/bin/bash
+set -e
+echo ">>> Building frontend assets for deployment..."
+npm run build
+git add public/build/
+git diff --cached --quiet public/build/ || git commit -m "chore: rebuild frontend assets"
+echo ">>> Build complete."
+EOF
+chmod +x .git/hooks/pre-push
 ```
 
 ### Required `.env` values for production
