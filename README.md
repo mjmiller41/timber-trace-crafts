@@ -88,9 +88,10 @@ git add public/build/
 git diff --cached --quiet public/build/ || git commit -m "chore: rebuild frontend assets"
 
 echo ">>> Syncing images to Hostinger..."
-rsync -avz --delete -e "ssh -p 65002" \
+rsync -avz -e "ssh -p 65002" \
   /home/michael/Code/Projects/timber-trace-crafts/storage/app/public/ \
-  u903552178@timbertracecrafts.com:~/domains/timbertracecrafts.com/public_html/storage/app/public/
+  u903552178@5.183.10.138:~/domains/timbertracecrafts.com/public_html/storage/app/public/ \
+  || echo "WARNING: Image sync failed — run rsync manually if needed."
 
 echo ">>> Done."
 EOF
@@ -100,7 +101,9 @@ chmod +x .git/hooks/pre-push
 The hook runs automatically on every `git push` and:
 1. Builds frontend CSS/JS assets
 2. Commits any changed build files
-3. Rsyncs `storage/app/public/` to the server (new images upload, deleted images are removed)
+3. Rsyncs `storage/app/public/` to the server — a failed sync prints a warning but does not block the push
+
+**Server SSH access:** `ssh -p 65002 u903552178@5.183.10.138`
 
 ### Required `.env` values for production
 
