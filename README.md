@@ -80,14 +80,27 @@ To install the pre-push hook on a new machine after cloning:
 cat > .git/hooks/pre-push << 'EOF'
 #!/bin/bash
 set -e
+
 echo ">>> Building frontend assets for deployment..."
 npm run build
+
 git add public/build/
 git diff --cached --quiet public/build/ || git commit -m "chore: rebuild frontend assets"
-echo ">>> Build complete."
+
+echo ">>> Syncing images to Hostinger..."
+rsync -avz --delete -e "ssh -p 65002" \
+  /home/michael/Code/Projects/timber-trace-crafts/storage/app/public/ \
+  u903552178@timbertracecrafts.com:~/domains/timbertracecrafts.com/public_html/storage/app/public/
+
+echo ">>> Done."
 EOF
 chmod +x .git/hooks/pre-push
 ```
+
+The hook runs automatically on every `git push` and:
+1. Builds frontend CSS/JS assets
+2. Commits any changed build files
+3. Rsyncs `storage/app/public/` to the server (new images upload, deleted images are removed)
 
 ### Required `.env` values for production
 
