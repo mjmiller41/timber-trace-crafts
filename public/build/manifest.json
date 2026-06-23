@@ -1,0 +1,42 @@
+{
+  "_module.esm-CWk4R-Yb.js": {
+    "file": "assets/module.esm-CWk4R-Yb.js",
+    "name": "module.esm"
+  },
+  "resources/css/admin.css": {
+    "file": "assets/admin-JuQ3-6LL.css",
+    "name": "admin",
+    "names": [
+      "admin.css"
+    ],
+    "src": "resources/css/admin.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-DDAbphgN.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/admin.js": {
+    "file": "assets/admin-CAf051F1.js",
+    "name": "admin",
+    "src": "resources/js/admin.js",
+    "isEntry": true,
+    "imports": [
+      "_module.esm-CWk4R-Yb.js"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-Di5P1XjP.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_module.esm-CWk4R-Yb.js"
+    ]
+  }
+}
