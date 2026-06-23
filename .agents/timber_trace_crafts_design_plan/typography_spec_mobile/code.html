@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timber Trace Crafts - Typography Spec</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,700;1,300&family=Montserrat:ital,wght@0,400;0,600;1,400&family=Source+Code+Pro&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Shared Style Logic & Theme -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#547562",
+                        "absolute-black": "#000000",
+                        "tertiary-fixed": "#c7ebd4",
+                        "mahogany": "#4A2C11",
+                        "on-primary-fixed": "#1c1c18",
+                        "on-secondary-container": "#656464",
+                        "primary-fixed-dim": "#c9c6c0",
+                        "surface-container": "#ffead9",
+                        "pine-shadow": "#1E3529",
+                        "inverse-on-surface": "#ffeee0",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#fff1e7",
+                        "on-tertiary-fixed": "#002113",
+                        "secondary-fixed": "#e4e2e1",
+                        "surface-bright": "#fff8f4",
+                        "on-surface-variant": "#474740",
+                        "primary-fixed": "#e5e2db",
+                        "surface-container-high": "#fae4d2",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#c9c6c0",
+                        "outline": "#787770",
+                        "on-surface": "#24190f",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "on-primary": "#ffffff",
+                        "surface": "#fff8f4",
+                        "on-primary-fixed-variant": "#474742",
+                        "inverse-surface": "#3a2e22",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#5f5e59",
+                        "secondary-container": "#e4e2e1",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#f4dfcd",
+                        "tertiary": "#456553",
+                        "walnut": "#8C7B6C",
+                        "pure-white": "#FFFFFF",
+                        "surface-dim": "#ebd6c5",
+                        "secondary-fixed-dim": "#c8c6c6",
+                        "background": "#fff8f4",
+                        "primary-container": "#f4f1ea",
+                        "on-primary-container": "#6f6d68",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#2d4d3c",
+                        "tertiary-container": "#d5fae2",
+                        "error-container": "#ffdad6",
+                        "secondary": "#5f5e5e",
+                        "outline-variant": "#c8c7be",
+                        "oak-sand": "#F4F1EA",
+                        "on-secondary-fixed-variant": "#474747",
+                        "on-background": "#24190f",
+                        "tertiary-fixed-dim": "#abcfb8",
+                        "surface-container-highest": "#f4dfcd",
+                        "forest-green": "#2C4C3B",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#5f5e59",
+                        "charcoal": "#333333"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xx-large": "clamp(70px, 10vw, 140px)",
+                        "x-small": "20px",
+                        "regular": "clamp(30px, 5vw, 50px)",
+                        "x-large": "clamp(50px, 7vw, 90px)",
+                        "wide-max-width": "1340px",
+                        "tiny": "10px",
+                        "large": "clamp(30px, 7vw, 70px)",
+                        "content-max-width": "645px",
+                        "small": "30px"
+                    },
+                    "fontFamily": {
+                        "meta-text": ["Montserrat"],
+                        "headline-xxl-mobile": ["Playfair Display"],
+                        "body-lg": ["Montserrat"],
+                        "body-lg-mobile": ["Montserrat"],
+                        "body-md": ["Montserrat"],
+                        "code-block": ["Source Code Pro"],
+                        "headline-xl": ["Playfair Display"],
+                        "headline-xl-mobile": ["Playfair Display"],
+                        "headline-xxl": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "meta-text": ["0.875rem", { "lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600" }],
+                        "headline-xxl-mobile": ["2.15rem", { "lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300" }],
+                        "body-lg": ["1.375rem", { "lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-lg-mobile": ["1.125rem", { "lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-md": ["1rem", { "lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400" }],
+                        "code-block": ["0.9rem", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-xl": ["2rem", { "lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300" }],
+                        "headline-xl-mobile": ["1.75rem", { "lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300" }],
+                        "headline-xxl": ["3rem", { "lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #F4F1EA;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F4F1EA;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #8C7B6C;
+        }
+        /* Specific Walnut Meta Text override for italics as requested */
+        .meta-walnut-italic {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            letter-spacing: 1.4px;
+            font-weight: 600;
+            color: #8C7B6C;
+            text-transform: uppercase;
+            font-style: italic;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-charcoal font-body-md antialiased overflow-x-hidden">
+<!-- Top Navigation Bar (Shared Component Context) -->
+<header class="bg-background w-full top-0 border-b-2 border-absolute-black z-50 sticky">
+<div class="flex justify-between items-center px-regular py-tiny max-w-wide-max-width mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-charcoal">menu</span>
+<h1 class="font-headline-xl text-headline-xl-mobile text-charcoal">Timber Trace Crafts</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-charcoal">shopping_bag</span>
+</div>
+</div>
+</header>
+<main class="max-w-[645px] mx-auto px-small py-large">
+<!-- Page Header -->
+<section class="mb-x-large border-b border-absolute-black pb-small">
+<p class="font-meta-text text-meta-text text-walnut uppercase mb-tiny">Internal System Documentation</p>
+<h2 class="font-headline-xxl text-headline-xxl-mobile text-mahogany">Typography Style Guide</h2>
+</section>
+<!-- Section: Headings -->
+<section class="mb-x-large">
+<header class="mb-small flex justify-between items-end border-b border-absolute-black/10 pb-2">
+<h3 class="font-meta-text text-meta-text text-charcoal uppercase">01. Headings</h3>
+<span class="font-meta-text text-[10px] text-walnut">PLAYFAIR DISPLAY / 300</span>
+</header>
+<div class="space-y-regular">
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">H1 / 3rem</p>
+<h1 class="font-headline-xxl text-headline-xxl-mobile text-charcoal">The Grain of Heritage</h1>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">H2 / 2rem</p>
+<h2 class="font-headline-xl text-headline-xl-mobile text-charcoal">Sustainably Harvested Oak</h2>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">H3 / 1.75rem</p>
+<h3 class="font-headline-xl text-headline-xl-mobile text-mahogany">Master Carpenter Methods</h3>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">H4 / 1.375rem</p>
+<h4 class="font-body-lg font-headline-xl text-headline-xl-mobile text-forest-green italic">Timeless Interior Accents</h4>
+</div>
+</div>
+</section>
+<!-- Section: Body Text -->
+<section class="mb-x-large">
+<header class="mb-small flex justify-between items-end border-b border-absolute-black/10 pb-2">
+<h3 class="font-meta-text text-meta-text text-charcoal uppercase">02. Body Text</h3>
+<span class="font-meta-text text-[10px] text-walnut">MONTSERRAT / 400</span>
+</header>
+<div class="space-y-small">
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">Body Large / 1.125rem (Mobile)</p>
+<p class="font-body-lg-mobile text-body-lg-mobile text-on-surface leading-relaxed">
+                        At Timber Trace Crafts, we believe that every knot and whorl tells a story. Our process begins deep in the forest, selecting timber that has fallen naturally or reached its maturity. 
+                    </p>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">Body Medium / 1rem</p>
+<p class="font-body-md text-body-md text-on-surface">
+                        Our workshop in the heart of the valley combines traditional hand-tool techniques with modern precision. We emphasize a "material first" philosophy, allowing the natural character of the wood to dictate the final form of the piece. Each joinery is a testament to durability and grace.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Section: Meta & Labels -->
+<section class="mb-x-large">
+<header class="mb-small flex justify-between items-end border-b border-absolute-black/10 pb-2">
+<h3 class="font-meta-text text-meta-text text-charcoal uppercase">03. Meta & Specialized</h3>
+<span class="font-meta-text text-[10px] text-walnut">WALNUT / UPPERCASE</span>
+</header>
+<div class="grid grid-cols-1 gap-small">
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">Meta Text (Standard)</p>
+<p class="font-meta-text text-meta-text text-walnut uppercase">Product Specification 2024</p>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">Meta Text (Italicized)</p>
+<p class="meta-walnut-italic">Curated Selection / Limited Edition</p>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-1">Pullquote Style</p>
+<blockquote class="border-l-2 border-mahogany pl-small py-2">
+<p class="font-headline-xl text-headline-xl-mobile text-mahogany">"Nature does not hurry, yet everything is accomplished."</p>
+<footer class="font-meta-text text-meta-text text-walnut mt-2">— TAO TE CHING</footer>
+</blockquote>
+</div>
+</div>
+</section>
+<!-- Section: Interactive Elements -->
+<section class="mb-x-large">
+<header class="mb-small flex justify-between items-end border-b border-absolute-black/10 pb-2">
+<h3 class="font-meta-text text-meta-text text-charcoal uppercase">04. Interactions</h3>
+<span class="font-meta-text text-[10px] text-walnut">PALETTE: CHARCOAL / OAK SAND</span>
+</header>
+<div class="space-y-regular">
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-2">Primary Button</p>
+<button class="bg-charcoal text-pure-white font-meta-text text-meta-text px-large py-4 uppercase w-full hover:opacity-85 transition-opacity active:scale-95 duration-75">
+                        Reserve Your Piece
+                    </button>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-2">Secondary Button</p>
+<button class="border border-charcoal text-charcoal font-meta-text text-meta-text px-large py-4 uppercase w-full hover:bg-charcoal/5 transition-colors">
+                        View The Gallery
+                    </button>
+</div>
+<div class="group">
+<p class="font-meta-text text-[10px] text-walnut mb-2">Input Field State</p>
+<div class="relative">
+<input class="w-full bg-oak-sand border-absolute-black border px-4 py-3 rounded-none focus:outline-none focus:ring-2 focus:ring-walnut focus:ring-offset-2 transition-all font-body-md placeholder:text-walnut/50" placeholder="Your Email Address" type="text"/>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component Context) -->
+<footer class="bg-forest-green w-full px-regular py-large flex flex-col items-center gap-small border-t border-absolute-black">
+<h2 class="font-headline-xl text-headline-xl text-pure-white">TIMBER TRACE</h2>
+<div class="flex flex-wrap justify-center gap-x-large gap-y-tiny">
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Sustainability Statement</a>
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Care Instructions</a>
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Privacy Policy</a>
+</div>
+<p class="font-body-md text-body-md text-pure-white opacity-90">© 2024 Timber Trace Crafts. Rooted in tradition.</p>
+</footer>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', (e) => {
+                // Haptic feedback simulation for UI
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(5);
+                }
+            });
+        });
+
+        // Subtle parallax or scroll reveal for headers
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.9) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Initialize state
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('section').forEach(s => {
+                s.style.opacity = '0';
+                s.style.transform = 'translateY(20px)';
+                s.style.transition = 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+            });
+            // Trigger first few
+            setTimeout(() => {
+                window.dispatchEvent(new Event('scroll'));
+            }, 100);
+        });
+    </script>
+</body></html>

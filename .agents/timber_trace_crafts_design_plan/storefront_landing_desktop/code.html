@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timber Trace Crafts | Handcrafted Woodwork</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Montserrat & Playfair Display -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&amp;family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-tint": "#5f5e59",
+                  "primary-fixed-dim": "#c9c6c0",
+                  "surface-container-low": "#fff1e7",
+                  "pine-shadow": "#1E3529",
+                  "on-tertiary": "#ffffff",
+                  "on-primary-container": "#6f6d68",
+                  "tertiary-fixed": "#c7ebd4",
+                  "surface-container-high": "#fae4d2",
+                  "on-secondary-fixed": "#1b1c1c",
+                  "surface-variant": "#f4dfcd",
+                  "oak-sand": "#F4F1EA",
+                  "secondary-fixed": "#e4e2e1",
+                  "pure-white": "#FFFFFF",
+                  "charcoal": "#333333",
+                  "on-surface-variant": "#474740",
+                  "forest-green": "#2C4C3B",
+                  "inverse-primary": "#c9c6c0",
+                  "secondary": "#5f5e5e",
+                  "outline-variant": "#c8c7be",
+                  "primary": "#5f5e59",
+                  "surface-dim": "#ebd6c5",
+                  "on-tertiary-fixed": "#002113",
+                  "surface-container-lowest": "#ffffff",
+                  "error-container": "#ffdad6",
+                  "surface-container-highest": "#f4dfcd",
+                  "background": "#fff8f4",
+                  "surface-bright": "#fff8f4",
+                  "outline": "#787770",
+                  "absolute-black": "#000000",
+                  "secondary-container": "#e4e2e1",
+                  "tertiary-fixed-dim": "#abcfb8",
+                  "on-secondary-fixed-variant": "#474747",
+                  "primary-fixed": "#e5e2db",
+                  "secondary-fixed-dim": "#c8c6c6",
+                  "on-error-container": "#93000a",
+                  "on-surface": "#24190f",
+                  "surface": "#fff8f4",
+                  "inverse-on-surface": "#ffeee0",
+                  "tertiary-container": "#d5fae2",
+                  "on-secondary": "#ffffff",
+                  "error": "#ba1a1a",
+                  "on-secondary-container": "#656464",
+                  "surface-container": "#ffead9",
+                  "primary-container": "#f4f1ea",
+                  "on-primary-fixed": "#1c1c18",
+                  "on-error": "#ffffff",
+                  "mahogany": "#4A2C11",
+                  "on-primary-fixed-variant": "#474742",
+                  "tertiary": "#456553",
+                  "on-tertiary-fixed-variant": "#2d4d3c",
+                  "on-primary": "#ffffff",
+                  "walnut": "#8C7B6C",
+                  "on-tertiary-container": "#547562",
+                  "on-background": "#24190f",
+                  "inverse-surface": "#3a2e22"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "x-small": "20px",
+                  "small": "30px",
+                  "regular": "clamp(30px, 5vw, 50px)",
+                  "wide-max-width": "1340px",
+                  "x-large": "clamp(50px, 7vw, 90px)",
+                  "xx-large": "clamp(70px, 10vw, 140px)",
+                  "large": "clamp(30px, 7vw, 70px)",
+                  "content-max-width": "645px",
+                  "tiny": "10px"
+          },
+          "fontFamily": {
+                  "body-md": ["Montserrat"],
+                  "body-lg": ["Montserrat"],
+                  "headline-xl": ["Playfair Display"],
+                  "headline-xxl": ["Playfair Display"],
+                  "meta-text": ["Montserrat"]
+          },
+          "fontSize": {
+                  "body-md": ["1rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                  "body-lg": ["1.375rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                  "headline-xl": ["2rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                  "headline-xxl": ["3rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                  "meta-text": ["0.875rem", {"lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      line-height: 1;
+      text-transform: none;
+      letter-spacing: normal;
+      word-wrap: normal;
+      white-space: nowrap;
+      direction: ltr;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F4F1EA;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #333333;
+    }
+    .hover-lift {
+      transition: transform 0.2s ease-out;
+    }
+    .hover-lift:hover {
+      transform: translateY(-4px);
+    }
+    .narrow-col {
+      max-width: 645px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-surface-variant">
+<!-- TopAppBar -->
+<nav class="sticky top-0 z-50 bg-background border-b-2 border-absolute-black w-full">
+<div class="flex justify-between items-center px-regular py-tiny max-w-wide-max-width mx-auto">
+<div class="flex items-center gap-small">
+<button class="hover:opacity-85 transition-opacity active:scale-95 duration-75">
+<span class="material-symbols-outlined text-charcoal">menu</span>
+</button>
+<span class="font-headline-xl text-headline-xl text-charcoal tracking-tight">Timber Trace Crafts</span>
+</div>
+<div class="hidden md:flex gap-small items-center">
+<a class="text-charcoal font-bold font-meta-text text-meta-text uppercase tracking-widest" href="#">The Workshop</a>
+<a class="text-walnut font-meta-text text-meta-text uppercase tracking-widest hover:text-charcoal transition-colors" href="#">Gallery</a>
+<a class="text-walnut font-meta-text text-meta-text uppercase tracking-widest hover:text-charcoal transition-colors" href="#">Custom Orders</a>
+</div>
+<div class="flex items-center gap-small">
+<button class="hover:opacity-85 transition-opacity active:scale-95 duration-75">
+<span class="material-symbols-outlined text-charcoal">shopping_bag</span>
+</button>
+</div>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative w-full h-[85vh] flex items-center overflow-hidden border-b border-absolute-black">
+<div class="absolute inset-0 z-0">
+<img alt="Timber Trace Hero" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWGiVbnR7G-WeSZytxVxUgx2cB_0lIvITo1W-DppYYVJCGhpcmwu9AFT9MsRFHjVUgsIUwTf2U48jmbsnFj3olcrkUzewNFaGb0P-fuOim9bM_ps4U2H2SthFPMTQ-_K5dMDyXXT6bjVgCB68XOUzI9YnR5eUbk7NfvQ6S4KtbiPWJameja-BqcD-adHFULXY6rKRoAcrrgKPhcaDuT2zyY8qzCoCdAPduYkb80jC-VMb-L24WGKY57G_ONfVns6YgJtNiCxQVgZc"/>
+<div class="absolute inset-0 bg-charcoal/20"></div>
+</div>
+<div class="relative z-10 px-regular w-full max-w-wide-max-width mx-auto">
+<div class="max-w-xl bg-oak-sand/90 backdrop-blur-sm p-large border-l-4 border-mahogany">
+<span class="font-meta-text text-meta-text uppercase text-walnut mb-tiny block">Est. 2024</span>
+<h1 class="font-headline-xxl text-headline-xxl text-charcoal mb-small">Rooted in Tradition.</h1>
+<p class="font-body-lg text-body-lg text-charcoal mb-large italic">Fine woodworking that captures the soul of the forest and the precision of the master's touch.</p>
+<div class="flex gap-small">
+<button class="bg-charcoal text-pure-white px-large py-tiny font-meta-text text-meta-text uppercase hover:opacity-85 transition-opacity">Explore Collections</button>
+<button class="border border-charcoal text-charcoal px-large py-tiny font-meta-text text-meta-text uppercase hover:bg-charcoal hover:text-pure-white transition-all">Our Story</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Collections Grid -->
+<section class="py-xx-large px-regular max-w-wide-max-width mx-auto">
+<div class="text-center mb-x-large">
+<h2 class="font-headline-xl text-headline-xl text-charcoal">Curated Collections</h2>
+<div class="w-16 h-px bg-mahogany mx-auto mt-tiny"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-regular">
+<!-- Collection: Jewelry -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[3/4] overflow-hidden mb-small">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A high-end studio photograph of intricate laser-cut wooden earrings shaped like delicate butterflies, resting on a textured dark slate stone surrounded by vibrant green bamboo leaves and white orchid blossoms. The lighting is soft and golden, accentuating the fine wood grain and organic details. The aesthetic is clean, premium, and editorial, with a warm color palette of deep browns and lush greens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQsMD5ZFNrb1KYMJXPy-c6IAr0BkcTPIZHYaP-GG-AciPvQVnvpYVs2_AMzm86L2P3i8x9ZShgaGmLTRBcsc21-gZMc38X3-soVIei8EmJf6ejRCZGO3S7g6UNFGDEkzwMJd3TIq-tICOGxn5J9ZxzK_qaDqD1OYIOpf4_E9P_s2iFZXFV-JVUCRVHE-4DaY0MfEA-7tSf4yxRG0VFrvEE2j4dtSlQLzfWWWSLOLDd0A74lkNY5kIvWm7qPQIivUWcUI7Meg-pWJc"/>
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-mahogany/30 transition-all m-tiny"></div>
+</div>
+<span class="font-meta-text text-meta-text uppercase text-walnut">Adornments</span>
+<h3 class="font-headline-xl text-headline-xl text-charcoal group-hover:text-mahogany transition-colors">Jewelry</h3>
+</div>
+<!-- Collection: Home Decor -->
+<div class="group cursor-pointer translate-y-large md:translate-y-small">
+<div class="relative aspect-[3/4] overflow-hidden mb-small">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A sophisticated home office setting featuring a heavy, high-quality wooden laser-cut jewelry box in a heart shape with ornate floral carvings and the word 'Infinity'. The scene includes dried eucalyptus stems, a vintage brass key, and scattered river stones on a minimalist gray concrete surface. The lighting is natural and bright, creating a serene, high-end lifestyle publication feel with warm wood tones and soft neutral backgrounds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXcYhLYJTKia1D4rmzWOrgO_zO3o6gJVaU9a-bmiKLXR-FPjecPu-gzuBTMcPAHb-84qVg677XQKDfFRPzEXa3T_CP_O6q0uUAH_qy4a8ZYigWlo74OIoVP1xnnylsFDZyT4OsUgjHjUnIJoowoE7yKYecDpHBIgvZ68V2Lvgsk1BbLY5jiIKcUv0C09OyW_14CehVWonK5XGt26IS_GwpXizBxeF3PfefVbpfEjV36G3AqNh6cGaUvTiBU6fceP3ntL-S4fhAP8I"/>
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-mahogany/30 transition-all m-tiny"></div>
+</div>
+<span class="font-meta-text text-meta-text uppercase text-walnut">Living Spaces</span>
+<h3 class="font-headline-xl text-headline-xl text-charcoal group-hover:text-mahogany transition-colors">Home Decor</h3>
+</div>
+<!-- Collection: Custom Work -->
+<div class="group cursor-pointer">
+<div class="relative aspect-[3/4] overflow-hidden mb-small">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A bright outdoor market scene showcasing a masterfully crafted wooden gift box with complex geometric lattice patterns and Celtic knot engravings on the lid. The box sits on a burlap table runner under a white tent, with softly blurred figures of people and trees in the golden hour sunlight. The mood is authentic, artisanal, and grounded, emphasizing tactile warmth and timeless craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjPTAtTJKUmyN1i9YFu_IjRLhhz33xfNz_vBz5Jk0wsVxDz7nVfLWzvas6eZkkm7Ywffs8JBYTc72WALSe5HqOidJ_nQMq5_leQGP7UmlR4EesVEMmHLhre6-gjj5u_JaY8lTywmGhpQ3pMf2-K5Qo_w0g2WFoPtHtUDTwt-eDLToGlmixnszMphm0GqKlnJfrjY3es5dZTm0I6NREAVWnw9QVik0jhQUuTocFzNXhmsrkk1e1J_UXZft3DuYqZBLRLhFYhrYZJOU"/>
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-mahogany/30 transition-all m-tiny"></div>
+</div>
+<span class="font-meta-text text-meta-text uppercase text-walnut">Bespoke Designs</span>
+<h3 class="font-headline-xl text-headline-xl text-charcoal group-hover:text-mahogany transition-colors">Custom Work</h3>
+</div>
+</div>
+</section>
+<!-- Editorial Philosophy Section -->
+<section class="bg-oak-sand py-xx-large border-y border-absolute-black">
+<div class="narrow-col px-regular text-center">
+<span class="font-meta-text text-meta-text uppercase text-mahogany tracking-[3px] mb-small block">Our Philosophy</span>
+<blockquote class="relative mb-large">
+<div class="absolute -left-8 top-0 h-full w-0.5 bg-mahogany opacity-50"></div>
+<p class="font-headline-xxl text-headline-xxl text-charcoal italic leading-tight">"We do not simply cut wood; we reveal the stories hidden within the grain, honoring the life of the tree."</p>
+</blockquote>
+<p class="font-body-md text-body-md text-walnut max-w-md mx-auto">
+          Every piece that leaves our workshop is hand-finished and inspected for character, durability, and soul. We use sustainably sourced hardwoods and traditional joinery methods merged with modern precision.
+        </p>
+</div>
+</section>
+<!-- Latest from the Workshop -->
+<section class="py-xx-large px-regular max-w-wide-max-width mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-x-large gap-small">
+<div>
+<span class="font-meta-text text-meta-text uppercase text-walnut">New Arrivals</span>
+<h2 class="font-headline-xl text-headline-xl text-charcoal">Latest from the Workshop</h2>
+</div>
+<a class="font-meta-text text-meta-text uppercase border-b border-charcoal pb-1 hover:text-walnut hover:border-walnut transition-all" href="#">View All Products</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-regular">
+<!-- Product 1 -->
+<div class="group hover-lift">
+<div class="relative bg-surface-container-low border border-absolute-black mb-small overflow-hidden aspect-square">
+<img alt="Handcrafted Product" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGtadrmpOmnaRcgJLjaYF28GbXehK16lEyhT7RMmFjRHqSq9JWtuuQppcuV9Ys4k0ysBOcXmEDJTPFbscGCZF9AUFze8ZZklqSzneJRbIu8M9mYyC-rUW72NBASdW6eqEvPwQorhqTsMYuWN71JHzsZQpdfm5wf8jpqqCRy4HsMfGM3mB-x7kW7D-Xy9sq9uy0rlpVGVs-m5U4f8JB6i88wAAXS87teYmjVYJCZwR1A6sl2tl9P4xaF9N1Ir4I2GXkyV4M-eCSbB0"/>
+<div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-charcoal text-pure-white w-12 h-12 flex items-center justify-center rounded-none shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<h4 class="font-meta-text text-meta-text uppercase text-charcoal mb-tiny">Butterfly Lattice Earrings</h4>
+<p class="font-body-md text-body-md text-walnut">$48.00</p>
+</div>
+<!-- Product 2 -->
+<div class="group hover-lift">
+<div class="relative bg-surface-container-low border border-absolute-black mb-small overflow-hidden aspect-square">
+<img alt="Handcrafted Product" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5htebd53_8HEB7f4063p4HK9xlA00__20pSTUVPXVrpKAgO0VA7EoOgu0XfH4QW-kbM765QvzGxi-nSibTLdGrThc_szWavKAf3N4ScDHUU3Kb2bGX0tcWuY-6klq3BhOEHmA6Xie7WQ8E1hr8Us9_ZZCJsD0TyvbTfVhTy6Mve1CRPEu_FzLk41TtzSpTDIUfwmMZzN3JQxq660tJzQJXIlOjrBvJgmPuvBANLawTYEcoSBGDNOaw_Gw5D26AgMlgf1G8CaEbm4"/>
+<div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-charcoal text-pure-white w-12 h-12 flex items-center justify-center rounded-none shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<h4 class="font-meta-text text-meta-text uppercase text-charcoal mb-tiny">Organic Teardrop Pendant</h4>
+<p class="font-body-md text-body-md text-walnut">$52.00</p>
+</div>
+<!-- Product 3 -->
+<div class="group hover-lift">
+<div class="relative bg-surface-container-low border border-absolute-black mb-small overflow-hidden aspect-square">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A set of four handcrafted wooden coasters designed to look like miniature shipping pallets, stacked on a burlap table with a textured white ceramic mug on top. Sunlight streams from the side, casting long, dramatic shadows and highlighting the detailed laser-engraved wood grain. The background is a soft-focus artisanal market tent. The palette is dominated by warm ochre, cream, and deep charcoal shadows, creating an inviting, tactile composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArVKFrfVFxUH4dzsvzZPDCYUNJhrtH4nUnRkH0okduaBPlOk1HklCf55bZ-9bWg99v5_AL7ZTpckuR89WC5ohrQXzVvS0D-xPVIYLmyiu3VAgc5SeCmf3b_FJiHQSAh7gSPglppKAxsbTxrtryBzbqt2udZpLZ2FoOLf1GlweUxDTrGDKAF2bhUIfKEB0ZrvirlHAvVgYgZyUlTM-t-tk8zsV7XNZjoN-N0cylWc91m5B9797-guOy7md1Ea_coTK9ePQXeDAoDMs"/>
+<div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-charcoal text-pure-white w-12 h-12 flex items-center justify-center rounded-none shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<h4 class="font-meta-text text-meta-text uppercase text-charcoal mb-tiny">Pallet Coaster Set (4x)</h4>
+<p class="font-body-md text-body-md text-walnut">$35.00</p>
+</div>
+<!-- Product 4 -->
+<div class="group hover-lift">
+<div class="relative bg-surface-container-low border border-absolute-black mb-small overflow-hidden aspect-square">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" data-alt="A detailed close-up of a brushed stainless steel tumbler featuring an intricate laser-etched eagle emblem and the words '250 Years of Freedom'. The tumbler sits on a dark wooden office desk beside a modern mechanical keyboard with subtle RGB lighting. Bright natural light from a window creates high-contrast reflections on the metallic surface. The style is professional and sharp, with a focus on precision engraving and modern industrial textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1VxYRHFRwmkoz56uoYuxqvRhd6KROhDEK_C3xnvO58UpU8Oa6AKqNDgNfK6h3l-w734Z8I4Ayf406rGvf25cAzc673-al-7ABwnZt0skGtyXXA-OBM4Wg9ylML32x0c437tH5zemoDr51D8B0p_xbU06P8oUnJBkbWKgJsRFOJ3EKb_WJlgRXL9wSb2TzheYgkja3YGxUMEo4rXwLJNdgmOwv38O2fdibF6fIHUwNmMjEZdciRQkLD_qfOcrFhg7zFYwwKqCPtbg"/>
+<div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="bg-charcoal text-pure-white w-12 h-12 flex items-center justify-center rounded-none shadow-lg">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<h4 class="font-meta-text text-meta-text uppercase text-charcoal mb-tiny">Engraved Heritage Tumbler</h4>
+<p class="font-body-md text-body-md text-walnut">$65.00</p>
+</div>
+</div>
+</section>
+<!-- Sustainability/Process section -->
+<section class="mb-xx-large px-regular">
+<div class="max-w-wide-max-width mx-auto bg-forest-green p-regular grid grid-cols-1 md:grid-cols-2 items-center">
+<div class="p-large">
+<h2 class="font-headline-xxl text-headline-xxl text-pure-white mb-small">The Artisan's Promise</h2>
+<p class="font-body-lg text-body-lg text-tertiary-fixed-dim mb-large">We believe in a circular life cycle. For every signature custom piece ordered, we plant a native sapling through our partnership with reforestation initiatives.</p>
+<button class="bg-oak-sand text-forest-green px-large py-tiny font-meta-text text-meta-text uppercase hover:bg-pure-white transition-colors">Learn About Our Impact</button>
+</div>
+<div class="relative h-96 w-full hidden md:block">
+<img class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60" data-alt="A cinematic, low-angle shot of sunlight filtering through the canopy of a lush, ancient forest with moss-covered trunks and vibrant ferns on the floor. The lighting is ethereal and misty, creating long beams of 'god rays' through the leaves. The color palette consists of deep emerald greens, rich browns, and brilliant warm golds, evoking a sense of reverence for nature and a premium, grounded aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZR5INCzyyZikS_l16yV2JfIYxwq-P9X1liw-nYz4LXtsG-W3i0sW5644N2I1nlimnO_BU6573M607eNW0LGkGyMdLJEsrohPxxzooOh4mBmwjfxotcbn76w0TwPN-ZufZyz-_Pl_ZQYesM1wSlD0W0Em6wOhUpA8G2mbNNZ_IQz5kaDy_p-c0ruJgf-K4T2F_WpfMGg6ivaALPzd1FwRHpY3ct7EcW4-xvrDs1LMu-6Ai1Qh6_2jinPKTyrTj71CPqmTWG6Cd2Uw"/>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-forest-green border-t border-absolute-black">
+<div class="w-full px-regular py-large flex flex-col md:flex-row justify-between items-center gap-small max-w-wide-max-width mx-auto">
+<div class="flex flex-col items-center md:items-start">
+<span class="font-headline-xl text-headline-xl text-pure-white tracking-tight mb-tiny">TIMBER TRACE</span>
+<p class="font-body-md text-body-md text-tertiary-fixed-dim">© 2024 Timber Trace Crafts. Rooted in tradition.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-small">
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-pure-white transition-colors opacity-90 underline" href="#">Sustainability Statement</a>
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-pure-white transition-colors opacity-90" href="#">Care Instructions</a>
+<a class="font-body-md text-body-md text-tertiary-fixed-dim hover:text-pure-white transition-colors opacity-90" href="#">Privacy Policy</a>
+</div>
+<div class="flex gap-small">
+<span class="material-symbols-outlined text-pure-white cursor-pointer hover:opacity-80 transition-opacity">mail</span>
+<span class="material-symbols-outlined text-pure-white cursor-pointer hover:opacity-80 transition-opacity">eco</span>
+</div>
+</div>
+</footer>
+<script>
+    // Micro-interactions and effects
+    document.querySelectorAll('.hover-lift').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        el.querySelector('img').classList.remove('grayscale');
+      });
+      el.addEventListener('mouseleave', () => {
+        el.querySelector('img').classList.add('grayscale');
+      });
+    });
+
+    // Simple scroll reveal effect for headlines
+    const observerOptions = {
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100');
+          entry.target.classList.remove('translate-y-4', 'opacity-0');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('h2, .narrow-col blockquote').forEach(el => {
+      el.classList.add('transition-all', 'duration-1000', 'translate-y-4', 'opacity-0');
+      observer.observe(el);
+    });
+  </script>
+</body></html>

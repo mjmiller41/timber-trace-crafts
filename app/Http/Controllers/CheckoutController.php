@@ -1,0 +1,213 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Mail\OrderConfirmationMail;
+use App\Models\Order;
+use App\Models\ShippingMethod;
+use App\Services\CartService;
+use App\Services\ShippingService;
+use App\Services\StripeService;
+use App\Services\TaxService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\View\View;
+
+class CheckoutController extends Controller
+{
+    public function index(): View|RedirectResponse
+    {
+        $cart = CartService::getCart();
+
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        $subtotal = CartService::subtotal($cart);
+        $shippingMethods = ShippingService::getAvailableMethods();
+
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods'));
+    }
+
+    /**
+     * Create a Stripe PaymentIntent and return the client secret (called via AJAX).
+     */
+    public function createPaymentIntent(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
+            'shipping_state' => ['nullable', 'string', 'max:2'],
+        ]);
+
+        $cart = CartService::getCart();
+        if (empty($cart)) {
+            return response()->json(['error' => 'Your cart is empty.'], 422);
+        }
+
+        $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
+        $methods = ShippingService::getAvailableMethods();
+        $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
+        $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
+
+        $subtotal = CartService::subtotal($cart);
+        $taxAmount = TaxService::calculate($subtotal + $shippingAmount, $validated['shipping_state'] ?? '');
+        $total = round($subtotal + $shippingAmount + $taxAmount, 2);
+        $totalCents = (int) round($total * 100);
+
+        $buyerEmail = auth()->user()?->email;
+
+        try {
+            $stripe = new StripeService;
+            $intent = $stripe->createPaymentIntent($totalCents, $buyerEmail);
+
+            return response()->json(['client_secret' => $intent->client_secret]);
+        } catch (\Throwable $e) {
+            Log::error('Stripe PaymentIntent creation failed', ['error' => $e->getMessage()]);
+
+            return response()->json(['error' => 'Could not initialise payment. Please try again.'], 500);
+        }
+    }
+
+    public function process(Request $request): View|RedirectResponse
+    {
+        $validated = $request->validate([
+            'guest_email' => ['required_if:user,null', 'nullable', 'email', 'max:255'],
+            'shipping_first_name' => ['required', 'string', 'max:100'],
+            'shipping_last_name' => ['required', 'string', 'max:100'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'shipping_address_1' => ['required', 'string', 'max:255'],
+            'shipping_address_2' => ['nullable', 'string', 'max:255'],
+            'shipping_city' => ['required', 'string', 'max:100'],
+            'shipping_state' => ['required', 'string', 'max:2'],
+            'shipping_zip' => ['required', 'string', 'max:10'],
+            'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
+            'payment_intent_id' => ['required', 'string', 'max:255'],
+            'gift_message' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $cart = CartService::getCart();
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Verify the Stripe PaymentIntent succeeded
+        try {
+            $stripe = new StripeService;
+            $intent = $stripe->verifyPaymentIntent($validated['payment_intent_id']);
+        } catch (\Throwable $e) {
+            Log::error('Stripe payment verification failed', ['error' => $e->getMessage()]);
+
+            return back()->withErrors([
+                'payment' => 'Payment could not be verified. Please try again or contact support.',
+            ])->withInput();
+        }
+
+        // Resolve shipping
+        $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
+        $methods = ShippingService::getAvailableMethods();
+        $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
+        $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
+
+        // Recalculate totals server-side (never trust client)
+        $subtotal = CartService::subtotal($cart);
+        $discountAmount = 0.0;
+        $taxAmount = TaxService::calculate($subtotal + $shippingAmount, $validated['shipping_state']);
+        $total = round($subtotal - $discountAmount + $shippingAmount + $taxAmount, 2);
+
+        $buyerEmail = auth()->check()
+            ? auth()->user()->email
+            : $validated['guest_email'];
+
+        // Create order + items in a transaction
+        $order = DB::transaction(function () use (
+            $validated, $cart, $subtotal, $discountAmount,
+            $shippingAmount, $taxAmount, $total,
+            $shippingMethod, $intent, $buyerEmail
+        ) {
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'guest_email' => auth()->check() ? null : $buyerEmail,
+                'status' => 'processing',
+                'subtotal' => $subtotal,
+                'discount_amount' => $discountAmount,
+                'shipping_amount' => $shippingAmount,
+                'tax_amount' => $taxAmount,
+                'total' => $total,
+                'stripe_payment_intent_id' => $intent->id,
+                'shipping_method' => $shippingMethod->name,
+                'gift_message' => $validated['gift_message'] ?? null,
+                'shipping_first_name' => $validated['shipping_first_name'],
+                'shipping_last_name' => $validated['shipping_last_name'],
+                'shipping_line1' => $validated['shipping_address_1'],
+                'shipping_line2' => $validated['shipping_address_2'] ?? null,
+                'shipping_city' => $validated['shipping_city'],
+                'shipping_state' => strtoupper($validated['shipping_state']),
+                'shipping_zip' => $validated['shipping_zip'],
+                'shipping_country' => 'US',
+                'shipping_phone' => $validated['phone'] ?? null,
+                'billing_first_name' => $validated['shipping_first_name'],
+                'billing_last_name' => $validated['shipping_last_name'],
+                'billing_line1' => $validated['shipping_address_1'],
+                'billing_line2' => $validated['shipping_address_2'] ?? null,
+                'billing_city' => $validated['shipping_city'],
+                'billing_state' => strtoupper($validated['shipping_state']),
+                'billing_zip' => $validated['shipping_zip'],
+                'billing_country' => 'US',
+                'ip_address' => request()->ip(),
+            ]);
+
+            foreach ($cart as $item) {
+                $itemSubtotal = round(($item['price'] + ($item['personalization_price'] ?? 0)) * $item['qty'], 2);
+                $order->items()->create([
+                    'product_id' => $item['product_id'],
+                    'variant_id' => $item['variant_id'],
+                    'sku_snapshot' => $item['sku'] ?? '',
+                    'name_snapshot' => $item['name'],
+                    'variant_label_snapshot' => $item['variant_label'] ?? '',
+                    'personalization_text' => $item['personalization_text'] ?? null,
+                    'price_snapshot' => $item['price'],
+                    'qty' => $item['qty'],
+                    'subtotal' => $itemSubtotal,
+                ]);
+            }
+
+            $order->statusHistory()->create([
+                'status' => 'processing',
+                'note' => 'Order placed via website.',
+            ]);
+
+            return $order;
+        });
+
+        CartService::clear();
+
+        try {
+            Mail::to($buyerEmail)->send(new OrderConfirmationMail($order->load('items')));
+        } catch (\Throwable $e) {
+            Log::error('Order confirmation email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
+        }
+
+        return redirect()->route('checkout.confirmation', $order);
+    }
+
+    public function confirmation(Order $order): View
+    {
+        if (auth()->check()) {
+            abort_unless($order->user_id === auth()->id(), 403);
+        } else {
+            abort_unless(
+                request()->query('email') &&
+                strtolower($order->guest_email ?? '') === strtolower(request()->query('email')),
+                403
+            );
+        }
+
+        $order->load('items');
+
+        return view('checkout.confirmation', compact('order'));
+    }
+}

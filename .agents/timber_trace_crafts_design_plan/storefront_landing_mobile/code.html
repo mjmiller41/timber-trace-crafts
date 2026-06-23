@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timber Trace Crafts | Artisanal Woodwork</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&amp;family=Montserrat:wght@400;600;700&amp;family=Source+Code+Pro&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#3a2e22",
+                        "on-primary": "#ffffff",
+                        "walnut": "#8C7B6C",
+                        "on-tertiary-container": "#547562",
+                        "on-background": "#24190f",
+                        "tertiary": "#456553",
+                        "on-tertiary-fixed-variant": "#2d4d3c",
+                        "on-primary-fixed": "#1c1c18",
+                        "on-error": "#ffffff",
+                        "mahogany": "#4A2C11",
+                        "on-primary-fixed-variant": "#474742",
+                        "surface-container": "#ffead9",
+                        "primary-container": "#f4f1ea",
+                        "on-secondary-container": "#656464",
+                        "tertiary-container": "#d5fae2",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#24190f",
+                        "surface": "#fff8f4",
+                        "inverse-on-surface": "#ffeee0",
+                        "secondary-fixed-dim": "#c8c6c6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e5e2db",
+                        "on-secondary-fixed-variant": "#474747",
+                        "tertiary-fixed-dim": "#abcfb8",
+                        "secondary-container": "#e4e2e1",
+                        "absolute-black": "#000000",
+                        "outline": "#787770",
+                        "surface-bright": "#fff8f4",
+                        "surface-container-highest": "#f4dfcd",
+                        "background": "#fff8f4",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#002113",
+                        "primary": "#5f5e59",
+                        "surface-dim": "#ebd6c5",
+                        "outline-variant": "#c8c7be",
+                        "secondary": "#5f5e5e",
+                        "inverse-primary": "#c9c6c0",
+                        "on-surface-variant": "#474740",
+                        "forest-green": "#2C4C3B",
+                        "pure-white": "#FFFFFF",
+                        "charcoal": "#333333",
+                        "secondary-fixed": "#e4e2e1",
+                        "surface-variant": "#f4dfcd",
+                        "oak-sand": "#F4F1EA",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "tertiary-fixed": "#c7ebd4",
+                        "surface-container-high": "#fae4d2",
+                        "on-primary-container": "#6f6d68",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#fff1e7",
+                        "pine-shadow": "#1E3529",
+                        "primary-fixed-dim": "#c9c6c0",
+                        "surface-tint": "#5f5e59"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "regular": "clamp(30px, 5vw, 50px)",
+                        "wide-max-width": "1340px",
+                        "x-small": "20px",
+                        "small": "30px",
+                        "xx-large": "clamp(70px, 10vw, 140px)",
+                        "x-large": "clamp(50px, 7vw, 90px)",
+                        "large": "clamp(30px, 7vw, 70px)",
+                        "content-max-width": "645px",
+                        "tiny": "10px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Montserrat"],
+                        "body-lg": ["Montserrat"],
+                        "headline-xxl-mobile": ["Playfair Display"],
+                        "headline-xl-mobile": ["Playfair Display"],
+                        "body-lg-mobile": ["Montserrat"],
+                        "meta-text": ["Montserrat"],
+                        "headline-xxl": ["Playfair Display"],
+                        "code-block": ["Source Code Pro"],
+                        "headline-xl": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "body-md": ["1rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                        "body-lg": ["1.375rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                        "headline-xxl-mobile": ["2.15rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                        "headline-xl-mobile": ["1.75rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                        "body-lg-mobile": ["1.125rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                        "meta-text": ["0.875rem", {"lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600"}],
+                        "headline-xxl": ["3rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                        "code-block": ["0.9rem", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-xl": ["2rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .narrow-column {
+            max-width: 645px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .editorial-divider {
+            height: 1px;
+            background-color: #000000;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-surface-container-highest">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-oak-sand dark:bg-pine-shadow border-b border-absolute-black flex justify-between items-center px-small h-16 transition-opacity duration-200">
+<div class="flex items-center">
+<button class="material-symbols-outlined text-forest-green dark:text-tertiary-fixed hover:opacity-85" onclick="toggleDrawer()">menu</button>
+</div>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green dark:text-tertiary-fixed font-bold tracking-tight">Timber Trace Crafts</h1>
+<div class="flex items-center">
+<button class="material-symbols-outlined text-forest-green dark:text-tertiary-fixed hover:opacity-85">shopping_bag</button>
+</div>
+</header>
+<!-- Navigation Drawer Overlay -->
+<div class="fixed inset-0 bg-black/50 z-[60] hidden transition-opacity duration-300 opacity-0" id="drawer-overlay" onclick="toggleDrawer()"></div>
+<!-- Navigation Drawer -->
+<nav class="fixed top-0 left-0 h-full w-80 bg-oak-sand dark:bg-pine-shadow z-[70] border-r border-absolute-black flex flex-col p-regular transform -translate-x-full transition-transform duration-300 ease-in-out" id="nav-drawer">
+<div class="flex justify-between items-center mb-large">
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green font-bold">Timber Trace</span>
+<button class="material-symbols-outlined text-forest-green" onclick="toggleDrawer()">close</button>
+</div>
+<div class="flex flex-col gap-small">
+<a class="font-body-lg-mobile text-body-lg-mobile text-forest-green dark:text-tertiary-fixed font-bold flex items-center gap-tiny p-tiny hover:bg-surface-container dark:hover:bg-inverse-surface rounded transition-colors" href="#">
+<span class="material-symbols-outlined">handyman</span> The Workshop
+            </a>
+<a class="font-body-lg-mobile text-body-lg-mobile text-walnut dark:text-outline-variant flex items-center gap-tiny p-tiny hover:bg-surface-container dark:hover:bg-inverse-surface rounded transition-colors" href="#">
+<span class="material-symbols-outlined">gallery_thumbnail</span> Gallery
+            </a>
+<a class="font-body-lg-mobile text-body-lg-mobile text-walnut dark:text-outline-variant flex items-center gap-tiny p-tiny hover:bg-surface-container dark:hover:bg-inverse-surface rounded transition-colors" href="#">
+<span class="material-symbols-outlined">storefront</span> Shop
+            </a>
+</div>
+</nav>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative h-[90vh] w-full flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Timber Trace Crafts Hero" class="w-full h-full object-cover brightness-[0.85]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtNm-1ieelfkhQmtu8YeptHqKz7kf77tT0DFNPhRL9LyI4vHCtFs0o8qX58MyGBuHFTvU9zqMVwPnagRlSGYjAKZk61p5X6fcWjUCF6g4tMHIxayuLmW74GMa9Mhqhl2yA1YaO2QtlFcejJ4-ZgrEslCCtG6TEeBDrMnK47EDkhW5py00lF8a54nbR6t8ZxEw1BmSwb0tP_KVT18lWq-EKQvvGYTjSkptKxRPr_26PRghCgTOna4Zj3SptkR1ze0J6EHbXR9GI6ss"/>
+</div>
+<div class="relative z-10 text-center px-small">
+<span class="font-meta-text text-meta-text text-pure-white uppercase mb-small block">ESTABLISHED 2024</span>
+<h2 class="font-headline-xxl text-headline-xxl md:text-headline-xxl text-pure-white mb-regular">Rooted in Tradition</h2>
+<div class="flex justify-center gap-small">
+<button class="bg-charcoal text-oak-sand font-body-md px-large py-small hover:opacity-85 transition-opacity">Explore Shop</button>
+</div>
+</div>
+</section>
+<!-- Artisanal Method (Narrative Section) -->
+<section class="py-xx-large bg-background">
+<div class="narrow-column px-small">
+<span class="font-meta-text text-meta-text text-walnut uppercase mb-tiny">THE ARTISANAL METHOD</span>
+<h3 class="font-headline-xl text-headline-xl text-mahogany mb-regular">Carved by Hand, Designed by Nature.</h3>
+<div class="editorial-divider mb-regular"></div>
+<p class="font-body-lg text-body-lg mb-regular">
+                    Every piece at Timber Trace Crafts begins as a conversation with the wood. We honor the unique grain, the knots, and the history of each ethically sourced piece of timber. Our process is slow, deliberate, and deeply connected to the tactile reality of traditional craftsmanship.
+                </p>
+<blockquote class="border-l-2 border-mahogany pl-small my-large italic font-headline-xl text-mahogany py-tiny">
+                    "True quality is found in the imperfections that tell a story of a life lived in the forest."
+                </blockquote>
+</div>
+</section>
+<!-- Featured Categories (Bento Grid) -->
+<section class="py-large bg-surface-container-low px-small">
+<div class="max-w-wide-max-width mx-auto">
+<h3 class="font-headline-xl text-headline-xl text-forest-green mb-large text-center">Featured Collections</h3>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-small h-auto md:h-[600px]">
+<!-- Jewelry -->
+<div class="md:col-span-8 relative group overflow-hidden bg-pine-shadow">
+<img class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" data-alt="A macro shot of intricately carved wooden jewelry with delicate lace-like patterns, presented on a stone surface with soft morning light. The lighting is warm and natural, emphasizing the organic textures and forest-green aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvs5I7MQaCkUOsDVlHYf_VZpk_SoOsWEqm8rBSpVjIcrIBIYOhyqQX3ZMye32RtvboX_hB22O7tneoFgJeD2_5bD9N0hSBes2XUXRJ6mIl8Z9CfBkOb5YUx4NZu5U7XpffGORMRqML4CnVzD7qq-lZcgvyR30TbdCyJ-nPzfaHDiDafw-Ecz_kn4glUOFG3iYtLosnxCDGcfCNqo_X_QxhQ8tJWbnc-XnfqCOr94AtYxR0iABdiS1U96fI89IRaEArORPaLubn8KI"/>
+<div class="absolute inset-0 p-regular flex flex-col justify-end">
+<h4 class="font-headline-xl text-headline-xl text-pure-white">Jewelry</h4>
+<a class="text-pure-white font-meta-text text-meta-text hover:underline mt-tiny" href="#">VIEW COLLECTION</a>
+</div>
+</div>
+<!-- Home Decor -->
+<div class="md:col-span-4 relative group overflow-hidden bg-mahogany">
+<img class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700" data-alt="Close up of artisanal wooden home decor items like bowls and coasters with geometric laser-cut patterns. The scene is set in a modern minimalist living room with warm wood tones and soft shadows. High end lifestyle editorial photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK7-SLpqnTO5o7G1Fl90GceCGo6ajjfKr4s4YhKTfX2RM_AVEJu7Jk21CVtYq7laAJrC4AusPRpvpYUUG7vy7o-SCAsRbyqEz6ZDaa06OcO_map16UfAsm2IPMktTldrN_NyQF_j3Ha8miPMTvHA-1Lc_bttXFdnHqt58XhAv8qBZ4NPSwfXnrU8W3a4Xze50iTG2d-2N_rKTaF2hicGBMoFDTiYJfZ-WN2j4OQHeCpXmXS0yoD-2EuTjQcWcHYEheUvwMkzbabug"/>
+<div class="absolute inset-0 p-regular flex flex-col justify-end">
+<h4 class="font-headline-xl text-headline-xl text-pure-white">Home Decor</h4>
+<a class="text-pure-white font-meta-text text-meta-text hover:underline mt-tiny" href="#">VIEW COLLECTION</a>
+</div>
+</div>
+<!-- Custom Work (Full Width Bottom for mobile/web hybrid) -->
+<div class="md:col-span-12 relative h-48 md:h-auto group overflow-hidden bg-forest-green">
+<div class="absolute inset-0 flex items-center justify-center p-regular text-center z-10">
+<div>
+<h4 class="font-headline-xl text-headline-xl text-pure-white">Custom Work</h4>
+<p class="text-pure-white font-body-md opacity-80 mt-tiny">Bespoke commissions for unique spaces.</p>
+<button class="mt-small border border-pure-white text-pure-white px-large py-tiny hover:bg-pure-white hover:text-forest-green transition-all">INQUIRE</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Latest from the Workshop -->
+<section class="py-xx-large bg-background overflow-hidden">
+<div class="max-w-wide-max-width mx-auto px-small">
+<div class="flex flex-col md:flex-row justify-between items-end mb-large gap-small">
+<div>
+<span class="font-meta-text text-meta-text text-walnut uppercase">FRESH FROM THE BENCH</span>
+<h3 class="font-headline-xl text-headline-xl text-forest-green">Latest from the Workshop</h3>
+</div>
+<a class="font-meta-text text-meta-text text-mahogany border-b border-mahogany pb-tiny" href="#">VIEW ALL PRODUCTS</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-regular">
+<!-- Product 1 -->
+<div class="flex flex-col group">
+<div class="aspect-square bg-oak-sand overflow-hidden relative mb-small">
+<img alt="Pallet Coasters Set" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9mDxCArnmR011zQpGzFHOVa9nMyGjER43WEttWdOzjG6giHc0dg8l97OTc3EIp9HF3fvjntuMDizcCy6bgScPWYShPispBXJyQ2a9fetVGTJCq6A3trTKYi21vSdAyUNWt2NyP2jklWcpVJAz8SvDyGXK_KCKyLgM6Z8aDVQYu_-LgdExlD5NDt_YVnR1IwjiXnYPGXbTxN3lGxqDkGZc_SLMnA9QY8baDfN-S69Scq8kdUq8L_noDahfDAh79hq-F23DmXwT-tQ"/>
+<div class="absolute top-small left-small bg-mahogany text-pure-white font-meta-text text-[10px] px-tiny py-1">NEW ARRIVAL</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-xl-mobile text-headline-xl-mobile text-on-background">Artisan Pallet Coaster Set</h4>
+<span class="font-meta-text text-meta-text text-walnut">HOME DECOR</span>
+</div>
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green">$42.00</span>
+</div>
+<button class="mt-small bg-charcoal text-oak-sand font-body-md py-small w-full md:w-max px-xl hover:opacity-85 transition-opacity">Add to Cart</button>
+</div>
+<!-- Product 2 -->
+<div class="flex flex-col group">
+<div class="aspect-square bg-oak-sand overflow-hidden relative mb-small">
+<img alt="Infinity Heart Box" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFxsh-NqpXdO7FBzQYWBoQEe5ITK9Yt5vNDcPBKBNCNLbArewLEqyxmhjh4S-y1aSrlWYKHbslZ8SD3EJ8N_oSInYY76DVyFM7hNpFKTj9huyjiHDpwwqbY2wt8igo6CTX4bgHFkC7exHx0028G75SM-f9HcUe_clMe8nMzKnQxvJOzBOy4vgJ_UO1YxKIz6ya_5yoCtqO7qu2N-Th5giOU1xeZiJ80V3C3UwxDeF6RgLUn56vPs9Q377XAZ8qReoGaUiWPv4MJ3s"/>
+<div class="absolute top-small left-small bg-forest-green text-pure-white font-meta-text text-[10px] px-tiny py-1">BEST SELLER</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-xl-mobile text-headline-xl-mobile text-on-background">Forever Infinity Heart Box</h4>
+<span class="font-meta-text text-meta-text text-walnut">CUSTOM KEEPSAKES</span>
+</div>
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green">$128.00</span>
+</div>
+<button class="mt-small bg-charcoal text-oak-sand font-body-md py-small w-full md:w-max px-xl hover:opacity-85 transition-opacity">Add to Cart</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / Community -->
+<section class="bg-pine-shadow py-xx-large relative overflow-hidden">
+<!-- Subtle atmospheric shader placeholder if existed, using a div with subtle pattern instead -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#F4F1EA 1px, transparent 1px); background-size: 40px 40px;"></div>
+<div class="narrow-column px-small text-center relative z-10">
+<span class="font-meta-text text-meta-text text-tertiary-fixed uppercase mb-small block">JOIN THE CIRCLE</span>
+<h3 class="font-headline-xl text-headline-xl text-pure-white mb-regular">Stories from the Grain</h3>
+<p class="font-body-md text-pure-white opacity-80 mb-large">Receive early access to limited workshop releases and stories about our artisanal process.</p>
+<form class="flex flex-col sm:flex-row gap-tiny">
+<input class="flex-grow bg-pure-white border border-absolute-black rounded p-small focus:outline-none focus:ring-2 focus:ring-walnut focus:ring-offset-2 transition-all" placeholder="Email Address" type="email"/>
+<button class="bg-charcoal text-pure-white font-meta-text text-meta-text px-large py-small hover:opacity-85 transition-opacity whitespace-nowrap">SUBSCRIBE</button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-oak-sand dark:bg-pine-shadow text-forest-green dark:text-tertiary-fixed py-large border-t border-absolute-black flex flex-col items-center gap-tiny px-small text-center">
+<h5 class="font-headline-xl-mobile text-headline-xl-mobile font-bold">Timber Trace</h5>
+<div class="flex flex-wrap justify-center gap-regular my-small">
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Sustainability</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Instagram</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Pinterest</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Contact</a>
+</div>
+<p class="font-meta-text text-meta-text text-walnut">© 2024 Timber Trace Crafts. Ethically sourced, hand-carved.</p>
+</footer>
+<script>
+        function toggleDrawer() {
+            const drawer = document.getElementById('nav-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            const isHidden = drawer.classList.contains('-translate-x-full');
+            
+            if (isHidden) {
+                drawer.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // Micro-interaction for scroll reveals
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section > div').forEach(el => {
+            el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+            observer.observe(el);
+        });
+    </script>
+</body></html>

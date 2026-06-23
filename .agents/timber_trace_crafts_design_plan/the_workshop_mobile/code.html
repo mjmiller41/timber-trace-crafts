@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Workshop | Timber Trace Crafts</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Montserrat & Playfair Display -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,300;0,400;0,700;1,300;1,400&amp;family=Source+Code+Pro&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#3a2e22",
+                    "on-primary": "#ffffff",
+                    "walnut": "#8C7B6C",
+                    "on-tertiary-container": "#547562",
+                    "on-background": "#24190f",
+                    "tertiary": "#456553",
+                    "on-tertiary-fixed-variant": "#2d4d3c",
+                    "on-primary-fixed": "#1c1c18",
+                    "on-error": "#ffffff",
+                    "mahogany": "#4A2C11",
+                    "on-primary-fixed-variant": "#474742",
+                    "surface-container": "#ffead9",
+                    "primary-container": "#f4f1ea",
+                    "on-secondary-container": "#656464",
+                    "tertiary-container": "#d5fae2",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-surface": "#24190f",
+                    "surface": "#fff8f4",
+                    "inverse-on-surface": "#ffeee0",
+                    "secondary-fixed-dim": "#c8c6c6",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e5e2db",
+                    "on-secondary-fixed-variant": "#474747",
+                    "tertiary-fixed-dim": "#abcfb8",
+                    "secondary-container": "#e4e2e1",
+                    "absolute-black": "#000000",
+                    "outline": "#787770",
+                    "surface-bright": "#fff8f4",
+                    "surface-container-highest": "#f4dfcd",
+                    "background": "#fff8f4",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#002113",
+                    "primary": "#5f5e59",
+                    "surface-dim": "#ebd6c5",
+                    "outline-variant": "#c8c7be",
+                    "secondary": "#5f5e5e",
+                    "inverse-primary": "#c9c6c0",
+                    "on-surface-variant": "#474740",
+                    "forest-green": "#2C4C3B",
+                    "pure-white": "#FFFFFF",
+                    "charcoal": "#333333",
+                    "secondary-fixed": "#e4e2e1",
+                    "surface-variant": "#f4dfcd",
+                    "oak-sand": "#F4F1EA",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "tertiary-fixed": "#c7ebd4",
+                    "surface-container-high": "#fae4d2",
+                    "on-primary-container": "#6f6d68",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#fff1e7",
+                    "pine-shadow": "#1E3529",
+                    "primary-fixed-dim": "#c9c6c0",
+                    "surface-tint": "#5f5e59"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "regular": "clamp(30px, 5vw, 50px)",
+                    "wide-max-width": "1340px",
+                    "x-small": "20px",
+                    "small": "30px",
+                    "xx-large": "clamp(70px, 10vw, 140px)",
+                    "x-large": "clamp(50px, 7vw, 90px)",
+                    "large": "clamp(30px, 7vw, 70px)",
+                    "content-max-width": "645px",
+                    "tiny": "10px"
+            },
+            "fontFamily": {
+                    "body-md": ["Montserrat"],
+                    "body-lg": ["Montserrat"],
+                    "headline-xxl-mobile": ["Playfair Display"],
+                    "headline-xl-mobile": ["Playfair Display"],
+                    "body-lg-mobile": ["Montserrat"],
+                    "meta-text": ["Montserrat"],
+                    "headline-xxl": ["Playfair Display"],
+                    "code-block": ["Source Code Pro"],
+                    "headline-xl": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "body-md": ["1rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["1.375rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-xxl-mobile": ["2.15rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "headline-xl-mobile": ["1.75rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "body-lg-mobile": ["1.125rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "meta-text": ["0.875rem", {"lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600"}],
+                    "headline-xxl": ["3rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "code-block": ["0.9rem", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-xl": ["2rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fff8f4;
+            color: #24190f;
+            overflow-x: hidden;
+        }
+        .content-column {
+            max-width: 645px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md selection:bg-surface-container-highest">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full bg-oak-sand dark:bg-pine-shadow text-forest-green dark:text-tertiary-fixed border-b border-absolute-black z-50 flex justify-between items-center px-small h-16">
+<div class="flex items-center gap-small">
+<button class="hover:opacity-85 transition-opacity duration-200" id="drawer-trigger">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile">Timber Trace Crafts</h1>
+</div>
+<div class="hidden md:flex gap-regular items-center">
+<a class="text-forest-green dark:text-tertiary-fixed font-bold hover:opacity-85 transition-opacity duration-200" href="#">The Workshop</a>
+<a class="text-walnut dark:text-outline-variant hover:opacity-85 transition-opacity duration-200" href="#">Gallery</a>
+<a class="text-walnut dark:text-outline-variant hover:opacity-85 transition-opacity duration-200" href="#">Shop</a>
+</div>
+<div class="flex items-center">
+<button class="hover:opacity-85 transition-opacity duration-200">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</div>
+</header>
+<!-- Navigation Drawer Overlay -->
+<div class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300" id="drawer-overlay"></div>
+<!-- NavigationDrawer -->
+<aside class="fixed left-0 top-0 h-full w-80 bg-oak-sand dark:bg-pine-shadow border-r border-absolute-black z-[70] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col p-regular" id="main-drawer">
+<div class="flex justify-between items-center mb-large">
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green">Timber Trace</span>
+<button class="hover:opacity-85" id="drawer-close">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<nav class="flex flex-col gap-small">
+<a class="flex items-center gap-tiny text-forest-green dark:text-tertiary-fixed font-bold hover:bg-surface-container dark:hover:bg-inverse-surface p-2 rounded transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">handyman</span>
+<span class="font-body-lg-mobile text-body-lg-mobile">The Workshop</span>
+</a>
+<a class="flex items-center gap-tiny text-walnut dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface p-2 rounded transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">gallery_thumbnail</span>
+<span class="font-body-lg-mobile text-body-lg-mobile">Gallery</span>
+</a>
+<a class="flex items-center gap-tiny text-walnut dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface p-2 rounded transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-body-lg-mobile text-body-lg-mobile">Shop</span>
+</a>
+</nav>
+</aside>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative h-[707px] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover grayscale-[20%]" data-alt="A cinematic, shallow depth-of-field wide shot of a master woodworker's workshop at golden hour. Soft sunrays filter through dust motes, illuminating an oak workbench covered in fine wood shavings and antique hand tools. In the background, stacks of raw timber rest against weathered brick walls, creating a warm, organic, and premium editorial atmosphere. The overall mood is quiet, industrious, and deeply grounded in craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALY4dwwSOWx16vEIbFLXWzXMQfEOXL2EbjgUL8UIP2WEmz5nc0WdTcqhhm_h5-fg46kuftRsoJogJxh4m6B7Ot10Sx3V-0u8jbjH78cyi4C_vbH8jAIsuwFlruHm2VCjO4jVzJIQkvoawd0LDHOBrHvdljh98vHdUtl_uB70o6EHyLDm2s1SVhgmv41oMaNIuzbNLBi2fYqglbYCHdidIwaJblpGsHExVyCXBiBPO1kCif5eeWL8YmcvSQTFhE9KZyeY3e-FuH-v4"/>
+<div class="absolute inset-0 bg-mahogany/10"></div>
+</div>
+<div class="relative z-10 text-center px-small">
+<span class="font-meta-text text-meta-text text-pure-white mb-tiny block uppercase tracking-[3px]">Established 2014</span>
+<h2 class="font-headline-xxl text-headline-xxl text-pure-white max-w-2xl mx-auto">The Poetry of the Grain</h2>
+</div>
+</section>
+<!-- Our Philosophy -->
+<section class="py-xx-large bg-surface">
+<div class="content-column px-small reveal-on-scroll">
+<span class="font-meta-text text-meta-text text-walnut mb-tiny block uppercase">01 / OUR PHILOSOPHY</span>
+<h3 class="font-headline-xl text-headline-xl text-mahogany mb-regular">Craftsmanship as Meditation</h3>
+<div class="space-y-6 text-on-surface">
+<p class="font-body-lg text-body-lg leading-relaxed">At Timber Trace, we believe that wood is a living ledger. Every ring, knot, and swirl tells the story of a century spent reaching for the light. Our role is not to impose a shape, but to listen to what the timber wishes to become.</p>
+<p>In an age of instant gratification and mass production, we choose the difficult path. We choose the hand-plane over the industrial sander. We choose the chisel over the CNC machine. This intentional slow-down allows the artisan to connect with the material at a cellular level, ensuring each piece carries the warmth of the human touch.</p>
+</div>
+<blockquote class="mt-large py-small pl-regular border-l-2 border-mahogany">
+<p class="font-headline-xl text-headline-xl italic text-mahogany leading-tight">"A hand-carved edge is never perfectly straight, and that is where its soul resides."</p>
+<footer class="mt-4 font-meta-text text-meta-text text-walnut uppercase">— ELIAS VANCE, FOUNDER</footer>
+</blockquote>
+</div>
+</section>
+<!-- Sourcing Ethics - Full Width Visual -->
+<section class="py-xx-large bg-pine-shadow text-tertiary-fixed">
+<div class="max-w-wide-max-width mx-auto px-small">
+<div class="grid md:grid-cols-2 gap-large items-center">
+<div class="order-2 md:order-1 reveal-on-scroll">
+<img class="w-full aspect-[4/5] object-cover rounded-sm border border-absolute-black/20" data-alt="A lush, misty woodland scene in early autumn, featuring towering oak and walnut trees. A single, sustainably harvested log lies on a bed of ferns, showing the raw texture of its bark. The lighting is soft and diffused, highlighting the deep forest greens and earthy browns of the timber's natural habitat. The composition is artistic and editorial, emphasizing the ethical connection between the forest and the final crafted object." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArXPmhr3Vdq-ENkQ_IlKsgKEhksdMmt-A2Zf83Kp6OcCkUX9A4ChhNKsPJn_e3VAi5JvXhd-ap2s9trA43lUZCtu0WWHsStRnAasAjJT6RFne8rMScc65gLfrg7Z_1mZE9xAbza6XmsWuI0aXUMnJj1sZdLz7r06ZI5g_Q-3BODnDSPo2mayDHkmNFUUAF3jnEOzkiedA9BEcFMCWZyhhydeBxtw0H8cVithCcndRjBCvovRpz5oIQLdDK6JV14fCHoGNLUeVczJg"/>
+</div>
+<div class="order-1 md:order-2 space-y-regular reveal-on-scroll">
+<span class="font-meta-text text-meta-text text-tertiary-fixed-dim uppercase tracking-widest">Sourcing Ethics</span>
+<h3 class="font-headline-xl text-headline-xl">Honoring the Forest</h3>
+<p class="text-body-lg-mobile md:text-body-lg leading-relaxed opacity-90">Sustainability isn't a buzzword for us; it is our foundation. We exclusively source fallen timber from managed Scottish estates or reclaimed wood from historic architecture. By salvaging wood that would otherwise be forgotten, we give new life to centuries of growth.</p>
+<div class="flex flex-col gap-tiny pt-small">
+<div class="flex items-center gap-tiny">
+<span class="material-symbols-outlined text-tertiary-fixed">forest</span>
+<span class="font-body-md text-body-md">Locally harvested within 50 miles</span>
+</div>
+<div class="flex items-center gap-tiny">
+<span class="material-symbols-outlined text-tertiary-fixed">energy_savings_leaf</span>
+<span class="font-body-md text-body-md">Zero-waste workshop cycle</span>
+</div>
+<div class="flex items-center gap-tiny">
+<span class="material-symbols-outlined text-tertiary-fixed">verified</span>
+<span class="font-body-md text-body-md">FSC Certified reclamation chain</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Meet the Maker -->
+<section class="py-xx-large bg-oak-sand">
+<div class="content-column px-small reveal-on-scroll">
+<div class="mb-large text-center">
+<span class="font-meta-text text-meta-text text-walnut mb-tiny block uppercase">02 / THE ARTISAN</span>
+<h3 class="font-headline-xl text-headline-xl text-mahogany">Meet the Maker</h3>
+</div>
+<div class="mb-regular">
+<img class="w-full aspect-video object-cover mb-small grayscale border border-absolute-black/10" data-alt="A black and white high-contrast portrait of a middle-aged craftsman with weathered hands and a focused expression. He is wearing a heavy canvas apron stained with sawdust and oils. He is leaning over a small wooden bowl, using a fine carving tool with intense precision. The background is a blurred wall of neatly organized hand tools. The style is classic editorial photography, evoking a sense of timeless dedication and expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNWmh83fHlo_Mxp7ZhyP-RXuMjtGeSpQrt5yWLafddO2f8L21WgUgjtbxcUv44zyVqjSU1R84NryaLV6zygC1JaOetgBzF9WwYnauU-cepMJ9iESwE5KAXgV_d5X44pN5yGU4k1sYmnN2QuzDlODQeKv91YLUeen_R-yEfF8whfn2yVJRx2vs79VghnGyfj3OGW0U0iE8UMkjw5Dn-4GVzNiYyBj3DLycIRGByhWVDPpXgKRTfETmknJKXMp-hVRIfDrTx5-yMx3o"/>
+</div>
+<div class="space-y-6">
+<p class="font-body-md text-body-md text-on-surface">Elias Vance began his journey in a drafty shed behind his grandfather’s house in the Highlands. Trained in traditional joinery, he spent a decade perfecting the Japanese technique of *Shou Sugi Ban* and the delicate art of dovetail joinery.</p>
+<p class="font-body-md text-body-md text-on-surface">"Every piece I make is a dialogue," Elias says. "The wood resists, I negotiate. Eventually, we reach an understanding. That understanding is the finished piece of furniture."</p>
+</div>
+</div>
+</section>
+<!-- Workshop Atmosphere Bento-ish Grid -->
+<section class="py-xx-large bg-surface">
+<div class="max-w-wide-max-width mx-auto px-small">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-small">
+<div class="md:col-span-2 h-[500px] reveal-on-scroll">
+<img class="w-full h-full object-cover grayscale-[10%]" data-alt="A wide, atmospheric shot of the workshop's interior at night. The only light source is a single warm industrial pendant lamp over the main workbench. The surrounding space is filled with the silhouettes of tall planks, shadow-casting lathes, and neat rows of chisels. A thin veil of wood dust hangs in the air, caught in the beam of light. The mood is intimate, nocturnal, and deeply focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGFtZ1SLFtINYocRJrgsCJ0LwL5A5Z_AgtW294NtvesXJs1syh-3nK2jZM5xrQLDOg18eV1OVezwqpy1yknbbwiAlu6ltBNQ0QsWQeUhktKXEKOwr3TeMqNtcbX38qeHZRZRSGlc7rDnddBWsR8grCb4pWUlZCHJQ1qd4YK5C6nbSWLV4pIMlPiCm4SDjsEuHPqlLRh6P_QTe0ZIxk0GbnJEU5O15DVePtDm8ac1kOzapFCBrOE2uZHBoNatiuFaCEBzavoKKeWh8"/>
+</div>
+<div class="h-[500px] space-y-small flex flex-col">
+<div class="flex-grow reveal-on-scroll" style="transition-delay: 100ms;">
+<img class="w-full h-full object-cover" data-alt="A macro close-up of a hand-planing operation. A thin, translucent curl of mahogany wood is spiraling away from a polished metal plane. The focus is sharp on the wood grain and the fragile curl, with the background blurred into warm ochre tones. The lighting is side-lit to emphasize the texture and delicacy of the wood fibers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGuJZvvJSt7frGno9i7-GrgOxVIqOhjDcLY7q7zMEtK30CeSRBHnkcHtedj_W1bVuvJgRzAN3kxBqJ9fy5BlUFw--hsXGdjo6K_txlBvDl2dd4uzVGKnSndsn9cvZPWJWvTmkCZximNv588Iu7Lq08g_qaYBqSaWRxZ3XYEUSqrN1br28wk8fPjVyC7XBZ7YQm85GD5u7r8Xgu0qwScJJ5gEYVHkmC3vp7Q1JbuAK1XURHeiyCTkWS9gH8Z9YOm0tGSh7ppjR6RgQ"/>
+</div>
+<div class="bg-mahogany p-regular text-pure-white flex flex-col justify-center reveal-on-scroll" style="transition-delay: 200ms;">
+<h4 class="font-headline-xl text-headline-xl-mobile mb-tiny italic">Patience.</h4>
+<p class="font-body-md text-body-md opacity-80">We age our raw timber for an additional six months in the workshop air before a single cut is made.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-oak-sand dark:bg-pine-shadow text-forest-green dark:text-tertiary-fixed border-t border-absolute-black w-full py-large flex flex-col items-center gap-tiny px-small text-center">
+<span class="font-headline-xl-mobile text-headline-xl-mobile mb-small">Timber Trace</span>
+<div class="flex flex-wrap justify-center gap-regular mb-regular">
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors duration-200 uppercase" href="#">Sustainability</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors duration-200 uppercase" href="#">Instagram</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors duration-200 uppercase" href="#">Pinterest</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors duration-200 uppercase" href="#">Contact</a>
+</div>
+<p class="font-meta-text text-meta-text text-walnut opacity-70">© 2024 Timber Trace Crafts. Ethically sourced, hand-carved.</p>
+</footer>
+<script>
+        // Drawer Logic
+        const drawerTrigger = document.getElementById('drawer-trigger');
+        const drawerClose = document.getElementById('drawer-close');
+        const drawer = document.getElementById('main-drawer');
+        const overlay = document.getElementById('drawer-overlay');
+
+        function openDrawer() {
+            drawer.classList.remove('-translate-x-full');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeDrawer() {
+            drawer.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        drawerTrigger.addEventListener('click', openDrawer);
+        drawerClose.addEventListener('click', closeDrawer);
+        overlay.addEventListener('click', closeDrawer);
+
+        // Scroll Reveal Logic
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add subtle parallax to hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroImg = document.querySelector('section img');
+            if (heroImg) {
+                heroImg.style.transform = `translateY(${scrolled * 0.4}px)`;
+            }
+        });
+    </script>
+</body></html>

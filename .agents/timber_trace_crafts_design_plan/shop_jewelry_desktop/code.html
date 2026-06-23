@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hand-Carved Jewelry | Timber Trace Crafts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&amp;family=Montserrat:wght@400;600;700&amp;family=Source+Code+Pro&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-tint": "#5f5e59",
+                  "primary-fixed-dim": "#c9c6c0",
+                  "surface-container-low": "#fff1e7",
+                  "pine-shadow": "#1E3529",
+                  "on-tertiary": "#ffffff",
+                  "on-primary-container": "#6f6d68",
+                  "tertiary-fixed": "#c7ebd4",
+                  "surface-container-high": "#fae4d2",
+                  "on-secondary-fixed": "#1b1c1c",
+                  "surface-variant": "#f4dfcd",
+                  "oak-sand": "#F4F1EA",
+                  "secondary-fixed": "#e4e2e1",
+                  "pure-white": "#FFFFFF",
+                  "charcoal": "#333333",
+                  "on-surface-variant": "#474740",
+                  "forest-green": "#2C4C3B",
+                  "inverse-primary": "#c9c6c0",
+                  "secondary": "#5f5e5e",
+                  "outline-variant": "#c8c7be",
+                  "primary": "#5f5e59",
+                  "surface-dim": "#ebd6c5",
+                  "on-tertiary-fixed": "#002113",
+                  "surface-container-lowest": "#ffffff",
+                  "error-container": "#ffdad6",
+                  "surface-container-highest": "#f4dfcd",
+                  "background": "#fff8f4",
+                  "surface-bright": "#fff8f4",
+                  "outline": "#787770",
+                  "absolute-black": "#000000",
+                  "secondary-container": "#e4e2e1",
+                  "tertiary-fixed-dim": "#abcfb8",
+                  "on-secondary-fixed-variant": "#474747",
+                  "primary-fixed": "#e5e2db",
+                  "secondary-fixed-dim": "#c8c6c6",
+                  "on-error-container": "#93000a",
+                  "on-surface": "#24190f",
+                  "surface": "#fff8f4",
+                  "inverse-on-surface": "#ffeee0",
+                  "tertiary-container": "#d5fae2",
+                  "on-secondary": "#ffffff",
+                  "error": "#ba1a1a",
+                  "on-secondary-container": "#656464",
+                  "surface-container": "#ffead9",
+                  "primary-container": "#f4f1ea",
+                  "on-primary-fixed": "#1c1c18",
+                  "on-error": "#ffffff",
+                  "mahogany": "#4A2C11",
+                  "on-primary-fixed-variant": "#474742",
+                  "tertiary": "#456553",
+                  "on-tertiary-fixed-variant": "#2d4d3c",
+                  "on-primary": "#ffffff",
+                  "walnut": "#8C7B6C",
+                  "on-tertiary-container": "#547562",
+                  "on-background": "#24190f",
+                  "inverse-surface": "#3a2e22"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "x-small": "20px",
+                  "small": "30px",
+                  "regular": "clamp(30px, 5vw, 50px)",
+                  "wide-max-width": "1340px",
+                  "x-large": "clamp(50px, 7vw, 90px)",
+                  "xx-large": "clamp(70px, 10vw, 140px)",
+                  "large": "clamp(30px, 7vw, 70px)",
+                  "content-max-width": "645px",
+                  "tiny": "10px"
+          },
+          "fontFamily": {
+                  "body-md": ["Montserrat"],
+                  "body-lg": ["Montserrat"],
+                  "headline-xl": ["Playfair Display"],
+                  "meta-text": ["Montserrat"],
+                  "headline-xxl": ["Playfair Display"],
+                  "code-block": ["Source Code Pro"]
+          },
+          "fontSize": {
+                  "body-md": ["1rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                  "body-lg": ["1.375rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                  "headline-xl": ["2rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                  "meta-text": ["0.875rem", {"lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600"}],
+                  "headline-xxl": ["3rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                  "code-block": ["0.9rem", {"lineHeight": "1.5", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F4F1EA;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #333333;
+    }
+    body {
+      scroll-behavior: smooth;
+    }
+    .hover-scale {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-background sticky top-0 z-50 border-b-2 border-absolute-black">
+<div class="flex justify-between items-center px-regular py-tiny max-w-wide-max-width mx-auto">
+<div class="flex items-center gap-small">
+<button class="text-charcoal hover:opacity-85 transition-opacity scale-95 duration-75">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-xl text-headline-xl text-charcoal">Timber Trace Crafts</h1>
+</div>
+<nav class="hidden md:flex gap-regular items-center">
+<a class="text-walnut hover:opacity-85 transition-opacity font-meta-text uppercase text-meta-text" href="#">The Workshop</a>
+<a class="text-charcoal font-bold hover:opacity-85 transition-opacity font-meta-text uppercase text-meta-text" href="#">Gallery</a>
+<a class="text-walnut hover:opacity-85 transition-opacity font-meta-text uppercase text-meta-text" href="#">Custom Orders</a>
+</nav>
+<div class="flex items-center gap-small">
+<button class="text-charcoal hover:opacity-85 transition-opacity">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-charcoal hover:opacity-85 transition-opacity">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex max-w-wide-max-width mx-auto min-h-screen relative">
+<!-- NavigationDrawer (Sidebar Filter) -->
+<aside class="hidden md:flex flex-col w-64 h-[calc(100vh-64px)] sticky top-16 py-large border-r border-absolute-black bg-oak-sand overflow-y-auto custom-scrollbar">
+<div class="px-regular mb-large">
+<h2 class="font-headline-xl text-mahogany mb-tiny">TIMBER TRACE</h2>
+<span class="font-meta-text text-meta-text text-walnut uppercase">Refine Collection</span>
+</div>
+<nav class="flex flex-col gap-tiny">
+<div class="px-regular mb-small">
+<span class="font-meta-text text-[10px] text-walnut uppercase tracking-widest mb-2 block border-b border-walnut/20 pb-1">Categories</span>
+<a class="flex items-center gap-3 py-2 text-charcoal border-l-4 border-mahogany pl-4 translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">carpenter</span>
+<span class="font-meta-text text-meta-text uppercase">Jewelry</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-walnut pl-4 hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+<span class="font-meta-text text-meta-text uppercase">Homeware</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-walnut pl-4 hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">handyman</span>
+<span class="font-meta-text text-meta-text uppercase">Tools</span>
+</a>
+</div>
+<div class="px-regular mb-small">
+<span class="font-meta-text text-[10px] text-walnut uppercase tracking-widest mb-2 block border-b border-walnut/20 pb-1">Wood Species</span>
+<div class="space-y-1">
+<label class="flex items-center gap-2 group cursor-pointer py-1">
+<input class="w-4 h-4 rounded-none border-absolute-black text-charcoal focus:ring-offset-2 focus:ring-walnut" type="checkbox"/>
+<span class="font-body-md text-charcoal group-hover:text-mahogany">English Oak</span>
+</label>
+<label class="flex items-center gap-2 group cursor-pointer py-1">
+<input class="w-4 h-4 rounded-none border-absolute-black text-charcoal focus:ring-offset-2 focus:ring-walnut" type="checkbox"/>
+<span class="font-body-md text-charcoal group-hover:text-mahogany">Wild Mahogany</span>
+</label>
+<label class="flex items-center gap-2 group cursor-pointer py-1">
+<input class="w-4 h-4 rounded-none border-absolute-black text-charcoal focus:ring-offset-2 focus:ring-walnut" type="checkbox"/>
+<span class="font-body-md text-charcoal group-hover:text-mahogany">Black Walnut</span>
+</label>
+<label class="flex items-center gap-2 group cursor-pointer py-1">
+<input class="w-4 h-4 rounded-none border-absolute-black text-charcoal focus:ring-offset-2 focus:ring-walnut" type="checkbox"/>
+<span class="font-body-md text-charcoal group-hover:text-mahogany">Ancient Pine</span>
+</label>
+</div>
+</div>
+<div class="px-regular">
+<span class="font-meta-text text-[10px] text-walnut uppercase tracking-widest mb-2 block border-b border-walnut/20 pb-1">Philosophy</span>
+<a class="flex items-center gap-3 py-2 text-walnut pl-4 hover:bg-surface-variant/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">eco</span>
+<span class="font-meta-text text-meta-text uppercase">Sustainability</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-regular py-large md:pl-regular">
+<header class="mb-x-large border-l-2 border-mahogany pl-regular max-w-content-max-width">
+<h2 class="font-headline-xxl text-headline-xxl text-charcoal mb-tiny italic">Hand-Carved Jewelry</h2>
+<p class="font-body-lg text-body-lg text-walnut">Each piece is a singular expression of the grain, meticulously shaped by hand to honor the spirit of the timber. Our jewelry collections are ephemeral, following the seasons of the forest.</p>
+</header>
+<!-- Editorial Product Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-large">
+<!-- Monarch Butterfly Card -->
+<article class="flex flex-col group">
+<div class="relative aspect-square overflow-hidden mb-small border border-absolute-black/10">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEPrOvvpFI36a5ApL0fC2Xq_dcpWc4d5Jnv8ke4OBO2nKBu2MqRscumRteOtDDemlXFzntV7f572OTqFXSnxVIULER1isDmBkB8du73G_AptBpD2sTPGLbsv10kiRIMGBe9SOREiVznEfeeRKYYXnlZwqoPVaFJStfqCgE9VOJxHQ7qfUZjPBqcppWsYEEoLEudHDY_7UAc7_Bl09pnbzA5mAs-JFyylT6ALkJqE0fWTwF5Rs3jJmLCC1GbSprvL3-lbgU04sxH5E"/>
+<div class="absolute inset-0 bg-mahogany/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-4 right-4">
+<span class="bg-pure-white/90 backdrop-blur px-3 py-1 font-meta-text text-[10px] uppercase tracking-widest border border-absolute-black">Wild Mahogany</span>
+</div>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Monarch Butterfly</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Statement Earrings</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$145</span>
+</header>
+<div class="mt-4 pt-4 border-t border-absolute-black/5 flex justify-between items-center">
+<button class="bg-charcoal text-pure-white px-small py-2 font-meta-text text-meta-text uppercase hover:opacity-85 transition-opacity">Add to Collection</button>
+<button class="text-charcoal hover:scale-110 transition-transform"><span class="material-symbols-outlined">favorite</span></button>
+</div>
+</article>
+<!-- Product Card 2 -->
+<article class="flex flex-col group md:mt-x-large lg:mt-0">
+<div class="relative aspect-[3/4] overflow-hidden mb-small border border-absolute-black/10">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNjmC5GtzVOpP_2VFZVy3CiJshO7yGEqyebCWrqqNTWLXv2QcoROXBqLvAOg6rcycu6QqCUqq4UtJ2Qb2Kxbbsc8RQm6Andu4CTacNbBO1o1hFiR2ERjF559HK29V_3tXYTydn_SqWuUeoqwtgBtMF619yCLQH5EFugcwng2LVF_vMITgpsdqM183UUhNcueY5r_VHANh1hVqtPaEsdiT_HlYYkTOhKvkeS7YHiYTzVkRly1vAvwI35xrwfs9GIobVSdMRqMWa-dc"/>
+<div class="absolute inset-0 bg-mahogany/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-4 right-4">
+<span class="bg-pure-white/90 backdrop-blur px-3 py-1 font-meta-text text-[10px] uppercase tracking-widest border border-absolute-black">English Oak</span>
+</div>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Sacred Cocoon</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Carved Pendant</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$210</span>
+</header>
+<div class="mt-4 pt-4 border-t border-absolute-black/5">
+<p class="font-body-md text-walnut line-clamp-2">A delicate meditation on transformation, carved from heartwood oak reclaimed from a 200-year-old estate.</p>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="flex flex-col group">
+<div class="relative aspect-square overflow-hidden mb-small border border-absolute-black/10">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeGbtxLlVY7BYrI4SYfIxumV3m1IK1uix4dpdfexQ35RTQ3IjUw3yhUf55LUv5B9RnhLl2NYAJ6gVlBGqq1Tf1QD8uDal0wku50pQVtrW_CXPUL4EwCPX1PYr3e8bcmTajsMZSkndZyN3O5CVR3EYgY4MHB2JBsq4BIbtvTIvuoEGRHB3RaRiE3r_XZRpjOCgvW2YUx7_fW9eslZdS3PAZVndsx5ZkjueMhXkKeHcCVc8vRKVpixYWt638MV54PVtWuEL8WcTU4DI"/>
+<div class="absolute inset-0 bg-mahogany/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute bottom-4 right-4">
+<span class="bg-pure-white/90 backdrop-blur px-3 py-1 font-meta-text text-[10px] uppercase tracking-widest border border-absolute-black">Black Walnut</span>
+</div>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Shadow Lace</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Teardrop Earrings</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$125</span>
+</header>
+<div class="mt-4 pt-4 border-t border-absolute-black/5 flex justify-between items-center">
+<button class="bg-charcoal text-pure-white px-small py-2 font-meta-text text-meta-text uppercase hover:opacity-85 transition-opacity">Add to Collection</button>
+<button class="text-charcoal hover:scale-110 transition-transform"><span class="material-symbols-outlined">favorite</span></button>
+</div>
+</article>
+<!-- Pullquote / Editorial Interruption -->
+<div class="col-span-1 md:col-span-2 lg:col-span-3 py-xx-large flex justify-center">
+<blockquote class="max-w-content-max-width border-l-4 border-mahogany pl-large py-small bg-oak-sand/50">
+<p class="font-headline-xxl text-headline-xl text-mahogany italic mb-small">"In the right light, at the right moment, everything is extraordinary."</p>
+<footer class="font-meta-text text-meta-text text-walnut uppercase">— The Lead Artisan</footer>
+</blockquote>
+</div>
+<!-- Product Card 4 -->
+<article class="flex flex-col group lg:mt-x-large">
+<div class="relative aspect-[4/5] overflow-hidden mb-small border border-absolute-black/10">
+<div class="absolute inset-0 bg-oak-sand"></div>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Close up photography of a handcrafted wooden ring made of dark walnut wood with a subtle copper inlay, sitting on a weathered piece of bark. Soft dramatic light highlights the texture of the wood grain. Dark forest aesthetic, premium lifestyle jewelry photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYsYXb8vY8Vt1Bp8dEVOruIKen640dGJCe_2upWqISvksKBNLOudwbLXNaSV0BfoEqye85VJ70kvjTdZsNtf-rnvS26a-4lD6f_KvQIPENSQAp9bnWZv3bzGhhswuyl42Nkw1Y_5PTJ9-s2vTReGgdNP8bDYdDq_87yP1hwMmCmQGlJ8tNBPXtuVVSIBpgWzHRY6FkGIf8Aeehfqes-m9A9DJ5Q7YsAjBSKT25GywQ_s6OGCz3Gx7t9Ao_KuM5gAZhhE5qEuokEqA"/>
+<div class="absolute bottom-4 left-4">
+<span class="bg-charcoal text-pure-white px-3 py-1 font-meta-text text-[10px] uppercase tracking-widest">Limited Edition</span>
+</div>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Copper Core Ring</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Walnut &amp; Metal</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$185</span>
+</header>
+</article>
+<!-- Product Card 5 -->
+<article class="flex flex-col group">
+<div class="relative aspect-square overflow-hidden mb-small border border-absolute-black/10">
+<div class="absolute inset-0 bg-oak-sand"></div>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A collection of delicate wooden hair pins carved into the shape of willow leaves, arranged artistically on a cream linen cloth. Warm sunlight filters through leaves creating dappled shadows. High-end editorial jewelry photography for a botanical lifestyle brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBaD1-InTBUaGwMDV63OMFtBQOPmzzoRs4VBNWy-JvsAvd8qcFZrjXKcEgZwELwF0MsOdNueVV5UvsPM-bLWFZUd-TrdDje6BcGe0S_5PMHO-M9JHA3FgBo0JZBbIYxSzsErf0BcWSSa6CrQrtNZ8IV3eBFJGTnW_2KA9pr7gsnimU0chvDUiSx9k7jMxIvlv0eqTrc80ZQPA8SW-f7T5QUYS3N9AvasT4GV0_v1wgANINvw3zGoEli0Bl3SjoARO0pxv5R6CKrRo"/>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Willow Whispers</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Set of 3 Pins</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$95</span>
+</header>
+<button class="w-full mt-4 border border-charcoal py-2 font-meta-text text-meta-text uppercase hover:bg-charcoal hover:text-pure-white transition-all">View Detail</button>
+</article>
+<!-- Product Card 6 -->
+<article class="flex flex-col group lg:-mt-x-large">
+<div class="relative aspect-[3/4] overflow-hidden mb-small border border-absolute-black/10">
+<div class="absolute inset-0 bg-oak-sand"></div>
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A large statement necklace featuring a singular piece of petrified wood suspended by a minimalist gold chain. The setting is an art gallery style with clean lines and soft grey concrete background. Sophisticated, bold, sculptural jewelry photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrJYmFqB33fhPH7hNBBva7Yh3V3I7e8YvTkoVys0jRRvga8Y8FvVjheJHsncByJvWhqGXPQd2Z114xEik8WobahOZ9xa5qXiPD67Mm6yat4mM0iN9dYas_0LJlo0zcqd3kMFIH4DSjPQox0cftQ4KNh4uBHH8dhG-pw2i9QsHqGYjRI_Q-fcdhd1UiPBS6NhpodH0U4hDgP-AtXKDTR2YCZYDhMEogZcfVfj-fuFxxe5Orelv-jMpsEsjsfz5gEnwKpACYTwMND7A"/>
+</div>
+<header class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-xl text-headline-xl text-charcoal leading-tight">Ancient Flow</h3>
+<span class="font-meta-text text-meta-text text-walnut uppercase tracking-wider">Petrified Wood Pendant</span>
+</div>
+<span class="font-body-lg text-mahogany font-bold italic">$340</span>
+</header>
+</article>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-forest-green text-pure-white mt-xx-large border-t border-absolute-black">
+<div class="w-full px-regular py-large flex flex-col md:flex-row justify-between items-center gap-small max-w-wide-max-width mx-auto">
+<div class="flex flex-col items-center md:items-start">
+<h2 class="font-headline-xl text-headline-xl text-pure-white mb-2">Timber Trace</h2>
+<p class="font-body-md text-tertiary-fixed-dim max-w-xs text-center md:text-left">© 2024 Timber Trace Crafts. Rooted in tradition, carved with intention.</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-regular">
+<a class="font-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Sustainability Statement</a>
+<a class="font-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Care Instructions</a>
+<a class="font-body-md text-tertiary-fixed-dim hover:text-tertiary-fixed transition-colors" href="#">Privacy Policy</a>
+</nav>
+<div class="flex gap-small">
+<a class="text-tertiary-fixed-dim hover:text-pure-white transition-colors" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="text-tertiary-fixed-dim hover:text-pure-white transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+</footer>
+<!-- Micro-interaction Script -->
+<script>
+    document.querySelectorAll('.group').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        // Subtle haptic feel could go here
+      });
+    });
+
+    // Simple scroll reveal for cards
+    const observerOptions = {
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-4');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('article').forEach(article => {
+      article.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-700', 'ease-out');
+      observer.observe(article);
+    });
+  </script>
+</body></html>

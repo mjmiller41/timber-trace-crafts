@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Timber Trace Crafts | Secure Checkout</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&family=Source+Code+Pro&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Playfair+Display:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#3a2e22",
+                    "on-primary": "#ffffff",
+                    "walnut": "#8C7B6C",
+                    "on-tertiary-container": "#547562",
+                    "on-background": "#24190f",
+                    "tertiary": "#456553",
+                    "on-tertiary-fixed-variant": "#2d4d3c",
+                    "on-primary-fixed": "#1c1c18",
+                    "on-error": "#ffffff",
+                    "mahogany": "#4A2C11",
+                    "on-primary-fixed-variant": "#474742",
+                    "surface-container": "#ffead9",
+                    "primary-container": "#f4f1ea",
+                    "on-secondary-container": "#656464",
+                    "tertiary-container": "#d5fae2",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-surface": "#24190f",
+                    "surface": "#fff8f4",
+                    "inverse-on-surface": "#ffeee0",
+                    "secondary-fixed-dim": "#c8c6c6",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#e5e2db",
+                    "on-secondary-fixed-variant": "#474747",
+                    "tertiary-fixed-dim": "#abcfb8",
+                    "secondary-container": "#e4e2e1",
+                    "absolute-black": "#000000",
+                    "outline": "#787770",
+                    "surface-bright": "#fff8f4",
+                    "surface-container-highest": "#f4dfcd",
+                    "background": "#fff8f4",
+                    "surface-container-lowest": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#002113",
+                    "primary": "#5f5e59",
+                    "surface-dim": "#ebd6c5",
+                    "outline-variant": "#c8c7be",
+                    "secondary": "#5f5e5e",
+                    "inverse-primary": "#c9c6c0",
+                    "on-surface-variant": "#474740",
+                    "forest-green": "#2C4C3B",
+                    "pure-white": "#FFFFFF",
+                    "charcoal": "#333333",
+                    "secondary-fixed": "#e4e2e1",
+                    "oak-sand": "#F4F1EA",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "tertiary-fixed": "#c7ebd4",
+                    "surface-container-high": "#fae4d2",
+                    "on-primary-container": "#6f6d68",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#fff1e7",
+                    "pine-shadow": "#1E3529",
+                    "primary-fixed-dim": "#c9c6c0",
+                    "surface-tint": "#5f5e59"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "regular": "clamp(30px, 5vw, 50px)",
+                    "wide-max-width": "1340px",
+                    "x-small": "20px",
+                    "small": "30px",
+                    "xx-large": "clamp(70px, 10vw, 140px)",
+                    "x-large": "clamp(50px, 7vw, 90px)",
+                    "large": "clamp(30px, 7vw, 70px)",
+                    "content-max-width": "645px",
+                    "tiny": "10px"
+            },
+            "fontFamily": {
+                    "body-md": ["Montserrat"],
+                    "body-lg": ["Montserrat"],
+                    "headline-xxl-mobile": ["Playfair Display"],
+                    "headline-xl-mobile": ["Playfair Display"],
+                    "body-lg-mobile": ["Montserrat"],
+                    "meta-text": ["Montserrat"],
+                    "headline-xxl": ["Playfair Display"],
+                    "code-block": ["Source Code Pro"],
+                    "headline-xl": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "body-md": ["1rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["1.375rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-xxl-mobile": ["2.15rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "headline-xl-mobile": ["1.75rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "body-lg-mobile": ["1.125rem", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}],
+                    "meta-text": ["0.875rem", {"lineHeight": "1.4", "letterSpacing": "1.4px", "fontWeight": "600"}],
+                    "headline-xxl": ["3rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}],
+                    "code-block": ["0.9rem", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-xl": ["2rem", {"lineHeight": "1.125", "letterSpacing": "-0.1px", "fontWeight": "300"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fff8f4;
+            color: #24190f;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        input:focus {
+            outline: 2px solid #8C7B6C !important;
+            outline-offset: 2px;
+            border-color: #000000 !important;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F4F1EA;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #8C7B6C;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-oak-sand dark:bg-pine-shadow border-b border-absolute-black transition-opacity duration-200 h-16 flex justify-between items-center px-small">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-85">
+<span class="material-symbols-outlined text-forest-green dark:text-tertiary-fixed">menu</span>
+</button>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green dark:text-tertiary-fixed tracking-tight">Timber Trace Crafts</h1>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-8">
+<a class="text-walnut dark:text-outline-variant hover:opacity-85 font-meta-text text-meta-text uppercase" href="#">The Workshop</a>
+<a class="text-walnut dark:text-outline-variant hover:opacity-85 font-meta-text text-meta-text uppercase" href="#">Gallery</a>
+<a class="text-forest-green dark:text-tertiary-fixed hover:opacity-85 font-meta-text text-meta-text uppercase font-bold" href="#">Shop</a>
+</nav>
+<button class="hover:opacity-85 relative">
+<span class="material-symbols-outlined text-forest-green dark:text-tertiary-fixed">shopping_bag</span>
+<span class="absolute -top-1 -right-1 bg-mahogany text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span>
+</button>
+</div>
+</header>
+<main class="mt-16 min-h-screen">
+<div class="max-w-wide-max-width mx-auto px-small py-large grid grid-cols-1 lg:grid-cols-12 gap-x-wide">
+<!-- Left Column: Cart & Checkout Form -->
+<div class="lg:col-span-8 flex flex-col gap-x-large">
+<!-- Section 1: Shopping Bag -->
+<section class="mb-x-large">
+<header class="mb-small border-b border-absolute-black pb-tiny">
+<h2 class="font-headline-xl text-headline-xl text-forest-green">Shopping Bag</h2>
+</header>
+<div class="flex flex-col gap-small">
+<!-- Cart Item 1 -->
+<div class="flex flex-col md:flex-row gap-small border-b border-outline-variant pb-small">
+<div class="w-full md:w-40 aspect-square overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A high-end editorial product photograph of the 'Forever Infinity' jewelry box, hand-carved from dark walnut wood with intricate dovetail joints and a velvet-lined interior. The lighting is soft and moody, emphasizing the rich wood grain and the artisanal craftsmanship. The background is a warm, minimalist oak sand tone, consistent with a premium lifestyle brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm_HwzOu2netxRYyfLy6oq38H7jJ1tUFoE7iahRWSm7CBrDPHcceCQkBkOKyMIboz-dsRTa5Z2QRli1wGvCN9NO2Jt82udXSx9ezneR-tfhPxeMxUdEWkqXoB1mazQNQCZyY1eRk9jpiUx7_CeoJnlgiP8yRVkzRol8RbVSPc84EJgkcivNqG2ZVT7nKjnZ0AezPqCWmxIzatm9-9DSRanZOOmFvWSEImlBgO9saN-0BDVQlPRxHH1fHDhDErVPsnxbRVBbZfsfJs"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-headline-xl-mobile text-headline-xl-mobile text-charcoal">Forever Infinity Box</h3>
+<p class="font-body-lg text-body-lg text-mahogany">$124.00</p>
+</div>
+<p class="font-meta-text text-meta-text text-walnut uppercase mt-1">Sustainably Sourced Walnut</p>
+</div>
+<div class="flex items-center gap-6 mt-4">
+<div class="flex items-center border border-charcoal rounded-none">
+<button class="px-3 py-1 hover:bg-oak-sand">-</button>
+<span class="px-4 py-1 border-x border-charcoal">1</span>
+<button class="px-3 py-1 hover:bg-oak-sand">+</button>
+</div>
+<button class="font-meta-text text-meta-text text-walnut uppercase hover:text-mahogany underline underline-offset-4">Remove</button>
+</div>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="flex flex-col md:flex-row gap-small border-b border-outline-variant pb-small">
+<div class="w-full md:w-40 aspect-square overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A detailed close-up shot of hand-crafted 'Butterfly Earrings' made from light oak and delicate silver pins. The earrings are presented on a minimalist stone pedestal. The lighting is bright and ethereal, casting soft shadows. The overall aesthetic is natural, elegant, and sophisticated, aligning with a premium boutique wood-craft brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK2iwCQSM7EcGAqJTyydcx7Qr6w2e2sH4v60HVtdku_VskVFyZCk_4ZS8WOqd9ltEjoCr3KmDhlx5Uu9SKGxp3o-dQ6mxqhDYtcfq5JDiNSCceR8TTGRU2G_kEKZTIWZpFAx4WyXK9MyBVrirustTQAejMb5vsiFPab1hTHt4fzQ6tRzizWzBQQ1ERxCkgbtwSUHOYI76FrqjS0b1R3e2pjXebB8j6IK1PEIgf4u7XgbmrdI4MuVGa6CDbBcuqqgS1rDg1S6kjqXE"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-headline-xl-mobile text-headline-xl-mobile text-charcoal">Butterfly Earrings</h3>
+<p class="font-body-lg text-body-lg text-mahogany">$48.00</p>
+</div>
+<p class="font-meta-text text-meta-text text-walnut uppercase mt-1">Hand-Carved Oak / Sterling Silver</p>
+</div>
+<div class="flex items-center gap-6 mt-4">
+<div class="flex items-center border border-charcoal rounded-none">
+<button class="px-3 py-1 hover:bg-oak-sand">-</button>
+<span class="px-4 py-1 border-x border-charcoal">1</span>
+<button class="px-3 py-1 hover:bg-oak-sand">+</button>
+</div>
+<button class="font-meta-text text-meta-text text-walnut uppercase hover:text-mahogany underline underline-offset-4">Remove</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Secure Checkout Form -->
+<section class="max-w-content-max-width">
+<header class="mb-small flex items-center gap-2 border-b border-absolute-black pb-tiny">
+<span class="material-symbols-outlined text-forest-green">lock</span>
+<h2 class="font-headline-xl text-headline-xl text-forest-green uppercase tracking-tight">Secure Checkout</h2>
+</header>
+<form class="flex flex-col gap-regular">
+<!-- Shipping Information -->
+<div>
+<h3 class="font-meta-text text-meta-text text-walnut uppercase mb-4 tracking-widest">Shipping Address</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">First Name</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="Elias" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">Last Name</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="Thorne" type="text"/>
+</div>
+<div class="flex flex-col gap-1 md:col-span-2">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">Street Address</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="42 Artisan Way" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">City</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="Portland" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">Postcode</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="97201" type="text"/>
+</div>
+</div>
+</div>
+<!-- Payment Information -->
+<div class="mt-4">
+<h3 class="font-meta-text text-meta-text text-walnut uppercase mb-4 tracking-widest">Payment Method</h3>
+<div class="border border-absolute-black p-6 bg-oak-sand/30 flex flex-col gap-4">
+<div class="flex items-center gap-4 border-b border-outline-variant pb-4">
+<input checked="" class="text-charcoal focus:ring-charcoal" name="payment" type="radio"/>
+<span class="font-body-md">Credit Card</span>
+<div class="ml-auto flex gap-2">
+<span class="material-symbols-outlined text-walnut">credit_card</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">Card Number</label>
+<div class="relative">
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="0000 0000 0000 0000" type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-walnut">visibility_off</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">Expiry</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="MM / YY" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-meta-text text-[10px] uppercase text-charcoal">CVV</label>
+<input class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="123" type="text"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Order Note -->
+<div class="mt-4">
+<h3 class="font-meta-text text-meta-text text-walnut uppercase mb-4 tracking-widest">Order Notes (Optional)</h3>
+<textarea class="w-full border border-absolute-black rounded-none p-3 font-body-md bg-transparent transition-all" placeholder="Add a personalized message or delivery instructions..." rows="3"></textarea>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Order Summary Sidebar -->
+<aside class="lg:col-span-4 mt-x-large lg:mt-0">
+<div class="sticky top-24 border border-absolute-black p-small bg-oak-sand shadow-sm">
+<h3 class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green mb-small">Order Summary</h3>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between font-body-md">
+<span class="text-walnut">Subtotal (2 items)</span>
+<span class="text-charcoal font-bold">$172.00</span>
+</div>
+<div class="flex justify-between font-body-md">
+<span class="text-walnut">Standard Shipping</span>
+<span class="text-charcoal font-bold">$12.00</span>
+</div>
+<div class="flex justify-between font-body-md pb-4 border-b border-outline-variant">
+<span class="text-walnut">Estimated Tax</span>
+<span class="text-charcoal font-bold">$14.50</span>
+</div>
+<div class="flex justify-between pt-4">
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green">Total</span>
+<span class="font-headline-xl-mobile text-headline-xl-mobile text-mahogany">$198.50</span>
+</div>
+</div>
+<div class="mt-small flex flex-col gap-4">
+<button class="w-full bg-charcoal text-pure-white py-4 font-meta-text text-meta-text uppercase tracking-widest hover:opacity-85 transition-opacity">
+                            Place Order
+                        </button>
+<p class="font-meta-text text-[10px] text-walnut text-center uppercase">By placing an order, you agree to our Terms of Service.</p>
+</div>
+<div class="mt-large pt-small border-t border-outline-variant">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-forest-green">eco</span>
+<p class="font-meta-text text-[11px] text-charcoal uppercase leading-relaxed">Every item is hand-carved from ethically sourced timber, supporting sustainable forest management.</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-forest-green">package_2</span>
+<p class="font-meta-text text-[11px] text-charcoal uppercase leading-relaxed">Carbon-neutral shipping on all orders over $150.</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-xx-large bg-oak-sand dark:bg-pine-shadow border-t border-absolute-black py-large w-full flex flex-col items-center gap-tiny px-small text-center transition-colors duration-200">
+<h2 class="font-headline-xl-mobile text-headline-xl-mobile text-forest-green dark:text-tertiary-fixed mb-4">Timber Trace</h2>
+<nav class="flex flex-wrap justify-center gap-x-small mb-6">
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Sustainability</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Instagram</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Pinterest</a>
+<a class="font-meta-text text-meta-text text-walnut hover:text-mahogany transition-colors" href="#">Contact</a>
+</nav>
+<p class="font-meta-text text-meta-text text-walnut leading-relaxed opacity-75 max-w-sm">
+            © 2024 Timber Trace Crafts. Ethically sourced, hand-carved. All Rights Reserved.
+        </p>
+</footer>
+<script>
+        // Simple micro-interaction for input fields
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('label')?.classList.add('text-mahogany');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('label')?.classList.remove('text-mahogany');
+            });
+        });
+
+        // Floating Header Effect on Scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>
