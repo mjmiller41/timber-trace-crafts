@@ -57,7 +57,15 @@ php artisan event:cache
 # Storage permissions and symlink
 echo ">>> Setting permissions and creating storage symlink..."
 chmod -R 775 storage bootstrap/cache
-php artisan storage:link
+
+# php artisan storage:link uses exec() which Hostinger shared hosting disables
+# Create the symlink directly instead
+if [ ! -L "$DEPLOY_DIR/public/storage" ]; then
+    ln -s "$DEPLOY_DIR/storage/app/public" "$DEPLOY_DIR/public/storage"
+    echo ">>> Storage symlink created."
+else
+    echo ">>> Storage symlink already exists."
+fi
 
 echo ""
 echo "=== Setup complete! ==="
