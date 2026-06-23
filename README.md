@@ -15,30 +15,30 @@ npm run dev
 
 ## Deployment (Hostinger Business — Git Integration)
 
-### Directory structure on server
+### How it works
+
+The repo deploys to `public_html` via Hostinger's Git integration on every push to `main`. The root `.htaccess` redirects all traffic into `public/` and blocks direct HTTP access to `.env` and other sensitive files.
 
 ```
-~/
-├── public_html/          ← web root (domain points here)
-│   └── (empty or other sites)
-└── timber-trace-crafts/  ← Laravel app (Git deploys here)
-    ├── .env              ← never web-accessible
-    ├── public/           ← domain webroot points here
-    └── ...
+~/public_html/
+├── .htaccess        ← redirects to public/, blocks .env access
+├── .env             ← protected — not web-accessible
+├── public/
+│   └── .htaccess    ← Laravel routing
+└── app/, routes/, etc.
 ```
 
 ### Hostinger hPanel setup
 
-1. **Git deploy path** — hPanel → Advanced → Git → set deploy directory to `timber-trace-crafts`
-2. **Domain webroot** — hPanel → Domains → your domain → Web Root → set to `timber-trace-crafts/public`
-3. Push to `main` to trigger the first deploy
+1. hPanel → Advanced → Git → connect repo, set deploy directory to `public_html`, branch `main`
+2. Auto-deploy fires on every push to `main`
 
 ### First-time server setup (via SSH)
 
 After the first deploy, SSH into the server and run:
 
 ```bash
-cd ~/timber-trace-crafts
+cd ~/public_html
 bash setup.sh
 ```
 
@@ -56,7 +56,7 @@ The script will:
 Push to `main` — Hostinger auto-deploys. If the push includes new migrations, SSH in and run:
 
 ```bash
-cd ~/timber-trace-crafts
+cd ~/public_html
 php artisan migrate --force
 php artisan config:cache
 ```

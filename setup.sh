@@ -1,12 +1,13 @@
 #!/bin/bash
 set -e
 
-# Run from ~/timber-trace-crafts on the server
-DEPLOY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEPLOY_DIR=~/public_html
 
 echo "=== Timber & Trace Crafts — First-Time Server Setup ==="
 echo "Deploy directory: $DEPLOY_DIR"
 echo ""
+
+cd "$DEPLOY_DIR"
 
 # Install PHP dependencies
 echo ">>> Installing PHP dependencies..."
@@ -60,4 +61,3 @@ php artisan storage:link
 
 echo ""
 echo "=== Setup complete! ==="
-echo "    .env is at $DEPLOY_DIR/.env — never inside the web root."
