@@ -24,8 +24,8 @@ sudo apt install php8.3-imap && sudo phpenmod imap
 All product and media images are stored in Cloudflare R2 (S3-compatible object storage). Images are served directly from R2's CDN — Hostinger never handles image traffic.
 
 - **Bucket:** `timber-trace-crafts`
-- **Public URL:** `https://pub-82fe4a94d274416a9b5ab8028bcd8627.r2.dev`
-- **Endpoint:** `https://3692088bc3f65a6e2a74ae1b1da92c73.r2.cloudflarestorage.com`
+- **Public URL:** your R2 public URL (from Cloudflare dashboard → R2 → bucket → Public access)
+- **Endpoint:** your R2 endpoint (from Cloudflare dashboard → R2 → bucket → Settings)
 
 The `Media::url()` model method resolves the correct URL per disk. All views use `$media->url()` — never `asset('storage/...')`.
 
@@ -64,8 +64,10 @@ The repo deploys to `public_html` via Hostinger's Git integration on every push 
 ### Server SSH access
 
 ```
-ssh -p 65002 u903552178@5.183.10.138
+ssh -p 65002 your_username@your_server_ip
 ```
+
+(Credentials are in your Hostinger hPanel → Hosting → SSH Access.)
 
 ### First-time server setup (via SSH)
 
@@ -158,8 +160,8 @@ FILESYSTEM_DISK=r2
 R2_ACCESS_KEY_ID=your_key
 R2_SECRET_ACCESS_KEY=your_secret
 R2_BUCKET=timber-trace-crafts
-R2_ENDPOINT=https://3692088bc3f65a6e2a74ae1b1da92c73.r2.cloudflarestorage.com
-R2_PUBLIC_URL=https://pub-82fe4a94d274416a9b5ab8028bcd8627.r2.dev
+R2_ENDPOINT=https://your_account_id.r2.cloudflarestorage.com
+R2_PUBLIC_URL=https://your_public_id.r2.dev
 
 MAIL_MAILER=smtp
 MAIL_SCHEME=smtps
