@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EtsyController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\OrderController;
@@ -171,4 +172,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Shipping methods
     Route::resource('shipping', ShippingMethodController::class)->except(['show']);
+
+    // Etsy sync
+    Route::get('/etsy', [EtsyController::class, 'index'])->name('etsy.index');
+    Route::get('/etsy/connect', [EtsyController::class, 'connect'])->name('etsy.connect');
+    Route::get('/etsy/callback', [EtsyController::class, 'callback'])->name('etsy.callback');
+    Route::post('/etsy/disconnect', [EtsyController::class, 'disconnect'])->name('etsy.disconnect');
+    Route::post('/etsy/sync/products', [EtsyController::class, 'syncProducts'])->name('etsy.sync.products');
+    Route::post('/etsy/sync/inventory', [EtsyController::class, 'syncInventory'])->name('etsy.sync.inventory');
+    Route::post('/etsy/sync/orders', [EtsyController::class, 'syncOrders'])->name('etsy.sync.orders');
 });
