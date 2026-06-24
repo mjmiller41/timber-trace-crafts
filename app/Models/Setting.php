@@ -43,10 +43,12 @@ class Setting extends Model
     {
         $group = str_contains($key, '.') ? explode('.', $key)[0] : 'general';
 
-        static::updateOrCreate(
+        $setting = static::firstOrCreate(
             ['key' => $key],
-            ['value' => $value, 'group' => $group, 'label' => $key, 'updated_at' => now()]
+            ['group' => $group, 'label' => $key]
         );
+
+        $setting->update(['value' => $value, 'updated_at' => now()]);
 
         Cache::forget('setting.'.$key);
     }
