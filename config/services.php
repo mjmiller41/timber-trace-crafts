@@ -46,4 +46,12 @@ return [
         'shared_secret' => env('ETSY_SHARED_SECRET'),
     ],
 
+    'imap' => [
+        'host' => env('IMAP_HOST', 'imap.hostinger.com'),
+        'port' => env('IMAP_PORT', 993),
+        'encryption' => env('IMAP_ENCRYPTION', 'ssl'),
+        'username' => env('IMAP_USERNAME'),
+        'password' => env('IMAP_PASSWORD'),
+    ],
+
 ];

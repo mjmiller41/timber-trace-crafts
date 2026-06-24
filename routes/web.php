@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EtsyController;
+use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\OrderController;
@@ -153,6 +154,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::patch('/messages/{submission}', [MessageController::class, 'updateStatus'])->name('messages.status');
+
+    // Inbox (IMAP)
+    Route::get('/inbox', [InboxController::class, 'index'])->name('inbox.index');
+    Route::get('/inbox/compose', [InboxController::class, 'compose'])->name('inbox.compose');
+    Route::post('/inbox/send', [InboxController::class, 'send'])->name('inbox.send');
+    Route::get('/inbox/{msgno}', [InboxController::class, 'show'])->name('inbox.show');
+    Route::get('/inbox/{msgno}/reply', [InboxController::class, 'reply'])->name('inbox.reply');
+    Route::delete('/inbox/{msgno}', [InboxController::class, 'destroy'])->name('inbox.destroy');
 
     // Restock requests
     Route::get('/restock', [App\Http\Controllers\Admin\RestockController::class, 'index'])->name('restock.index');

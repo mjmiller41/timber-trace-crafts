@@ -166,6 +166,15 @@
             </a>
 
             <a
+                href="{{ route('admin.inbox.index') }}"
+                class="admin-sidebar-link {{ request()->is('admin/inbox*') ? 'active' : '' }}"
+                title="Inbox"
+            >
+                <span class="nav-icon">&#x1F4E5;</span>
+                <span x-show="!collapsed">Inbox</span>
+            </a>
+
+            <a
                 href="{{ url('/admin/pages') }}"
                 class="admin-sidebar-link {{ request()->is('admin/pages*') ? 'active' : '' }}"
                 title="Pages"
