@@ -117,6 +117,7 @@
                 <a href="{{ url('/privacy-policy') }}" style="font-size: 0.6875rem; color: rgba(244,241,234,0.4); transition: color 0.15s;" onmouseover="this.style.color='rgba(244,241,234,0.7)'" onmouseout="this.style.color='rgba(244,241,234,0.4)'">Privacy Policy</a>
                 <a href="{{ url('/terms-and-conditions') }}" style="font-size: 0.6875rem; color: rgba(244,241,234,0.4); transition: color 0.15s;" onmouseover="this.style.color='rgba(244,241,234,0.7)'" onmouseout="this.style.color='rgba(244,241,234,0.4)'">Terms &amp; Conditions</a>
                 <a href="{{ url('/return-policy') }}" style="font-size: 0.6875rem; color: rgba(244,241,234,0.4); transition: color 0.15s;" onmouseover="this.style.color='rgba(244,241,234,0.7)'" onmouseout="this.style.color='rgba(244,241,234,0.4)'">Return Policy</a>
+                <a href="{{ url('/shipping-policy') }}" style="font-size: 0.6875rem; color: rgba(244,241,234,0.4); transition: color 0.15s;" onmouseover="this.style.color='rgba(244,241,234,0.7)'" onmouseout="this.style.color='rgba(244,241,234,0.4)'">Shipping Policy</a>
             </div>
         </div>
     </div>
