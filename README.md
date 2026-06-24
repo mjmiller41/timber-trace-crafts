@@ -13,6 +13,12 @@ php artisan migrate --seed
 npm run dev
 ```
 
+The `php-imap` extension is required for the admin inbox:
+
+```bash
+sudo apt install php8.3-imap && sudo phpenmod imap
+```
+
 ## Image Storage — Cloudflare R2
 
 All product and media images are stored in Cloudflare R2 (S3-compatible object storage). Images are served directly from R2's CDN — Hostinger never handles image traffic.
@@ -166,4 +172,19 @@ MAIL_FROM_NAME="Timber & Trace Crafts"
 STRIPE_KEY=pk_live_...
 STRIPE_SECRET=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+
+MAIL_MAILER=smtp
+MAIL_SCHEME=ssl
+MAIL_HOST=smtp.hostinger.com
+MAIL_PORT=465
+MAIL_USERNAME=hello@timbertracecrafts.com
+MAIL_PASSWORD=your_email_password
+MAIL_FROM_ADDRESS="hello@timbertracecrafts.com"
+MAIL_FROM_NAME="Timber Trace Crafts"
+
+IMAP_HOST=imap.hostinger.com
+IMAP_PORT=993
+IMAP_ENCRYPTION=ssl
+IMAP_USERNAME=hello@timbertracecrafts.com
+IMAP_PASSWORD=your_email_password
 ```
