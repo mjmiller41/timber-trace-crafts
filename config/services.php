@@ -41,4 +41,9 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'etsy' => [
+        'keystring' => env('ETSY_KEYSTRING'),
+        'shared_secret' => env('ETSY_SHARED_SECRET'),
+    ],
+
 ];
