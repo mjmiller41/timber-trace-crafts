@@ -21,6 +21,7 @@ class Order extends Model
         'coupon_id',
         'coupon_code_snapshot',
         'stripe_payment_intent_id',
+        'etsy_receipt_id',
         'shipping_method',
         'gift_message',
         'shipping_first_name',
