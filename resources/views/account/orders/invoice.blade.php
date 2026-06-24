@@ -27,7 +27,7 @@
             <address>
                 Timber Trace Crafts<br>
                 Avon Park, FL 33825<br>
-                timbertracerafts@gmail.com
+                hello@timbertracecrafts.com
             </address>
         </div>
 
