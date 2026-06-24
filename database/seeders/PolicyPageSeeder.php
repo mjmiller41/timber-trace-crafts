@@ -57,16 +57,14 @@ HTML,
 </ul>
 <p>During peak seasons (holidays, special promotions) processing times may be extended. We will notify you if your order will be delayed beyond our standard window.</p>
 
-<h2>Shipping Carriers & Methods</h2>
-<p>We ship via <strong>USPS</strong> and <strong>UPS</strong>. The carrier and service level are selected based on package size, weight, and destination to ensure the best balance of speed and cost.</p>
+<h2>Shipping Methods & Costs</h2>
+<p>We ship all orders via USPS. The following options are available at checkout:</p>
 <ul>
-    <li><strong>USPS First Class / Priority Mail:</strong> 2–5 business days after shipment</li>
-    <li><strong>UPS Ground:</strong> 3–7 business days after shipment</li>
+    <li><strong>USPS Ground Advantage — Free</strong> on every order. Estimated delivery 2–5 business days after shipment.</li>
+    <li><strong>USPS Priority Mail — $7.00.</strong> Estimated delivery 1–3 business days after shipment.</li>
+    <li><strong>USPS Priority Mail Express — $35.00.</strong> Estimated delivery 1–2 business days after shipment, including weekends.</li>
 </ul>
-<p>Expedited shipping options may be available at checkout for an additional fee.</p>
-
-<h2>Shipping Costs</h2>
-<p>Shipping costs are calculated at checkout based on your location and the weight of your order. We offer <strong>free standard shipping on orders over $75</strong> within the contiguous United States.</p>
+<p>All shipping rates are flat-rate and apply to orders shipped within the contiguous United States.</p>
 
 <h2>Order Tracking</h2>
 <p>Once your order ships, you will receive a shipping confirmation email with a tracking number. You can track your package directly on the carrier's website or through your account order history.</p>
