@@ -42,12 +42,16 @@
         </div>
     </div>
 
-    {{-- Body --}}
+    {{-- Body — sandboxed to prevent script execution from untrusted email HTML --}}
     <div style="padding: 1.5rem;">
         @if($message['body_html'])
-            <div style="font-size: 0.875rem; line-height: 1.7; color: #374151; max-width: 680px;">
-                {!! $message['body_html'] !!}
-            </div>
+            <iframe
+                srcdoc="{{ $message['body_html'] }}"
+                sandbox=""
+                referrerpolicy="no-referrer"
+                style="width: 100%; border: none; min-height: 300px;"
+                onload="this.style.height = (this.contentDocument.body.scrollHeight + 32) + 'px'"
+            ></iframe>
         @elseif($message['body_text'])
             <pre style="font-family: 'Montserrat', sans-serif; font-size: 0.875rem; line-height: 1.7; color: #374151; white-space: pre-wrap; margin: 0;">{{ $message['body_text'] }}</pre>
         @else
