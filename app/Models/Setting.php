@@ -41,9 +41,11 @@ class Setting extends Model
 
     public static function set(string $key, mixed $value): void
     {
+        $group = str_contains($key, '.') ? explode('.', $key)[0] : 'general';
+
         static::updateOrCreate(
             ['key' => $key],
-            ['value' => $value, 'updated_at' => now()]
+            ['value' => $value, 'group' => $group, 'label' => $key, 'updated_at' => now()]
         );
 
         Cache::forget('setting.'.$key);
