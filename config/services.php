@@ -52,6 +52,7 @@ return [
         'encryption' => env('IMAP_ENCRYPTION', 'ssl'),
         'username' => env('IMAP_USERNAME'),
         'password' => env('IMAP_PASSWORD'),
+        'novalidate_cert' => env('IMAP_NOVALIDATE_CERT', false),
     ],
 
 ];
