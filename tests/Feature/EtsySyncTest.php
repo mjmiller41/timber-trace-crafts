@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyInventorySync;
+use App\Services\Etsy\EtsyOrderSync;
 use App\Services\Etsy\EtsyProductSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -108,5 +109,74 @@ class EtsySyncTest extends TestCase
         $sync->syncProduct($product);
     }
 
-    // ── Order Sync (placeholder tests — filled in Task 6) ────────────
+    // ── Order Sync ────────────────────────────────────────────────────
+
+    public function test_order_sync_imports_new_receipt_as_order(): void
+    {
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('get')
+            ->with('/application/shops/12345678/receipts', Mockery::type('array'))
+            ->andReturn([
+                'results' => [
+                    [
+                        'receipt_id' => 9876543,
+                        'name' => 'Jane Smith',
+                        'first_line' => '123 Oak St',
+                        'second_line' => null,
+                        'city' => 'Portland',
+                        'state' => 'OR',
+                        'zip' => '97201',
+                        'country_iso' => 'US',
+                        'buyer_email' => 'jane@example.com',
+                        'grandtotal' => ['amount' => 4500, 'divisor' => 100],
+                        'subtotal' => ['amount' => 3500, 'divisor' => 100],
+                        'total_shipping_cost' => ['amount' => 800, 'divisor' => 100],
+                        'total_tax_cost' => ['amount' => 200, 'divisor' => 100],
+                        'transactions' => [
+                            [
+                                'title' => 'Oak Shelf',
+                                'quantity' => 1,
+                                'price' => ['amount' => 3500, 'divisor' => 100],
+                                'sku' => 'SHELF-OAK',
+                            ],
+                        ],
+                    ],
+                ],
+                'count' => 1,
+            ]);
+
+        $sync = new EtsyOrderSync($client);
+        $sync->sync();
+
+        $this->assertDatabaseHas('orders', [
+            'etsy_receipt_id' => '9876543',
+            'status' => 'processing',
+            'guest_email' => 'jane@example.com',
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'name_snapshot' => 'Oak Shelf',
+            'qty' => 1,
+        ]);
+    }
+
+    public function test_order_sync_skips_already_imported_receipts(): void
+    {
+        Order::factory()->create(['etsy_receipt_id' => '9876543']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('get')
+            ->andReturn([
+                'results' => [
+                    ['receipt_id' => 9876543, 'transactions' => []],
+                ],
+                'count' => 1,
+            ]);
+
+        $sync = new EtsyOrderSync($client);
+        $result = $sync->sync();
+
+        $this->assertEquals(1, $result->skipped);
+        $this->assertDatabaseCount('orders', 1);
+    }
 }
