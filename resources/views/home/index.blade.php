@@ -33,15 +33,12 @@
                 </div>
             </div>
 
-            {{-- Hero image placeholder --}}
+            {{-- Hero image --}}
             <div class="relative">
-                <div class="aspect-square bg-white/10 flex items-center justify-center">
-                    <div class="text-center text-white/30">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.5" stroke="currentColor" class="w-24 h-24 mx-auto mb-4">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                        </svg>
-                        <p class="font-body text-sm tracking-wider uppercase">Hero Image</p>
-                    </div>
+                <div class="aspect-square overflow-hidden">
+                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.png') }}"
+                         alt="Handcrafted wooden box at a craft market"
+                         class="w-full h-full object-cover">
                 </div>
                 {{-- Decorative offset border --}}
                 <div class="absolute -bottom-4 -right-4 w-full h-full border border-white/20 -z-10"></div>
