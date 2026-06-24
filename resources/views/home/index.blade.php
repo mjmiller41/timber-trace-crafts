@@ -132,17 +132,32 @@
 {{-- ============================================================ --}}
 <section class="bg-forest-green py-24 md:py-32">
     <div class="page-container">
-        <div class="max-w-3xl mx-auto text-center">
-            <p class="section-label text-white/50 mb-8">Our Philosophy</p>
-            <blockquote class="font-heading text-3xl md:text-5xl font-light text-white leading-tight mb-10">
-                "Every piece tells the story<br class="hidden md:block"> of the wood it came from."
-            </blockquote>
-            <p class="font-body text-white/65 text-base leading-relaxed mb-10 max-w-lg mx-auto">
-                We work with sustainably sourced hardwoods — oak, walnut, cherry, and maple — letting the grain and natural character of each board shape the final piece.
-            </p>
-            <a href="{{ route('page.show', 'about-us') }}" class="inline-block border border-white/50 text-white px-8 py-4 font-body font-600 text-sm tracking-widest uppercase transition-all hover:bg-white/10">
-                Read Our Story
-            </a>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {{-- Image --}}
+            <div class="relative">
+                <div class="aspect-square overflow-hidden">
+                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.jpeg') }}"
+                         alt="Handcrafted laser-cut heart box with floral design"
+                         class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -bottom-4 -left-4 w-full h-full border border-white/20 -z-10"></div>
+            </div>
+
+            {{-- Copy --}}
+            <div>
+                <p class="section-label text-white/50 mb-8">Our Philosophy</p>
+                <blockquote class="font-heading text-3xl md:text-5xl font-light text-white leading-tight mb-10">
+                    "Every piece tells the story of the wood it came from."
+                </blockquote>
+                <p class="font-body text-white/65 text-base leading-relaxed mb-10">
+                    We work with sustainably sourced hardwoods — oak, walnut, cherry, and maple — letting the grain and natural character of each board shape the final piece.
+                </p>
+                <a href="{{ route('page.show', 'about-us') }}" class="inline-block border border-white/50 text-white px-8 py-4 font-body font-600 text-sm tracking-widest uppercase transition-all hover:bg-white/10">
+                    Read Our Story
+                </a>
+            </div>
+
         </div>
     </div>
 </section>
