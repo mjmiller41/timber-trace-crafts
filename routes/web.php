@@ -64,9 +64,9 @@ Route::get('/journal/{slug}', [JournalController::class, 'show'])->name('journal
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'submit'])->middleware('honeypot')->name('contact.submit');
 
-// Static pages (faq, privacy-policy, terms-and-conditions, return-policy, about-us)
+// Static pages
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', 'faq|privacy-policy|terms-and-conditions|return-policy|about-us');
+    ->where('slug', 'faq|privacy-policy|terms-and-conditions|return-policy|shipping-policy|about-us');
 
 // Auth
 Route::middleware('guest')->group(function () {
