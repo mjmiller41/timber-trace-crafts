@@ -43,8 +43,8 @@
             </div>
         </div>
         <div>
-            <img src="{{ Storage::disk('r2')->url('products/workshop-2.jpg') }}"
-                 alt="Michael J. Miller at work in his studio"
+            <img src="{{ Storage::disk('r2')->url('products/EAR-BFLY-CHY3-03-IMG7.png') }}"
+                 alt="Handcrafted wooden butterfly earrings"
                  class="w-full aspect-square object-cover object-center">
         </div>
     </div>
@@ -66,8 +66,8 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div class="order-2 md:order-1">
-                <img src="{{ Storage::disk('r2')->url('products/workshop-3.jpg') }}"
-                     alt="Laser engraver in action at Timber Trace Crafts"
+                <img src="{{ Storage::disk('r2')->url('products/TMBLR-AM250-STNLS20-01-IMG9.png') }}"
+                     alt="Handcrafted engraved tumbler"
                      class="w-full aspect-square object-cover object-center">
             </div>
             <div class="order-1 md:order-2">
@@ -129,8 +129,8 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div>
-                <img src="{{ Storage::disk('r2')->url('products/workshop-4.jpg') }}"
-                     alt="Timber Trace Crafts finished products"
+                <img src="{{ Storage::disk('r2')->url('products/EAR-TDRP-CHY3-01-IMG8.png') }}"
+                     alt="Handcrafted wooden teardrop earrings in cherry"
                      class="w-full aspect-square object-cover object-center">
             </div>
             <div>
