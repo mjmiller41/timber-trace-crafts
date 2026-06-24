@@ -16,7 +16,7 @@ class ImapService
     public function __construct()
     {
         $cfg = config('services.imap');
-        $this->mailbox = sprintf('{%s:%d/imap/%s}INBOX', $cfg['host'], $cfg['port'], $cfg['encryption']);
+        $this->mailbox = sprintf('{%s:%d/imap/%s/novalidate-cert}INBOX', $cfg['host'], $cfg['port'], $cfg['encryption']);
         $this->connection = imap_open($this->mailbox, $cfg['username'], $cfg['password'])
             ?: throw new \RuntimeException('IMAP connection failed: '.imap_last_error());
     }
