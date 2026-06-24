@@ -6,10 +6,12 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Setting;
+use App\Models\Shipment;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyInventorySync;
 use App\Services\Etsy\EtsyOrderSync;
 use App\Services\Etsy\EtsyProductSync;
+use App\Services\Etsy\EtsyShipmentSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -178,5 +180,42 @@ class EtsySyncTest extends TestCase
 
         $this->assertEquals(1, $result->skipped);
         $this->assertDatabaseCount('orders', 1);
+    }
+
+    // ── Shipment Sync ─────────────────────────────────────────────────
+
+    public function test_shipment_push_sends_tracking_to_etsy(): void
+    {
+        $order = Order::factory()->create(['etsy_receipt_id' => '5551234']);
+        $shipment = new Shipment([
+            'carrier' => 'USPS',
+            'tracking_number' => 'TRACK123',
+        ]);
+        $shipment->order_id = $order->id;
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('post')
+            ->once()
+            ->with(
+                '/application/shops/12345678/receipts/5551234/tracking',
+                Mockery::on(fn ($p) => $p['carrier_name'] === 'USPS' && $p['tracking_code'] === 'TRACK123')
+            )
+            ->andReturn([]);
+
+        $sync = new EtsyShipmentSync($client);
+        $sync->pushShipment($order, $shipment);
+    }
+
+    public function test_shipment_push_skips_non_etsy_orders(): void
+    {
+        $order = Order::factory()->create(['etsy_receipt_id' => null]);
+        $shipment = new Shipment(['carrier' => 'UPS', 'tracking_number' => 'XYZ']);
+        $shipment->order_id = $order->id;
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldNotReceive('post');
+
+        $sync = new EtsyShipmentSync($client);
+        $sync->pushShipment($order, $shipment);
     }
 }

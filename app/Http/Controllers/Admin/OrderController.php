@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\OrderShippedMail;
 use App\Mail\OrderStatusChangedMail;
 use App\Models\Order;
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyShipmentSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -69,7 +72,7 @@ class OrderController extends Controller
             'shipped_at' => ['nullable', 'date'],
         ]);
 
-        $order->shipments()->create([
+        $shipment = $order->shipments()->create([
             'carrier' => $validated['carrier'],
             'tracking_number' => $validated['tracking_number'],
             'shipped_at' => $validated['shipped_at'] ?? now(),
@@ -84,11 +87,18 @@ class OrderController extends Controller
             ]);
         }
 
+        // Push tracking to Etsy if this is an Etsy order
+        try {
+            $etsySync = new EtsyShipmentSync(new EtsyClient(new EtsyOAuthService));
+            $etsySync->pushShipment($order, $shipment);
+        } catch (\Throwable $e) {
+            Log::error('Etsy shipment hook failed', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+        }
+
         // Notify customer
         try {
             $email = $order->user?->email ?? $order->guest_email;
             if ($email) {
-                $shipment = $order->shipments()->latest()->first();
                 Mail::to($email)
                     ->send(new OrderShippedMail($order, $shipment));
             }
