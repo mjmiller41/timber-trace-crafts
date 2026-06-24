@@ -5,6 +5,7 @@ namespace App\Services\Etsy;
 use App\Exceptions\EtsyApiException;
 use App\Models\Order;
 use App\Models\Setting;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Log;
 
 class EtsyOrderSync
@@ -50,6 +51,8 @@ class EtsyOrderSync
                 try {
                     $this->importReceipt($receipt);
                     $result->created++;
+                } catch (UniqueConstraintViolationException $e) {
+                    $result->skipped++;
                 } catch (\Throwable $e) {
                     $result->failed++;
                     Log::error('Etsy receipt import failed', [
@@ -63,9 +66,7 @@ class EtsyOrderSync
             usleep(250_000);
         } while (count($receipts) === $limit);
 
-        if ($result->failed === 0) {
-            Setting::set('etsy.orders_last_synced_at', now()->toISOString());
-        }
+        Setting::set('etsy.orders_last_synced_at', now()->toISOString());
 
         return $result;
     }

@@ -62,25 +62,34 @@ class EtsyController extends Controller
 
     public function syncProducts(): RedirectResponse
     {
-        $result = (new EtsyProductSync(new EtsyClient($this->oauth)))->syncAll();
+        try {
+            $result = (new EtsyProductSync(new EtsyClient($this->oauth)))->syncAll();
 
-        return redirect()->route('admin.etsy.index')
-            ->with('success', 'Products synced. '.$result->summary());
+            return redirect()->route('admin.etsy.index')->with('success', 'Products synced. '.$result->summary());
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.etsy.index')->with('error', 'Product sync failed: '.$e->getMessage());
+        }
     }
 
     public function syncInventory(): RedirectResponse
     {
-        $result = (new EtsyInventorySync(new EtsyClient($this->oauth)))->syncAll();
+        try {
+            $result = (new EtsyInventorySync(new EtsyClient($this->oauth)))->syncAll();
 
-        return redirect()->route('admin.etsy.index')
-            ->with('success', 'Inventory synced. '.$result->summary());
+            return redirect()->route('admin.etsy.index')->with('success', 'Inventory synced. '.$result->summary());
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.etsy.index')->with('error', 'Inventory sync failed: '.$e->getMessage());
+        }
     }
 
     public function syncOrders(): RedirectResponse
     {
-        $result = (new EtsyOrderSync(new EtsyClient($this->oauth)))->sync();
+        try {
+            $result = (new EtsyOrderSync(new EtsyClient($this->oauth)))->sync();
 
-        return redirect()->route('admin.etsy.index')
-            ->with('success', 'Orders synced. '.$result->summary());
+            return redirect()->route('admin.etsy.index')->with('success', 'Orders synced. '.$result->summary());
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.etsy.index')->with('error', 'Order sync failed: '.$e->getMessage());
+        }
     }
 }
