@@ -35,7 +35,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('contact.submit') }}" class="space-y-6">
+            <form id="contact-form" method="POST" action="{{ route('contact.submit') }}" class="space-y-6">
                 @csrf
                 @include('components.honeypot')
 
@@ -109,12 +109,12 @@
         {{-- ====================================================== --}}
         <div class="lg:col-span-1 space-y-10">
 
-            {{-- Email --}}
+            {{-- Contact --}}
             <div>
-                <p class="section-label mb-3">Email</p>
-                <a href="mailto:hello@timbertracecrafts.com"
-                   class="font-heading text-xl font-light text-charcoal hover:text-forest-green transition-colors break-all">
-                    hello@timbertracecrafts.com
+                <p class="section-label mb-3">Contact</p>
+                <a href="#contact-form"
+                   class="font-heading text-xl font-light text-charcoal hover:text-forest-green transition-colors">
+                    Send us a message →
                 </a>
             </div>
 
