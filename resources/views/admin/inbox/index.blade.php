@@ -7,11 +7,17 @@
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
     <div>
         <h1 style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.75rem; color: #2d2d2d; margin: 0;">Inbox</h1>
-        @if($unread > 0)
-            <p style="font-size: 0.8125rem; color: #6b7280; margin: 0.25rem 0 0;">{{ $unread }} unread</p>
-        @endif
+        <p style="font-size: 0.8125rem; color: #9ca3af; margin: 0.25rem 0 0;">
+            @if($unread > 0)
+                <span style="color: #2C4C3B; font-weight: 500;">{{ $unread }} unread &middot;</span>
+            @endif
+            Checked at {{ now()->format('g:i A') }}
+        </p>
     </div>
-    <a href="{{ route('admin.inbox.compose') }}" class="admin-btn admin-btn-primary">Compose</a>
+    <div style="display: flex; gap: 0.5rem;">
+        <a href="{{ route('admin.inbox.index') }}" class="admin-btn admin-btn-outline">&#x21BB; Check for mail</a>
+        <a href="{{ route('admin.inbox.compose') }}" class="admin-btn admin-btn-primary">Compose</a>
+    </div>
 </div>
 
 @if($error)
