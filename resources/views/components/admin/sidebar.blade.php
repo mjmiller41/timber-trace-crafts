@@ -129,6 +129,20 @@
             </a>
         </div>
 
+        {{-- Integrations --}}
+        <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
+            <div class="admin-sidebar-section-label" x-show="!collapsed">Integrations</div>
+
+            <a
+                href="{{ route('admin.etsy.index') }}"
+                class="admin-sidebar-link {{ request()->is('admin/etsy*') ? 'active' : '' }}"
+                title="Etsy"
+            >
+                <span class="nav-icon">&#x1F6D2;</span>
+                <span x-show="!collapsed">Etsy</span>
+            </a>
+        </div>
+
         {{-- Content --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
             <div class="admin-sidebar-section-label" x-show="!collapsed">Content</div>

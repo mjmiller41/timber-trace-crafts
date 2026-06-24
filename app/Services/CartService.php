@@ -4,23 +4,23 @@ namespace App\Services;
 
 class CartService
 {
-    public static function getCart(): array
+    public function getCart(): array
     {
         return session('cart', []);
     }
 
-    public static function saveCart(array $cart): void
+    public function saveCart(array $cart): void
     {
         session(['cart' => $cart]);
-        session(['cart_count' => self::itemCount($cart)]);
+        session(['cart_count' => $this->itemCount($cart)]);
     }
 
-    public static function itemCount(array $cart): int
+    public function itemCount(array $cart): int
     {
         return array_sum(array_column($cart, 'qty'));
     }
 
-    public static function subtotal(array $cart): float
+    public function subtotal(array $cart): float
     {
         return array_sum(array_map(
             fn ($i) => ($i['price'] + ($i['personalization_price'] ?? 0)) * $i['qty'],
@@ -28,14 +28,14 @@ class CartService
         ));
     }
 
-    public static function clear(): void
+    public function clear(): void
     {
         session()->forget(['cart', 'cart_count', 'coupon']);
     }
 
-    public static function add(array $item): void
+    public function add(array $item): void
     {
-        $cart = self::getCart();
+        $cart = $this->getCart();
         $key = $item['row_key'];
 
         if (isset($cart[$key])) {
@@ -44,12 +44,12 @@ class CartService
             $cart[$key] = $item;
         }
 
-        self::saveCart($cart);
+        $this->saveCart($cart);
     }
 
-    public static function update(string $key, int $qty): void
+    public function update(string $key, int $qty): void
     {
-        $cart = self::getCart();
+        $cart = $this->getCart();
 
         if (isset($cart[$key])) {
             if ($qty <= 0) {
@@ -59,17 +59,17 @@ class CartService
             }
         }
 
-        self::saveCart($cart);
+        $this->saveCart($cart);
     }
 
-    public static function remove(string $key): void
+    public function remove(string $key): void
     {
-        $cart = self::getCart();
+        $cart = $this->getCart();
         unset($cart[$key]);
-        self::saveCart($cart);
+        $this->saveCart($cart);
     }
 
-    public static function mergeSessions(int $userId): void
+    public function mergeSessions(int $userId): void
     {
         // After login: persist session cart to DB (Phase 2 enhancement)
         // For now, session cart persists as-is

@@ -17,6 +17,8 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly CartService $cartService) {}
+
     public function showLogin(): View
     {
         return view('auth.login');
@@ -40,7 +42,7 @@ class AuthController extends Controller
                 $user->save();
             }
 
-            CartService::mergeSessions($user->id);
+            $this->cartService->mergeSessions($user->id);
 
             return redirect()->intended(route('account.dashboard'));
         }

@@ -337,20 +337,17 @@
                         @endforeach
                     </div>
 
-                    @if(session('coupon'))
-                        <div class="flex justify-between py-3 border-t border-walnut/20">
-                            <span class="font-body text-xs text-forest-green">Coupon: {{ session('coupon.code') }}</span>
-                            <span class="font-body text-xs text-forest-green font-600">Applied</span>
-                        </div>
-                    @endif
-
                     <div class="space-y-2 pt-4 border-t border-walnut/20 mt-2">
                         <div class="flex justify-between">
                             <span class="font-body text-sm text-walnut">Subtotal</span>
-                            <span class="font-body text-sm text-charcoal font-600">
-                                ${{ number_format(collect($cart)->sum(fn($i) => ($i['price'] ?? 0) * ($i['qty'] ?? 1)), 2) }}
-                            </span>
+                            <span class="font-body text-sm text-charcoal font-600">${{ number_format($subtotal, 2) }}</span>
                         </div>
+                        @if($discountAmount > 0)
+                            <div class="flex justify-between">
+                                <span class="font-body text-sm text-forest-green">Coupon ({{ session('coupon') }})</span>
+                                <span class="font-body text-sm text-forest-green font-600">−${{ number_format($discountAmount, 2) }}</span>
+                            </div>
+                        @endif
                         <div class="flex justify-between">
                             <span class="font-body text-sm text-walnut">Shipping</span>
                             <span class="section-label">TBD</span>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\CartService;
@@ -11,10 +12,12 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
+    public function __construct(private readonly CartService $cartService) {}
+
     public function index(): View
     {
-        $cart = CartService::getCart();
-        $subtotal = CartService::subtotal($cart);
+        $cart = $this->cartService->getCart();
+        $subtotal = $this->cartService->subtotal($cart);
 
         return view('cart.index', compact('cart', 'subtotal'));
     }
@@ -52,7 +55,7 @@ class CartController extends Controller
             'image_url' => $product->primary_image_url ?? null,
         ];
 
-        CartService::add($item);
+        $this->cartService->add($item);
 
         return redirect()->back()->with('success', 'Item added to cart.');
     }
@@ -63,14 +66,14 @@ class CartController extends Controller
             'qty' => ['required', 'integer', 'min:0', 'max:99'],
         ]);
 
-        CartService::update($rowKey, (int) $validated['qty']);
+        $this->cartService->update($rowKey, (int) $validated['qty']);
 
         return redirect()->back()->with('success', 'Cart updated.');
     }
 
     public function remove(string $rowKey): RedirectResponse
     {
-        CartService::remove($rowKey);
+        $this->cartService->remove($rowKey);
 
         return redirect()->back()->with('success', 'Item removed from cart.');
     }
@@ -81,7 +84,16 @@ class CartController extends Controller
             'code' => ['required', 'string', 'max:50'],
         ]);
 
-        session(['coupon' => strtoupper($validated['code'])]);
+        $code = strtoupper($validated['code']);
+        $subtotal = $this->cartService->subtotal($this->cartService->getCart());
+
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (! $coupon || ! $coupon->isValid($subtotal)) {
+            return redirect()->back()->withErrors(['code' => 'This coupon code is invalid or has expired.']);
+        }
+
+        session(['coupon' => $code]);
 
         return redirect()->back()->with('success', 'Coupon applied.');
     }

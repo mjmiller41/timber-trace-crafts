@@ -30,16 +30,17 @@ class MediaController extends Controller
         $original = $file->getClientOriginalName();
         $extension = $file->getClientOriginalExtension();
         $filename = Str::slug(pathinfo($original, PATHINFO_FILENAME)).'-'.uniqid().'.'.$extension;
-        $path = $file->storeAs('media', $filename, 'public');
+        $path = $file->storeAs('media', $filename, config('filesystems.default'));
 
         Media::create([
             'filename' => $filename,
+            'original_name' => $original,
             'path' => $path,
-            'disk' => 'public',
+            'disk' => config('filesystems.default'),
             'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'alt' => $request->input('alt'),
-            'url' => Storage::disk('public')->url($path),
+            'size_bytes' => $file->getSize(),
+            'alt_text' => $request->input('alt'),
+            'uploaded_by' => auth()->id(),
         ]);
 
         return redirect()->route('admin.media.index')->with('success', 'File uploaded.');

@@ -140,7 +140,7 @@
                             <div class="flex items-center justify-between mb-3">
                                 <div>
                                     <p class="section-label mb-0.5">Coupon Applied</p>
-                                    <p class="font-body text-sm font-600 text-forest-green">{{ session('coupon.code') }}</p>
+                                    <p class="font-body text-sm font-600 text-forest-green">{{ session('coupon') }}</p>
                                 </div>
                                 <form method="POST" action="{{ route('cart.coupon.remove') }}">
                                     @csrf
@@ -155,15 +155,19 @@
                                     class="font-body text-xs tracking-wider uppercase text-walnut hover:text-charcoal transition-colors underline underline-offset-2">
                                 Have a coupon?
                             </button>
-                            <div x-show="open" x-transition class="mt-3">
+                            <div x-show="open || $errors->has('code')" x-transition class="mt-3">
                                 <form method="POST" action="{{ route('cart.coupon') }}" class="flex gap-0">
                                     @csrf
                                     <input type="text"
                                            name="code"
+                                           value="{{ old('code') }}"
                                            placeholder="Coupon code"
-                                           class="form-field flex-1 py-2 text-sm">
+                                           class="form-field flex-1 py-2 text-sm @error('code') border-error @enderror">
                                     <button type="submit" class="btn-primary px-4 py-2 text-xs">Apply</button>
                                 </form>
+                                @error('code')
+                                    <p class="font-body text-xs text-error mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
                         @endif
                     </div>

@@ -7,7 +7,7 @@ use App\Models\TaxRate;
 
 class TaxService
 {
-    public static function calculate(float $subtotal, string $shippingState): float
+    public function calculate(float $subtotal, string $shippingState): float
     {
         $taxableStates = array_map('trim', explode(',', Setting::get('tax.apply_to_states', 'FL')));
 

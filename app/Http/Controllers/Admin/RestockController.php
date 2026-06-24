@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RestockNotificationMail;
 use App\Models\ProductVariant;
 use App\Models\RestockRequest;
 use Illuminate\Http\RedirectResponse;
@@ -23,20 +24,15 @@ class RestockController extends Controller
 
     public function notify(ProductVariant $variant): RedirectResponse
     {
+        $variant->loadMissing('product');
+
         $pending = RestockRequest::where('product_variant_id', $variant->id)
             ->whereNull('notified_at')
             ->get();
 
         foreach ($pending as $restockRequest) {
-            Mail::raw(
-                "Good news! The item you requested ({$variant->product->name} — {$variant->label}) is back in stock.",
-                function ($mail) use ($restockRequest, $variant) {
-                    $mail->to($restockRequest->email)
-                        ->subject("{$variant->product->name} is back in stock!");
-                }
-            );
-
-            $restockRequest->update(['notified' => true, 'notified_at' => now()]);
+            Mail::to($restockRequest->email)->queue(new RestockNotificationMail($variant));
+            $restockRequest->update(['notified_at' => now()]);
         }
 
         return redirect()->route('admin.restock.index')

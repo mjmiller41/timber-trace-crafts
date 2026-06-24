@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\OrderConfirmationMail;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\ShippingMethod;
 use App\Services\CartService;
@@ -19,18 +20,27 @@ use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
+    public function __construct(
+        private readonly CartService $cartService,
+        private readonly ShippingService $shippingService,
+        private readonly TaxService $taxService,
+        private readonly StripeService $stripeService,
+    ) {}
+
     public function index(): View|RedirectResponse
     {
-        $cart = CartService::getCart();
+        $cart = $this->cartService->getCart();
 
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        $subtotal = CartService::subtotal($cart);
-        $shippingMethods = ShippingService::getAvailableMethods();
+        $subtotal = $this->cartService->subtotal($cart);
+        $shippingMethods = $this->shippingService->getAvailableMethods();
+        $coupon = $this->resolveValidCoupon($subtotal);
+        $discountAmount = $coupon ? $coupon->calculateDiscount($cart) : 0.0;
 
-        return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods'));
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods', 'coupon', 'discountAmount'));
     }
 
     /**
@@ -43,26 +53,26 @@ class CheckoutController extends Controller
             'shipping_state' => ['nullable', 'string', 'max:2'],
         ]);
 
-        $cart = CartService::getCart();
+        $cart = $this->cartService->getCart();
         if (empty($cart)) {
             return response()->json(['error' => 'Your cart is empty.'], 422);
         }
 
         $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
-        $methods = ShippingService::getAvailableMethods();
+        $methods = $this->shippingService->getAvailableMethods();
         $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
         $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
 
-        $subtotal = CartService::subtotal($cart);
-        $taxAmount = TaxService::calculate($subtotal + $shippingAmount, $validated['shipping_state'] ?? '');
-        $total = round($subtotal + $shippingAmount + $taxAmount, 2);
+        $subtotal = $this->cartService->subtotal($cart);
+        $discountAmount = $this->resolveCouponDiscount($cart, $subtotal);
+        $taxAmount = $this->taxService->calculate($subtotal - $discountAmount + $shippingAmount, $validated['shipping_state'] ?? '');
+        $total = round($subtotal - $discountAmount + $shippingAmount + $taxAmount, 2);
         $totalCents = (int) round($total * 100);
 
         $buyerEmail = auth()->user()?->email;
 
         try {
-            $stripe = new StripeService;
-            $intent = $stripe->createPaymentIntent($totalCents, $buyerEmail);
+            $intent = $this->stripeService->createPaymentIntent($totalCents, $buyerEmail);
 
             return response()->json(['client_secret' => $intent->client_secret]);
         } catch (\Throwable $e) {
@@ -89,15 +99,14 @@ class CheckoutController extends Controller
             'gift_message' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $cart = CartService::getCart();
+        $cart = $this->cartService->getCart();
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
         // Verify the Stripe PaymentIntent succeeded
         try {
-            $stripe = new StripeService;
-            $intent = $stripe->verifyPaymentIntent($validated['payment_intent_id']);
+            $intent = $this->stripeService->verifyPaymentIntent($validated['payment_intent_id']);
         } catch (\Throwable $e) {
             Log::error('Stripe payment verification failed', ['error' => $e->getMessage()]);
 
@@ -108,14 +117,15 @@ class CheckoutController extends Controller
 
         // Resolve shipping
         $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
-        $methods = ShippingService::getAvailableMethods();
+        $methods = $this->shippingService->getAvailableMethods();
         $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
         $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
 
         // Recalculate totals server-side (never trust client)
-        $subtotal = CartService::subtotal($cart);
-        $discountAmount = 0.0;
-        $taxAmount = TaxService::calculate($subtotal + $shippingAmount, $validated['shipping_state']);
+        $subtotal = $this->cartService->subtotal($cart);
+        $coupon = $this->resolveValidCoupon($subtotal);
+        $discountAmount = $coupon ? $coupon->calculateDiscount($cart) : 0.0;
+        $taxAmount = $this->taxService->calculate($subtotal - $discountAmount + $shippingAmount, $validated['shipping_state']);
         $total = round($subtotal - $discountAmount + $shippingAmount + $taxAmount, 2);
 
         $buyerEmail = auth()->check()
@@ -126,7 +136,7 @@ class CheckoutController extends Controller
         $order = DB::transaction(function () use (
             $validated, $cart, $subtotal, $discountAmount,
             $shippingAmount, $taxAmount, $total,
-            $shippingMethod, $intent, $buyerEmail
+            $shippingMethod, $intent, $buyerEmail, $coupon
         ) {
             $order = Order::create([
                 'user_id' => auth()->id(),
@@ -137,6 +147,8 @@ class CheckoutController extends Controller
                 'shipping_amount' => $shippingAmount,
                 'tax_amount' => $taxAmount,
                 'total' => $total,
+                'coupon_id' => $coupon?->id,
+                'coupon_code_snapshot' => $coupon?->code,
                 'stripe_payment_intent_id' => $intent->id,
                 'shipping_method' => $shippingMethod->name,
                 'gift_message' => $validated['gift_message'] ?? null,
@@ -180,10 +192,14 @@ class CheckoutController extends Controller
                 'note' => 'Order placed via website.',
             ]);
 
+            if ($coupon) {
+                $coupon->increment('used_count');
+            }
+
             return $order;
         });
 
-        CartService::clear();
+        $this->cartService->clear();
 
         try {
             Mail::to($buyerEmail)->send(new OrderConfirmationMail($order->load('items')));
@@ -209,5 +225,28 @@ class CheckoutController extends Controller
         $order->load('items');
 
         return view('checkout.confirmation', compact('order'));
+    }
+
+    private function resolveValidCoupon(float $subtotal): ?Coupon
+    {
+        $code = session('coupon');
+        if (! $code) {
+            return null;
+        }
+
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (! $coupon || ! $coupon->isValid($subtotal)) {
+            return null;
+        }
+
+        return $coupon;
+    }
+
+    private function resolveCouponDiscount(array $cart, float $subtotal): float
+    {
+        $coupon = $this->resolveValidCoupon($subtotal);
+
+        return $coupon ? $coupon->calculateDiscount($cart) : 0.0;
     }
 }

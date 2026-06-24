@@ -7,7 +7,7 @@ use App\Models\ShippingMethod;
 
 class ShippingService
 {
-    public static function getAvailableMethods(): array
+    public function getAvailableMethods(): array
     {
         $priorityUpcharge = (float) Setting::get('shipping.priority_upcharge', 7.00);
         $expressUpcharge = (float) Setting::get('shipping.priority_express_upcharge', 35.00);

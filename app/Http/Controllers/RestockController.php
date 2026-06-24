@@ -17,8 +17,7 @@ class RestockController extends Controller
 
         RestockRequest::firstOrCreate([
             'email' => strtolower($validated['email']),
-            'variant_id' => $validated['variant_id'],
-            'notified' => false,
+            'product_variant_id' => $validated['variant_id'],
         ]);
 
         return redirect()->back()->with('success', "We'll notify you at {$validated['email']} when this item is back in stock.");

@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Coupon extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'code',
         'description',
@@ -63,6 +67,47 @@ class Coupon extends Model
         }
 
         return true;
+    }
+
+    /**
+     * Calculate the discount amount for the given cart contents.
+     * For 'product' or 'category' coupons, only eligible items contribute.
+     *
+     * @param  array<string, mixed>  $cart
+     */
+    public function calculateDiscount(array $cart): float
+    {
+        $items = collect($cart);
+
+        $eligibleSubtotal = match ($this->applies_to) {
+            'product' => $this->product_id
+                ? $items->filter(fn ($i) => $i['product_id'] === $this->product_id)
+                    ->sum(fn ($i) => ($i['price'] + ($i['personalization_price'] ?? 0)) * $i['qty'])
+                : 0.0,
+
+            'category' => $this->category_id
+                ? $this->eligibleProductIds($items)
+                    ->pipe(fn (Collection $ids) => $items->filter(fn ($i) => $ids->contains($i['product_id'])))
+                    ->sum(fn ($i) => ($i['price'] + ($i['personalization_price'] ?? 0)) * $i['qty'])
+                : 0.0,
+
+            default => $items->sum(fn ($i) => ($i['price'] + ($i['personalization_price'] ?? 0)) * $i['qty']),
+        };
+
+        return match ($this->type) {
+            'percent' => round($eligibleSubtotal * ((float) $this->value / 100), 2),
+            'fixed' => min((float) $this->value, $eligibleSubtotal),
+            default => 0.0,
+        };
+    }
+
+    private function eligibleProductIds(Collection $items): Collection
+    {
+        $productIds = $items->pluck('product_id')->unique();
+
+        return Product::where('category_id', $this->category_id)
+            ->whereIn('id', $productIds)
+            ->pluck('id');
     }
 
     public function category(): BelongsTo
