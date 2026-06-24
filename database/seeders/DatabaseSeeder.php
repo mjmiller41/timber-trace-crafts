@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             TaxRateSeeder::class,
             SettingsSeeder::class,
             PageSeeder::class,
+            PolicyPageSeeder::class,
             AdminSeeder::class,
         ]);
     }

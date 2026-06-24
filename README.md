@@ -96,6 +96,12 @@ php artisan migrate --force
 php artisan config:cache
 ```
 
+If the push includes policy page content changes (return, shipping, privacy, terms), also run:
+
+```bash
+php artisan db:seed --class=PolicyPageSeeder --force
+```
+
 ### Frontend assets
 
 `public/build/` is committed to the repo because Node.js is unavailable on Hostinger shared hosting. The pre-push hook handles this automatically, but if you ever need to build manually:
