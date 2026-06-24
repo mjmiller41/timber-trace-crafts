@@ -13,9 +13,10 @@ class InboxController extends Controller
 {
     public function index(Request $request): View
     {
+        $page = max(1, (int) $request->get('page', 1));
+
         try {
             $imap = new ImapService;
-            $page = max(1, (int) $request->get('page', 1));
             $messages = $imap->messages($page, 25);
             $total = $imap->totalCount();
             $unread = $imap->unreadCount();
