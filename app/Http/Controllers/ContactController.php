@@ -31,7 +31,7 @@ class ContactController extends Controller
             'email' => strtolower($validated['email']),
             'subject' => $validated['subject'] ?? null,
             'message' => $validated['message'],
-            'status' => 'unread',
+            'status' => 'new',
         ]);
 
         // Notify admin by email (non-critical; submission is already saved)
