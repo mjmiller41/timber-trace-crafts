@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EtsyNewOrderMail;
 use App\Models\Order;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
@@ -9,6 +10,7 @@ use App\Services\Etsy\EtsyOrderSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EtsyWebhookController extends Controller
 {
@@ -106,7 +108,13 @@ class EtsyWebhookController extends Controller
 
             if ($receipt) {
                 app(EtsyOrderSync::class)->importReceipt($receipt);
+                $order = Order::where('etsy_receipt_id', $receiptId)->first();
             }
+        }
+
+        if ($order) {
+            $adminEmail = config('mail.from.address');
+            Mail::to($adminEmail)->send(new EtsyNewOrderMail($order->load('items')));
         }
     }
 
