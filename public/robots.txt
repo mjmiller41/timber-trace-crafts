@@ -6,4 +6,30 @@ Disallow: /login
 Disallow: /register
 Disallow: /account
 
+# AI search crawlers — allowed for citation and search visibility
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Training-data crawlers — blocked (content licensed, not donated)
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
 Sitemap: https://timbertracecrafts.com/sitemap.xml

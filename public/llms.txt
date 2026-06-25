@@ -1,10 +1,12 @@
 # Timber Trace Crafts
 
-> Timber Trace Crafts is a veteran-owned small business based in Avon Park, Florida, specializing in precision laser-cut woodcrafts and custom decor. Products include handcrafted wooden jewelry (earrings, pendants), personalized jewelry boxes, and engraved tumblers.
+> Timber Trace Crafts is a veteran-owned small business based in Avon Park, Florida, specializing in precision laser-cut woodcrafts and custom decor. Founded and operated by Michael J. Miller, a disabled veteran who served during Desert Storm. Products include handcrafted wooden jewelry (earrings, pendants), personalized jewelry boxes, and engraved tumblers.
 
 ## About
 
-- Veteran-owned and operated, Avon Park, Florida
+- Founded by Michael J. Miller, disabled veteran (Desert Storm era)
+- One-person studio: all pieces designed, laser-cut, and hand-finished in-house
+- Based in Avon Park, Florida, USA
 - Specializes in laser-cut wooden jewelry, jewelry boxes, and custom tumblers
 - Materials: Maple, Baltic Birch, Basswood, cherry, walnut, oak; wood-and-resin combinations
 - All pieces precision laser-cut and hand-finished
@@ -12,15 +14,27 @@
 
 ## Products
 
+- [Shop](https://timbertracecrafts.com/shop): Full product catalog
 - Wooden earrings: dangle, drop, and stud styles in wood and resin
 - Personalized jewelry boxes: engraved wooden keepsake boxes
-- America 250 Tumbler: engraved tumbler commemorating the 2026 U.S. Bicentennial
+- America 250 Tumbler: stainless steel engraved tumbler commemorating the 2026 U.S. Semiquincentennial
 - Custom laser-cut gifts: ornaments, signs, and home decor
+
+## Journal (Blog)
+
+- [Journal](https://timbertracecrafts.com/journal): Articles on woodworking, laser-cutting techniques, craftsmanship, and behind-the-scenes studio content
+
+## Key Pages
+
+- [About Us](https://timbertracecrafts.com/about-us): Full story of Michael J. Miller and the studio's founding
+- [Contact](https://timbertracecrafts.com/contact): Customer inquiries and custom order requests
+- [FAQ](https://timbertracecrafts.com/faq): Common questions about materials, shipping, and custom orders
 
 ## Contact & Links
 
 - Website: https://timbertracecrafts.com
 - Shop: https://timbertracecrafts.com/shop
+- Etsy: https://www.etsy.com/shop/TimberTraceCrafts
 - Contact: https://timbertracecrafts.com/contact
 
 ## Content Permissions
