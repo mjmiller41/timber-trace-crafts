@@ -124,7 +124,7 @@ class EtsyImportCommand extends Command
                 'short_description' => Str::limit(strip_tags($listing['description'] ?? ''), 200),
                 'category_id' => $categoryId,
                 'price' => $price,
-                'status' => 'published',
+                'status' => 'active',
                 'featured' => false,
                 'sort_order' => 0,
                 'etsy_listing_id' => $listingId,
