@@ -71,7 +71,7 @@ class EtsyOrderSync
         return $result;
     }
 
-    private function importReceipt(array $receipt): void
+    public function importReceipt(array $receipt): void
     {
         [$firstName, $lastName] = $this->splitName($receipt['name'] ?? '');
 
