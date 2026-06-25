@@ -50,9 +50,9 @@ class EtsyClient
 
         $response = match ($method) {
             'GET' => $pending->get(self::BASE_URL.$path, $query),
-            'PUT' => $pending->put(self::BASE_URL.$path, $body),
-            'POST' => $pending->post(self::BASE_URL.$path, $body),
-            'PATCH' => $pending->patch(self::BASE_URL.$path, $body),
+            'PUT' => $pending->asForm()->put(self::BASE_URL.$path, $body),
+            'POST' => $pending->asForm()->post(self::BASE_URL.$path, $body),
+            'PATCH' => $pending->asForm()->patch(self::BASE_URL.$path, $body),
             'DELETE' => $pending->delete(self::BASE_URL.$path),
             default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
         };
