@@ -20,53 +20,34 @@ class EtsyExportCommand extends Command
 
         $export = [];
 
-        $this->info('Fetching shop info...', 'v');
-        $export['shop'] = $client->get("/application/shops/{$shopId}");
+        $endpoints = [
+            'shop' => fn () => $client->get("/application/shops/{$shopId}"),
+            'sections' => fn () => $client->get("/application/shops/{$shopId}/sections"),
+            'shipping_profiles' => fn () => $client->get("/application/shops/{$shopId}/shipping-profiles"),
+            'return_policies' => fn () => $client->get("/application/shops/{$shopId}/return-policies"),
+            'readiness_states' => fn () => $client->get("/application/shops/{$shopId}/readiness-state-definitions"),
+            'production_partners' => fn () => $client->get("/application/shops/{$shopId}/production-partners"),
+            'listings_active' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'active', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
+            'listings_inactive' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'inactive', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
+            'listings_draft' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'draft', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
+            'listings_expired' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'expired', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
+            'listings_sold_out' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'sold_out', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
+            'receipts' => fn () => $this->paginate($client, "/application/shops/{$shopId}/receipts", ['includes' => ['Transactions', 'Buyer', 'Shipments']]),
+            'reviews' => fn () => $this->paginate($client, "/application/shops/{$shopId}/reviews"),
+            'transactions' => fn () => $this->paginate($client, "/application/shops/{$shopId}/transactions"),
+            'buyer_taxonomy' => fn () => $client->get('/application/buyer-taxonomy/nodes'),
+            'seller_taxonomy' => fn () => $client->get('/application/seller-taxonomy/nodes'),
+        ];
 
-        $this->info('Fetching shop sections...', 'v');
-        $export['sections'] = $client->get("/application/shops/{$shopId}/sections");
-
-        $this->info('Fetching shipping profiles...', 'v');
-        $export['shipping_profiles'] = $client->get("/application/shops/{$shopId}/shipping-profiles");
-
-        $this->info('Fetching return policies...', 'v');
-        $export['return_policies'] = $client->get("/application/shops/{$shopId}/return-policies");
-
-        $this->info('Fetching readiness state definitions...', 'v');
-        $export['readiness_states'] = $client->get("/application/shops/{$shopId}/readiness-state-definitions");
-
-        $this->info('Fetching production partners...', 'v');
-        $export['production_partners'] = $client->get("/application/shops/{$shopId}/production-partners");
-
-        $this->info('Fetching active listings...', 'v');
-        $export['listings_active'] = $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'active', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]);
-
-        $this->info('Fetching inactive listings...', 'v');
-        $export['listings_inactive'] = $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'inactive', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]);
-
-        $this->info('Fetching draft listings...', 'v');
-        $export['listings_draft'] = $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'draft', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]);
-
-        $this->info('Fetching expired listings...', 'v');
-        $export['listings_expired'] = $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'expired', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]);
-
-        $this->info('Fetching sold_out listings...', 'v');
-        $export['listings_sold_out'] = $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'sold_out', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]);
-
-        $this->info('Fetching receipts (orders)...', 'v');
-        $export['receipts'] = $this->paginate($client, "/application/shops/{$shopId}/receipts", ['includes' => ['Transactions', 'Buyer', 'Shipments']]);
-
-        $this->info('Fetching reviews...', 'v');
-        $export['reviews'] = $this->paginate($client, "/application/shops/{$shopId}/reviews");
-
-        $this->info('Fetching transactions...', 'v');
-        $export['transactions'] = $this->paginate($client, "/application/shops/{$shopId}/transactions");
-
-        $this->info('Fetching buyer taxonomy...', 'v');
-        $export['buyer_taxonomy'] = $client->get('/application/buyer-taxonomy/nodes');
-
-        $this->info('Fetching seller taxonomy...', 'v');
-        $export['seller_taxonomy'] = $client->get('/application/seller-taxonomy/nodes');
+        foreach ($endpoints as $key => $fetch) {
+            $this->info("Fetching {$key}...", 'v');
+            try {
+                $export[$key] = $fetch();
+            } catch (\Throwable $e) {
+                $this->warn("Skipped {$key}: {$e->getMessage()}");
+                $export[$key] = ['error' => $e->getMessage()];
+            }
+        }
 
         $this->line(json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
