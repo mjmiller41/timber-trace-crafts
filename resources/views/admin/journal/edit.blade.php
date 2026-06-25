@@ -29,7 +29,7 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.journal.update', $post) }}">
+        <form method="POST" action="{{ route('admin.journal.update', $post) }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 

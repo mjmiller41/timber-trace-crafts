@@ -20,9 +20,12 @@
     </div>
     {{-- Background image --}}
     <div class="absolute inset-0 opacity-20">
-        <img src="{{ Storage::disk('r2')->url('products/workshop-1.jpg') }}"
-             alt="Timber Trace Crafts workshop"
-             class="w-full h-full object-cover object-center">
+        <picture>
+            <source srcset="{{ Storage::disk('r2')->url('products/workshop-1.webp') }}" type="image/webp">
+            <img src="{{ Storage::disk('r2')->url('products/workshop-1.jpg') }}"
+                 alt="Timber Trace Crafts workshop"
+                 class="w-full h-full object-cover object-center">
+        </picture>
     </div>
 </div>
 
@@ -43,9 +46,12 @@
             </div>
         </div>
         <div>
-            <img src="{{ Storage::disk('r2')->url('products/EAR-BFLY-CHY3-03-IMG7.png') }}"
-                 alt="Handcrafted wooden butterfly earrings"
-                 class="w-full aspect-square object-cover object-center">
+            <picture>
+                <source srcset="{{ Storage::disk('r2')->url('products/EAR-BFLY-CHY3-03-IMG7.webp') }}" type="image/webp">
+                <img src="{{ Storage::disk('r2')->url('products/EAR-BFLY-CHY3-03-IMG7.jpg') }}"
+                     alt="Handcrafted wooden butterfly earrings"
+                     class="w-full aspect-square object-cover object-center">
+            </picture>
         </div>
     </div>
 </div>
@@ -54,9 +60,12 @@
 {{-- DIVIDER IMAGE --}}
 {{-- ============================================================ --}}
 <div class="w-full h-72 md:h-96 overflow-hidden">
-    <img src="{{ Storage::disk('r2')->url('products/lifestyle-1.png') }}"
-         alt="Finished pieces from Timber Trace Crafts"
-         class="w-full h-full object-cover object-center">
+    <picture>
+        <source srcset="{{ Storage::disk('r2')->url('products/lifestyle-1.webp') }}" type="image/webp">
+        <img src="{{ Storage::disk('r2')->url('products/lifestyle-1.jpg') }}"
+             alt="Finished pieces from Timber Trace Crafts"
+             class="w-full h-full object-cover object-center">
+    </picture>
 </div>
 
 {{-- ============================================================ --}}
@@ -66,9 +75,12 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div class="order-2 md:order-1">
-                <img src="{{ Storage::disk('r2')->url('products/TMBLR-AM250-STNLS20-01-IMG9.png') }}"
-                     alt="Handcrafted engraved tumbler"
-                     class="w-full aspect-square object-cover object-center">
+                <picture>
+                    <source srcset="{{ Storage::disk('r2')->url('products/TMBLR-AM250-STNLS20-01-IMG9.webp') }}" type="image/webp">
+                    <img src="{{ Storage::disk('r2')->url('products/TMBLR-AM250-STNLS20-01-IMG9.jpg') }}"
+                         alt="Handcrafted engraved tumbler"
+                         class="w-full aspect-square object-cover object-center">
+                </picture>
             </div>
             <div class="order-1 md:order-2">
                 <p class="section-label text-walnut mb-4">Philosophy</p>
@@ -115,9 +127,12 @@
             </div>
         </div>
         <div class="relative">
-            <img src="{{ Storage::disk('r2')->url('products/lifestyle-2.png') }}"
-                 alt="Premium hand-selected wood materials"
-                 class="w-full aspect-square object-cover object-center">
+            <picture>
+                <source srcset="{{ Storage::disk('r2')->url('products/lifestyle-2.webp') }}" type="image/webp">
+                <img src="{{ Storage::disk('r2')->url('products/lifestyle-2.jpg') }}"
+                     alt="Premium hand-selected wood materials"
+                     class="w-full aspect-square object-cover object-center">
+            </picture>
         </div>
     </div>
 </div>
@@ -129,9 +144,12 @@
     <div class="page-container py-20 md:py-28">
         <div class="grid md:grid-cols-2 gap-16 items-center">
             <div>
-                <img src="{{ Storage::disk('r2')->url('products/EAR-TDRP-CHY3-01-IMG8.png') }}"
-                     alt="Handcrafted wooden teardrop earrings in cherry"
-                     class="w-full aspect-square object-cover object-center">
+                <picture>
+                    <source srcset="{{ Storage::disk('r2')->url('products/EAR-TDRP-CHY3-01-IMG8.webp') }}" type="image/webp">
+                    <img src="{{ Storage::disk('r2')->url('products/EAR-TDRP-CHY3-01-IMG8.jpg') }}"
+                         alt="Handcrafted wooden teardrop earrings in cherry"
+                         class="w-full aspect-square object-cover object-center">
+                </picture>
             </div>
             <div>
                 <p class="section-label text-forest-green mb-4">Veteran Owned &amp; Operated</p>

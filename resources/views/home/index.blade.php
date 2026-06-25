@@ -1,7 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
+@section('title', 'Handcrafted Wood & Resin Jewelry | Laser-Cut Gifts')
 @section('meta_description', 'Handcrafted laser-cut wooden jewelry, boxes, and gifts. Made with precision and love in every piece.')
+
+@push('preload')
+<link rel="preload" as="image" fetchpriority="high"
+      href="https://pub-82fe4a94d274416a9b5ab8028bcd8627.r2.dev/products/lifestyle-1.webp"
+      type="image/webp">
+@endpush
 
 @section('content')
 
@@ -36,9 +42,15 @@
             {{-- Hero image --}}
             <div class="relative">
                 <div class="aspect-square overflow-hidden">
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.png') }}"
-                         alt="Handcrafted wooden box at a craft market"
-                         class="w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.webp') }}"
+                                type="image/webp">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.jpg') }}"
+                             alt="Handcrafted wooden box at a craft market"
+                             fetchpriority="high"
+                             width="800" height="800"
+                             class="w-full h-full object-cover">
+                    </picture>
                 </div>
                 {{-- Decorative offset border --}}
                 <div class="absolute -bottom-4 -right-4 w-full h-full border border-white/20 -z-10"></div>
@@ -137,9 +149,12 @@
             {{-- Image --}}
             <div class="relative">
                 <div class="aspect-square overflow-hidden">
-                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.jpeg') }}"
-                         alt="Handcrafted laser-cut heart box with floral design"
-                         class="w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.webp') }}" type="image/webp">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.jpg') }}"
+                             alt="Handcrafted laser-cut heart box with floral design"
+                             class="w-full h-full object-cover">
+                    </picture>
                 </div>
                 <div class="absolute -bottom-4 -left-4 w-full h-full border border-white/20 -z-10"></div>
             </div>
@@ -237,7 +252,7 @@
             <p class="font-body text-sm text-walnut leading-relaxed mb-8">
                 New collections, behind-the-scenes stories from the studio, and occasional offers — straight to your inbox. Unsubscribe any time.
             </p>
-            <form action="#" method="POST" class="flex flex-col sm:flex-row gap-0">
+            <form action="{{ route('newsletter.store') }}" method="POST" class="flex flex-col sm:flex-row gap-0">
                 @csrf
                 <input type="email"
                        name="email"

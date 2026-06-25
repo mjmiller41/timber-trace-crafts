@@ -2,6 +2,7 @@
 
 @section('title', $product->name)
 @section('meta_description', Str::limit(strip_tags($product->description ?? $product->name), 155))
+@section('og_type', 'product')
 
 @section('content')
 
@@ -18,8 +19,12 @@
         ->values()
         ->toArray();
 
-    $allMedia = collect($images)->map(fn($u) => ['type' => 'image', 'url' => $u])
-        ->concat(collect($videos)->map(fn($u) => ['type' => 'video', 'url' => $u]))
+    $allMedia = collect($images)->map(fn($u) => [
+            'type'    => 'image',
+            'url'     => $u,
+            'webp_url' => preg_replace('/\.(png|jpe?g)$/i', '.webp', $u),
+        ])
+        ->concat(collect($videos)->map(fn($u) => ['type' => 'video', 'url' => $u, 'webp_url' => null]))
         ->values()
         ->toArray();
 
@@ -30,9 +35,57 @@
         'low_stock_threshold' => $v->low_stock_threshold,
     ])->toJson();
 
-    $avgRating = $product->reviews->where('approved', true)->avg('rating');
-    $reviewCount = $product->reviews->where('approved', true)->count();
+    $avgRating = $product->reviews->where('status', 'approved')->avg('rating');
+    $reviewCount = $product->reviews->where('status', 'approved')->count();
+    $ogImage = $images[0] ?? asset('images/og-default.jpg');
 @endphp
+
+@push('head')
+<meta property="og:image" content="{{ $ogImage }}">
+<meta name="twitter:image" content="{{ $ogImage }}">
+@endpush
+
+@push('schema')
+@php
+    $productSchema = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'Product',
+        'name'     => $product->name,
+        'description' => Str::limit(strip_tags($product->description ?? ''), 500),
+        'image'    => $images,
+        'sku'      => $product->sku ?? (string) $product->id,
+        'brand'    => ['@type' => 'Brand', 'name' => $siteName],
+        'offers'   => [
+            '@type'         => 'Offer',
+            'url'           => url()->current(),
+            'priceCurrency' => 'USD',
+            'price'         => number_format($product->currentPrice(), 2, '.', ''),
+            'availability'  => $product->variants->sum('stock_qty') > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'seller'        => ['@id' => url('/').'#organization'],
+        ],
+    ];
+    if ($reviewCount > 0) {
+        $productSchema['aggregateRating'] = [
+            '@type'       => 'AggregateRating',
+            'ratingValue' => number_format($avgRating, 1),
+            'reviewCount' => $reviewCount,
+        ];
+    }
+    $breadcrumbSchema = [
+        '@context'        => 'https://schema.org',
+        '@type'           => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Shop', 'item' => route('shop')],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $product->name, 'item' => url()->current()],
+        ],
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($productSchema) !!}</script>
+<script type="application/ld+json">{!! json_encode($breadcrumbSchema) !!}</script>
+@endpush
 
 {{-- ============================================================ --}}
 {{-- BREADCRUMB --}}
@@ -68,9 +121,12 @@
             {{-- Main display --}}
             <div class="relative aspect-square bg-surface overflow-hidden">
                 <template x-if="currentItem && currentItem.type === 'image'">
-                    <img :src="currentItem.url"
-                         :alt="'{{ $product->name }}'"
-                         class="w-full h-full object-cover">
+                    <picture class="w-full h-full">
+                        <source x-bind:srcset="currentItem.webp_url" type="image/webp">
+                        <img :src="currentItem.url"
+                             :alt="'{{ $product->name }}'"
+                             class="w-full h-full object-cover">
+                    </picture>
                 </template>
                 <template x-if="currentItem && currentItem.type === 'video'">
                     <video :src="currentItem.url" controls class="w-full h-full object-contain bg-charcoal"></video>
@@ -112,7 +168,10 @@
                                 class="flex-shrink-0 w-16 h-16 overflow-hidden border-2 transition-colors duration-150"
                                 :class="currentIndex === index ? 'border-forest-green' : 'border-transparent hover:border-walnut/50'">
                             <template x-if="item.type === 'image'">
-                                <img :src="item.url" alt="" class="w-full h-full object-cover">
+                                <picture class="w-full h-full">
+                                    <source x-bind:srcset="item.webp_url" type="image/webp">
+                                    <img :src="item.url" alt="" class="w-full h-full object-cover">
+                                </picture>
                             </template>
                             <template x-if="item.type === 'video'">
                                 <div class="w-full h-full bg-charcoal flex items-center justify-center">
@@ -176,7 +235,7 @@
             {{-- Short description --}}
             @if($product->description)
                 <div class="font-body text-sm text-charcoal/80 leading-relaxed mb-8 prose prose-sm max-w-none">
-                    {!! nl2br(e(Str::limit(strip_tags($product->description), 400))) !!}
+                    {!! nl2br(e(strip_tags($product->description))) !!}
                 </div>
             @endif
 
@@ -319,7 +378,7 @@
                 </div>
             </div>
 
-            @php $approvedReviews = $product->reviews->where('approved', true); @endphp
+            @php $approvedReviews = $product->reviews->where('status', 'approved'); @endphp
 
             @if($approvedReviews->isEmpty())
                 <div class="py-8 border-t border-walnut/20">

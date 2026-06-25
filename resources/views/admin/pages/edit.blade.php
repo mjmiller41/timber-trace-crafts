@@ -49,15 +49,8 @@
 
             <div style="margin-bottom: 1rem;">
                 <label class="admin-label" for="body">Content <span style="color: #ba1a1a;">*</span></label>
-                <textarea
-                    id="body"
-                    name="body"
-                    class="admin-input"
-                    rows="16"
-                    style="font-family: 'Courier New', monospace; font-size: 0.8125rem; line-height: 1.6;"
-                    required
-                >{{ old('body', $page->body) }}</textarea>
-                <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.375rem;">HTML is supported.</p>
+                <textarea id="body" name="body" required>{{ old('body', $page->body) }}</textarea>
+                @include('components.admin.zencomposer', ['targetId' => 'body', 'height' => '600px'])
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid #f3f4f6;">

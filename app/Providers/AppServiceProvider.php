@@ -21,7 +21,11 @@ class AppServiceProvider extends ServiceProvider
             $logoPath = Cache::rememberForever('setting.store.logo_path', fn () => Setting::get('store.logo_path', ''));
             $siteLogoUrl = $logoPath ? Storage::disk(config('filesystems.default'))->url($logoPath) : asset('images/logo.png');
 
-            $view->with(compact('siteName', 'siteTagline', 'siteLogoUrl'));
+            $socialInstagram = Cache::rememberForever('setting.social.instagram_url', fn () => Setting::get('social.instagram_url', ''));
+            $socialFacebook = Cache::rememberForever('setting.social.facebook_url', fn () => Setting::get('social.facebook_url', ''));
+            $socialPinterest = Cache::rememberForever('setting.social.pinterest_url', fn () => Setting::get('social.pinterest_url', ''));
+
+            $view->with(compact('siteName', 'siteTagline', 'siteLogoUrl', 'socialInstagram', 'socialFacebook', 'socialPinterest'));
         });
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class JournalPost extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'title',
@@ -41,5 +44,10 @@ class JournalPost extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'journal_post_tags', 'post_id', 'tag_id');
+    }
+
+    public function getReadingTimeAttribute(): int
+    {
+        return max(1, (int) ceil(str_word_count(strip_tags($this->body ?? '')) / 200));
     }
 }

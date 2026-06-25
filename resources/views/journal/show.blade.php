@@ -2,6 +2,8 @@
 
 @section('title', $post->title)
 @section('meta_description', $post->excerpt ? Str::limit(strip_tags($post->excerpt), 155) : Str::limit(strip_tags($post->body), 155))
+@section('og_type', 'article')
+@section('og_image', $post->featured_image ? $post->featuredImage?->url() : asset('images/og-default.jpg'))
 
 @section('content')
 
@@ -29,6 +31,10 @@
         <header class="mb-10">
             <p class="section-label mb-4">
                 {{ \Carbon\Carbon::parse($post->published_at)->format('F j, Y') }}
+                @if($post->user)
+                    &middot; By {{ $post->user->name }}
+                @endif
+                &middot; {{ $post->reading_time }} min read
             </p>
             <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl font-light text-charcoal leading-tight mb-6">
                 {{ $post->title }}
@@ -62,14 +68,44 @@
         </div>
 
         {{-- Tags --}}
-        @if(isset($post->tags) && $post->tags->isNotEmpty())
+        @if($post->tags->isNotEmpty())
             <div class="mt-12 pt-8 border-t border-walnut/20">
                 <p class="section-label mb-3">Tags</p>
                 <div class="flex flex-wrap gap-2">
                     @foreach($post->tags as $tag)
-                        <span class="font-body text-xs tracking-widest uppercase px-3 py-1.5 border border-walnut/30 text-walnut">
+                        <a href="{{ route('journal.tag', $tag->slug) }}"
+                           class="font-body text-xs tracking-widest uppercase px-3 py-1.5 border border-walnut/30 text-walnut hover:border-forest-green hover:text-forest-green transition-colors">
                             {{ $tag->name }}
-                        </span>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        {{-- Related posts --}}
+        @if(isset($relatedPosts) && $relatedPosts->isNotEmpty())
+            <div class="mt-12 pt-8 border-t border-walnut/20">
+                <p class="section-label mb-6">Related Posts</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    @foreach($relatedPosts as $related)
+                    <article>
+                        <a href="{{ route('journal.show', $related->slug) }}" class="block mb-3">
+                            @if($related->featured_image_id && $related->featuredImage)
+                                <img src="{{ $related->featuredImage->url() }}"
+                                     alt="{{ $related->title }}"
+                                     class="w-full aspect-video object-cover">
+                            @else
+                                <div class="w-full aspect-video bg-walnut/10"></div>
+                            @endif
+                        </a>
+                        <p class="section-label mb-1">{{ \Carbon\Carbon::parse($related->published_at)->format('M j, Y') }}</p>
+                        <h3 class="font-heading text-base font-light leading-snug">
+                            <a href="{{ route('journal.show', $related->slug) }}"
+                               class="hover:text-forest-green transition-colors">
+                                {{ $related->title }}
+                            </a>
+                        </h3>
+                    </article>
                     @endforeach
                 </div>
             </div>
@@ -86,4 +122,23 @@
     </div>
 </div>
 
+@push('schema')
+@php
+    $blogSchema = json_encode([
+        '@context'        => 'https://schema.org',
+        '@type'           => 'BlogPosting',
+        'headline'        => $post->title,
+        'description'     => Str::limit(strip_tags($post->excerpt ?? $post->body ?? ''), 155),
+        'datePublished'   => \Carbon\Carbon::parse($post->published_at)->toAtomString(),
+        'dateModified'    => $post->updated_at->toAtomString(),
+        'author'          => ['@type' => 'Organization', '@id' => url('/').'#organization'],
+        'publisher'       => ['@id' => url('/').'#organization'],
+        'mainEntityOfPage' => url()->current(),
+        'image'           => $post->featuredImage ? $post->featuredImage->url() : null,
+    ]);
+@endphp
+<script type="application/ld+json">{!! $blogSchema !!}</script>
+@endpush
+
 @endsection
+

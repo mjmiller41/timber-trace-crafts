@@ -150,7 +150,7 @@
                 <p class="section-label mb-4">Follow Along</p>
                 <div class="flex items-center gap-5">
                     {{-- Instagram --}}
-                    <a href="https://instagram.com/timbertracecrafts"
+                    <a href="{{ $socialInstagram ?: 'https://instagram.com' }}"
                        target="_blank" rel="noopener"
                        aria-label="Follow us on Instagram"
                        class="text-walnut hover:text-charcoal transition-colors">
@@ -160,7 +160,7 @@
                     </a>
 
                     {{-- Facebook --}}
-                    <a href="https://facebook.com/timbertracecrafts"
+                    <a href="{{ $socialFacebook ?: 'https://facebook.com' }}"
                        target="_blank" rel="noopener"
                        aria-label="Follow us on Facebook"
                        class="text-walnut hover:text-charcoal transition-colors">
@@ -170,7 +170,7 @@
                     </a>
 
                     {{-- Pinterest --}}
-                    <a href="https://pinterest.com/timbertracecrafts"
+                    <a href="{{ $socialPinterest ?: 'https://pinterest.com' }}"
                        target="_blank" rel="noopener"
                        aria-label="Follow us on Pinterest"
                        class="text-walnut hover:text-charcoal transition-colors">

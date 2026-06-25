@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Checkout')
+@section('robots', 'noindex, follow')
 
 @section('content')
 

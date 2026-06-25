@@ -22,13 +22,20 @@ class MediaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp,svg,pdf', 'max:10240'],
+            'file' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp,pdf', 'max:10240'],
             'alt' => ['nullable', 'string', 'max:255'],
         ]);
 
         $file = $request->file('file');
         $original = $file->getClientOriginalName();
-        $extension = $file->getClientOriginalExtension();
+        $extMap = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+            'application/pdf' => 'pdf',
+        ];
+        $extension = $extMap[$file->getMimeType()] ?? abort(422, 'Unsupported file type.');
         $filename = Str::slug(pathinfo($original, PATHINFO_FILENAME)).'-'.uniqid().'.'.$extension;
         $path = $file->storeAs('media', $filename, config('filesystems.default'));
 

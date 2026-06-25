@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Create Account')
+@section('robots', 'noindex, follow')
 
 @section('content')
 <div class="page-container py-16">

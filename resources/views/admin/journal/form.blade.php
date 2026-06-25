@@ -73,17 +73,38 @@
 {{-- Body --}}
 <div style="margin-bottom: 1.25rem;">
     <label class="admin-label" for="body">Body <span style="color: #ba1a1a;">*</span></label>
-    <p class="admin-hint" style="margin-top: 0; margin-bottom: 0.5rem;">Plain text or HTML. WYSIWYG editor coming in Phase 2.</p>
     <textarea
         id="body"
         name="body"
-        class="admin-input"
         rows="20"
-        placeholder="Write your post content here&hellip;"
-        style="font-family: monospace; font-size: 0.8125rem; resize: vertical;"
         required
     >{{ old('body', $post->body ?? '') }}</textarea>
     @error('body') <p class="admin-error-text">{{ $message }}</p> @enderror
+</div>
+@include('components.admin.zencomposer', ['targetId' => 'body'])
+
+{{-- Featured Image --}}
+<div style="margin-bottom: 1.25rem;" x-data="{ preview: '{{ isset($post) && $post->featuredImage ? $post->featuredImage->url() : '' }}' }">
+    <label class="admin-label">Featured Image</label>
+
+    {{-- Current image preview --}}
+    <template x-if="preview">
+        <div style="margin-bottom: 0.75rem;">
+            <img :src="preview" alt="Featured image" style="max-height: 180px; max-width: 100%; object-fit: cover; border: 1px solid #e5e7eb;">
+            <p class="admin-hint" style="margin-top: 0.25rem;">Upload a new file below to replace this image.</p>
+        </div>
+    </template>
+
+    <input
+        type="file"
+        id="featured_image"
+        name="featured_image"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        class="admin-input"
+        style="padding: 0.375rem;"
+        @change="preview = $el.files[0] ? URL.createObjectURL($el.files[0]) : preview"
+    >
+    @error('featured_image') <p class="admin-error-text">{{ $message }}</p> @enderror
 </div>
 
 {{-- Status + Published At --}}

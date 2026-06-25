@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Your Cart')
+@section('robots', 'noindex, follow')
 
 @section('content')
 

@@ -9,6 +9,7 @@
     $slug         = is_array($product) ? ($product['slug'] ?? '#') : $product->slug;
     $name         = is_array($product) ? ($product['name'] ?? '') : $product->name;
     $image        = is_array($product) ? ($product['primary_image'] ?? null) : ($product->primary_image_url ?? null);
+    $imageWebp    = $image ? preg_replace('/\.(png|jpe?g)$/i', '.webp', $image) : null;
     $price        = is_array($product) ? ($product['price'] ?? null) : $product->price;
     $salePrice    = is_array($product) ? ($product['sale_price'] ?? null) : ($product->sale_price ?? null);
     $category     = is_array($product) ? ($product['category_name'] ?? null) : ($product->category?->name ?? null);
@@ -23,12 +24,17 @@
         {{-- Image container --}}
         <div class="relative overflow-hidden bg-surface aspect-square mb-3">
             @if($image)
-                <img
-                    src="{{ $image }}"
-                    alt="{{ $name }}"
-                    class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
-                    loading="lazy"
-                >
+                <picture>
+                    @if($imageWebp)
+                        <source srcset="{{ $imageWebp }}" type="image/webp">
+                    @endif
+                    <img
+                        src="{{ $image }}"
+                        alt="{{ $name }}"
+                        class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+                        loading="lazy"
+                    >
+                </picture>
             @else
                 {{-- Placeholder when no image --}}
                 <div class="w-full h-full flex items-center justify-center" style="background-color: #EDE8DF;">

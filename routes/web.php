@@ -21,13 +21,21 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
+
+// Sitemap & robots
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+// /about → /about-us permanent redirect
+Route::permanentRedirect('/about', '/about-us');
 
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -59,7 +67,12 @@ Route::post('/restock-request', [RestockController::class, 'store'])->name('rest
 
 // Journal
 Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
+Route::get('/journal/feed.xml', [JournalController::class, 'feed'])->name('journal.feed');
+Route::get('/journal/tag/{tag:slug}', [JournalController::class, 'tag'])->name('journal.tag');
 Route::get('/journal/{slug}', [JournalController::class, 'show'])->name('journal.show');
+
+// Newsletter
+Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
 
 // Contact
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');

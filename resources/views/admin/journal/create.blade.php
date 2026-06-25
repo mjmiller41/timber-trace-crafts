@@ -28,7 +28,7 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.journal.store') }}">
+        <form method="POST" action="{{ route('admin.journal.store') }}" enctype="multipart/form-data">
             @csrf
 
             @include('admin.journal.form')
