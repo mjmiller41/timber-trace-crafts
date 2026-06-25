@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyInventorySync;
@@ -69,6 +70,21 @@ class EtsyController extends Controller
             return redirect()->route('admin.etsy.index')->with('success', 'Products synced. '.$result->summary());
         } catch (\Throwable $e) {
             return redirect()->route('admin.etsy.index')->with('error', 'Product sync failed: '.$e->getMessage());
+        }
+    }
+
+    public function pushProduct(Product $product): RedirectResponse
+    {
+        try {
+            (new EtsyProductSync(new EtsyClient($this->oauth)))->syncProduct($product);
+
+            $action = $product->etsy_listing_id ? 'updated' : 'created';
+
+            return redirect()->route('admin.products.edit', $product)
+                ->with('success', "Pushed to Etsy ({$action}) — listing #{$product->etsy_listing_id}");
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.products.edit', $product)
+                ->with('error', 'Etsy push failed: '.$e->getMessage());
         }
     }
 

@@ -202,6 +202,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/etsy/callback', [EtsyController::class, 'callback'])->name('etsy.callback');
     Route::post('/etsy/disconnect', [EtsyController::class, 'disconnect'])->name('etsy.disconnect');
     Route::post('/etsy/sync/products', [EtsyController::class, 'syncProducts'])->name('etsy.sync.products');
+    Route::post('/etsy/push/product/{product}', [EtsyController::class, 'pushProduct'])->name('etsy.push.product');
     Route::post('/etsy/sync/inventory', [EtsyController::class, 'syncInventory'])->name('etsy.sync.inventory');
     Route::post('/etsy/sync/orders', [EtsyController::class, 'syncOrders'])->name('etsy.sync.orders');
     Route::post('/etsy/sync/reviews', [EtsyController::class, 'syncReviews'])->name('etsy.sync.reviews');

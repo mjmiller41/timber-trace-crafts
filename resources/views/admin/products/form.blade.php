@@ -499,6 +499,27 @@
                 </div>
             </div>
 
+            @if($isEditing)
+            {{-- Etsy Push --}}
+            <div class="admin-card" style="border-color: #f59e0b;">
+                <div class="admin-card-header" style="margin-bottom: 0.75rem;">
+                    <span class="admin-card-title" style="font-size: 0.8125rem;">Etsy</span>
+                    @if($product->etsy_listing_id)
+                        <span style="font-size: 0.6875rem; color: #6b7280; font-family: monospace;">#{{ $product->etsy_listing_id }}</span>
+                    @else
+                        <span style="font-size: 0.6875rem; color: #9ca3af;">Not linked</span>
+                    @endif
+                </div>
+                <form method="POST" action="{{ route('etsy.push.product', $product) }}">
+                    @csrf
+                    <button type="submit" class="admin-btn admin-btn-outline" style="width: 100%; justify-content: center; font-size: 0.8125rem; border-color: #f59e0b; color: #92400e;"
+                        onclick="return confirm('Push \'{{ addslashes($product->name) }}\' to Etsy?')">
+                        {{ $product->etsy_listing_id ? '↑ Update on Etsy' : '↑ Create on Etsy' }}
+                    </button>
+                </form>
+            </div>
+            @endif
+
         </div>
         {{-- end right column --}}
 
