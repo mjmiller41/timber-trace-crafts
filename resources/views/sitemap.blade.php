@@ -2,51 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
-        <loc>{{ url('/') }}</loc>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
+        <loc>{{ route('home') }}</loc>
+        <lastmod>{{ $products->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
     </url>
     <url>
-        <loc>{{ url('/shop') }}</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.9</priority>
+        <loc>{{ route('shop') }}</loc>
+        <lastmod>{{ $products->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
     </url>
     <url>
-        <loc>{{ url('/about-us') }}</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
+        <loc>{{ route('journal.index') }}</loc>
+        <lastmod>{{ $posts->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
     </url>
+
+    @foreach($pages as $page)
     <url>
-        <loc>{{ url('/contact') }}</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <loc>{{ route('page.show', $page->slug) }}</loc>
+        @if($page->updated_at)
+        <lastmod>{{ $page->updated_at->toAtomString() }}</lastmod>
+        @endif
     </url>
-    <url>
-        <loc>{{ url('/journal') }}</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>{{ url('/faq') }}</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-    </url>
+    @endforeach
 
     @foreach($products as $product)
     <url>
-        <loc>{{ url('/product/' . $product->slug) }}</loc>
+        <loc>{{ route('product.show', $product->slug) }}</loc>
         <lastmod>{{ $product->updated_at->toAtomString() }}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
     </url>
     @endforeach
 
     @foreach($posts as $post)
     <url>
-        <loc>{{ url('/journal/' . $post->slug) }}</loc>
+        <loc>{{ route('journal.show', $post->slug) }}</loc>
         <lastmod>{{ $post->updated_at->toAtomString() }}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
     </url>
     @endforeach
 
