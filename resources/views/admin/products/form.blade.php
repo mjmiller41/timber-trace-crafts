@@ -510,7 +510,7 @@
                         <span style="font-size: 0.6875rem; color: #9ca3af;">Not linked</span>
                     @endif
                 </div>
-                <form method="POST" action="{{ route('etsy.push.product', $product) }}">
+                <form method="POST" action="{{ route('admin.etsy.push.product', $product) }}">
                     @csrf
                     <button type="submit" class="admin-btn admin-btn-outline" style="width: 100%; justify-content: center; font-size: 0.8125rem; border-color: #f59e0b; color: #92400e;"
                         onclick="return confirm({{ Illuminate\Support\Js::from('Push '.$product->name.' to Etsy?') }})">
