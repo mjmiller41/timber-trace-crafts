@@ -48,22 +48,25 @@
 @push('schema')
 @php
     $productSchema = [
-        '@context' => 'https://schema.org',
-        '@type'    => 'Product',
-        'name'     => $product->name,
+        '@context'    => 'https://schema.org',
+        '@type'       => 'Product',
+        'name'        => $product->name,
         'description' => Str::limit(strip_tags($product->description ?? ''), 500),
-        'image'    => $images,
-        'sku'      => $product->sku ?? (string) $product->id,
-        'brand'    => ['@type' => 'Brand', 'name' => $siteName],
-        'offers'   => [
-            '@type'         => 'Offer',
-            'url'           => url()->current(),
-            'priceCurrency' => 'USD',
-            'price'         => number_format($product->currentPrice(), 2, '.', ''),
-            'availability'  => $product->variants->sum('stock_qty') > 0
+        'image'       => $images,
+        'url'         => url()->current(),
+        'sku'         => $product->sku ?? (string) $product->id,
+        'brand'       => ['@type' => 'Brand', 'name' => $siteName],
+        'offers'      => [
+            '@type'          => 'Offer',
+            'url'            => url()->current(),
+            'priceCurrency'  => 'USD',
+            'price'          => number_format($product->currentPrice(), 2, '.', ''),
+            'priceValidUntil' => now()->addYear()->toDateString(),
+            'itemCondition'  => 'https://schema.org/NewCondition',
+            'availability'   => $product->variants->sum('stock_qty') > 0
                 ? 'https://schema.org/InStock'
                 : 'https://schema.org/OutOfStock',
-            'seller'        => ['@id' => url('/').'#organization'],
+            'seller'         => ['@id' => url('/').'#organization'],
         ],
     ];
     if ($reviewCount > 0) {
@@ -71,6 +74,8 @@
             '@type'       => 'AggregateRating',
             'ratingValue' => number_format($avgRating, 1),
             'reviewCount' => $reviewCount,
+            'bestRating'  => 5,
+            'worstRating' => 1,
         ];
     }
     $breadcrumbSchema = [

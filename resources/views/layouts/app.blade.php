@@ -59,12 +59,20 @@
             '@context' => 'https://schema.org',
             '@graph'   => [
                 [
-                    '@type'  => 'Organization',
-                    '@id'    => url('/').'#organization',
-                    'name'   => $siteName,
-                    'url'    => url('/'),
-                    'logo'   => ['@type' => 'ImageObject', 'url' => $siteLogoUrl],
-                    'sameAs' => $sameAsUrls,
+                    '@type'        => 'Organization',
+                    '@id'          => url('/').'#organization',
+                    'name'         => $siteName,
+                    'url'          => url('/'),
+                    'description'  => 'Handcrafted laser-cut wood earrings, jewelry boxes, and engraved tumblers made in Avon Park, Florida.',
+                    'email'        => 'hello@timbertracecrafts.com',
+                    'logo'         => ['@type' => 'ImageObject', 'url' => $siteLogoUrl],
+                    'contactPoint' => [
+                        '@type'       => 'ContactPoint',
+                        'email'       => 'hello@timbertracecrafts.com',
+                        'contactType' => 'customer service',
+                        'areaServed'  => 'US',
+                    ],
+                    'sameAs'       => $sameAsUrls,
                 ],
                 [
                     '@type'     => 'WebSite',

@@ -124,18 +124,23 @@
 
 @push('schema')
 @php
-    $blogSchema = json_encode([
+    $blogSchemaData = [
         '@context'        => 'https://schema.org',
         '@type'           => 'BlogPosting',
         'headline'        => $post->title,
         'description'     => Str::limit(strip_tags($post->excerpt ?? $post->body ?? ''), 155),
+        'url'             => url()->current(),
+        'inLanguage'      => 'en-US',
         'datePublished'   => \Carbon\Carbon::parse($post->published_at)->toAtomString(),
         'dateModified'    => $post->updated_at->toAtomString(),
         'author'          => ['@type' => 'Organization', '@id' => url('/').'#organization'],
         'publisher'       => ['@id' => url('/').'#organization'],
-        'mainEntityOfPage' => url()->current(),
-        'image'           => $post->featuredImage ? $post->featuredImage->url() : null,
-    ]);
+        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => url()->current()],
+    ];
+    if ($post->featuredImage) {
+        $blogSchemaData['image'] = $post->featuredImage->url();
+    }
+    $blogSchema = json_encode($blogSchemaData);
 @endphp
 <script type="application/ld+json">{!! $blogSchema !!}</script>
 @endpush
