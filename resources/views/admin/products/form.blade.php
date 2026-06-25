@@ -513,7 +513,7 @@
                 <form method="POST" action="{{ route('etsy.push.product', $product) }}">
                     @csrf
                     <button type="submit" class="admin-btn admin-btn-outline" style="width: 100%; justify-content: center; font-size: 0.8125rem; border-color: #f59e0b; color: #92400e;"
-                        onclick="return confirm('Push \'{{ addslashes($product->name) }}\' to Etsy?')">
+                        onclick="return confirm({{ Illuminate\Support\Js::from('Push '.$product->name.' to Etsy?') }})">
                         {{ $product->etsy_listing_id ? '↑ Update on Etsy' : '↑ Create on Etsy' }}
                     </button>
                 </form>
