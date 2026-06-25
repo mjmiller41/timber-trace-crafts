@@ -70,6 +70,7 @@ class EtsyProductSync
         if (! $product->etsy_listing_id) {
             $taxonomyId = $product->etsy_taxonomy_id ?? Setting::get('etsy.taxonomy_id');
             $shippingProfileId = $product->etsy_shipping_profile_id ?? Setting::get('etsy.shipping_profile_id');
+            $readinessStateId = Setting::get('etsy.readiness_state_id');
 
             if (! $taxonomyId) {
                 throw new \RuntimeException(
@@ -81,6 +82,10 @@ class EtsyProductSync
 
             if ($shippingProfileId) {
                 $payload['shipping_profile_id'] = (int) $shippingProfileId;
+            }
+
+            if ($readinessStateId) {
+                $payload['readiness_state_id'] = (int) $readinessStateId;
             }
         }
 
