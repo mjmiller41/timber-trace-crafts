@@ -14,7 +14,7 @@
             Order #{{ $order->id }}
         </h1>
         <div style="font-size: 0.8125rem; color: #6b7280; margin-top: 0.25rem;">
-            Placed {{ $order->created_at->format('F j, Y \a\t g:i A') }}
+            Placed {{ $order->created_at?->format('F j, Y \a\t g:i A') ?? '—' }}
         </div>
     </div>
     <div style="display: flex; gap: 0.5rem;">
@@ -168,7 +168,7 @@
                             };
                         @endphp
                         <span class="{{ $badge }}">{{ ucwords(str_replace('_', ' ', $entry->status)) }}</span>
-                        <span style="font-size: 0.75rem; color: #9ca3af;">{{ $entry->created_at->format('M j, Y g:i A') }}</span>
+                        <span style="font-size: 0.75rem; color: #9ca3af;">{{ $entry->created_at?->format('M j, Y g:i A') }}</span>
                         @if($entry->creator)
                             <span style="font-size: 0.75rem; color: #9ca3af;">by {{ $entry->creator->name }}</span>
                         @endif
