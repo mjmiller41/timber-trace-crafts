@@ -17,10 +17,11 @@ class EtsyProductSync
 
         $payload = $this->buildListingPayload($product);
 
+        $shopId = Setting::get('etsy.shop_id');
+
         if ($product->etsy_listing_id) {
-            $this->client->put("/application/listings/{$product->etsy_listing_id}", $payload);
+            $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
         } else {
-            $shopId = Setting::get('etsy.shop_id');
             $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
             $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
         }
