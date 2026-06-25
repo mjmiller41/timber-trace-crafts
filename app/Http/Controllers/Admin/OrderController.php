@@ -28,7 +28,7 @@ class OrderController extends Controller
 
     public function show(Order $order): View
     {
-        $order->load(['items.variant.product', 'user', 'shipments']);
+        $order->load(['items.product', 'items.variant', 'user', 'shipments', 'statusHistory.creator']);
 
         return view('admin.orders.show', compact('order'));
     }
@@ -68,12 +68,14 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'carrier' => ['required', 'string', 'max:100'],
+            'service' => ['nullable', 'string', 'max:100'],
             'tracking_number' => ['required', 'string', 'max:100'],
             'shipped_at' => ['nullable', 'date'],
         ]);
 
         $shipment = $order->shipments()->create([
             'carrier' => $validated['carrier'],
+            'service' => $validated['service'] ?? null,
             'tracking_number' => $validated['tracking_number'],
             'shipped_at' => $validated['shipped_at'] ?? now(),
         ]);
