@@ -12,7 +12,7 @@ class EtsyOAuthService
 
     private const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
 
-    private const SCOPES = 'listings_r listings_w listings_d inventory_r inventory_w transactions_r transactions_w shops_r feedback_r';
+    private const SCOPES = 'listings_r listings_w listings_d transactions_r transactions_w shops_r feedback_r';
 
     public function buildAuthUrl(): string
     {
