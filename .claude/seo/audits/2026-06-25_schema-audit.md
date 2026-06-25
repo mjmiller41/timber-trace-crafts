@@ -35,11 +35,11 @@
 
 ### Remaining (Requires User Input)
 
-| Severity | Schema | Issue | Blocker |
+| Severity | Schema | Issue | Resolution |
 |---|---|---|---|
-| MEDIUM | LocalBusiness | No local business schema — CraftBusiness subtype | Need street address for Avon Park, FL location |
-| HIGH | BlogPosting | `author` is Organization, not Person | Need author's real name to add as Person entity |
-| INFO | WebSite | No `SearchAction` (sitelinks search box) | Low value at current traffic level — defer |
+| MEDIUM | LocalBusiness | No local business schema | ~~N/A — e-commerce only, no physical storefront~~ |
+| HIGH | BlogPosting | `author` is Organization, not Person | ✅ Fixed — Person entity "Michael J. Miller" added to @graph, BlogPosting author wired by @id |
+| INFO | WebSite | No `SearchAction` (sitelinks search box) | Deferred — low value at current traffic level |
 
 ---
 
