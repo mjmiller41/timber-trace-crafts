@@ -27,12 +27,12 @@ class EtsyExportCommand extends Command
             'return_policies' => fn () => $client->get("/application/shops/{$shopId}/return-policies"),
             'readiness_states' => fn () => $client->get("/application/shops/{$shopId}/readiness-state-definitions"),
             'production_partners' => fn () => $client->get("/application/shops/{$shopId}/production-partners"),
-            'listings_active' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'active', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
-            'listings_inactive' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'inactive', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
-            'listings_draft' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'draft', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
-            'listings_expired' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'expired', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
-            'listings_sold_out' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'sold_out', 'includes' => ['Images', 'Videos', 'Inventory', 'ShippingProfile', 'MainImage']]),
-            'receipts' => fn () => $this->paginate($client, "/application/shops/{$shopId}/receipts", ['includes' => ['Transactions', 'Buyer', 'Shipments']]),
+            'listings_active' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'active', 'includes' => ['images', 'videos', 'inventory', 'shipping']]),
+            'listings_inactive' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'inactive', 'includes' => ['images', 'videos', 'inventory', 'shipping']]),
+            'listings_draft' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'draft', 'includes' => ['images', 'videos', 'inventory', 'shipping']]),
+            'listings_expired' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'expired', 'includes' => ['images', 'videos', 'inventory', 'shipping']]),
+            'listings_sold_out' => fn () => $this->paginate($client, "/application/shops/{$shopId}/listings", ['state' => 'sold_out', 'includes' => ['images', 'videos', 'inventory', 'shipping']]),
+            'receipts' => fn () => $this->paginate($client, "/application/shops/{$shopId}/receipts", ['includes' => ['transactions', 'buyer', 'shipments']]),
             'reviews' => fn () => $this->paginate($client, "/application/shops/{$shopId}/reviews"),
             'transactions' => fn () => $this->paginate($client, "/application/shops/{$shopId}/transactions"),
             'buyer_taxonomy' => fn () => $client->get('/application/buyer-taxonomy/nodes'),
@@ -40,11 +40,11 @@ class EtsyExportCommand extends Command
         ];
 
         foreach ($endpoints as $key => $fetch) {
-            $this->info("Fetching {$key}...", 'v');
+            fwrite(STDERR, "Fetching {$key}...\n");
             try {
                 $export[$key] = $fetch();
             } catch (\Throwable $e) {
-                $this->warn("Skipped {$key}: {$e->getMessage()}");
+                fwrite(STDERR, "Skipped {$key}: {$e->getMessage()}\n");
                 $export[$key] = ['error' => $e->getMessage()];
             }
         }
