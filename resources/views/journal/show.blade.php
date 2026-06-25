@@ -133,7 +133,7 @@
         'inLanguage'      => 'en-US',
         'datePublished'   => \Carbon\Carbon::parse($post->published_at)->toAtomString(),
         'dateModified'    => $post->updated_at->toAtomString(),
-        'author'          => ['@type' => 'Organization', '@id' => url('/').'#organization'],
+        'author'          => ['@type' => 'Person', '@id' => url('/').'#author'],
         'publisher'       => ['@id' => url('/').'#organization'],
         'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => url()->current()],
     ];

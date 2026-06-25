@@ -75,6 +75,13 @@
                     'sameAs'       => $sameAsUrls,
                 ],
                 [
+                    '@type'       => 'Person',
+                    '@id'         => url('/').'#author',
+                    'name'        => 'Michael J. Miller',
+                    'url'         => url('/about-us'),
+                    'worksFor'    => ['@id' => url('/').'#organization'],
+                ],
+                [
                     '@type'     => 'WebSite',
                     '@id'       => url('/').'#website',
                     'url'       => url('/'),
