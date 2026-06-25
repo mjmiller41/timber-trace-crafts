@@ -130,7 +130,7 @@ class EtsyOAuthService
     private function resolveShopId(string $accessToken): int
     {
         $headers = [
-            'x-api-key' => config('services.etsy.keystring'),
+            'x-api-key' => config('services.etsy.shared_secret'),
             'Authorization' => "Bearer {$accessToken}",
         ];
 
