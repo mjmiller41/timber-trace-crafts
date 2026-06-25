@@ -39,7 +39,7 @@ class EtsyClient
         $accessToken = Setting::get('etsy.access_token');
 
         $pending = Http::withHeaders([
-            'x-api-key' => config('services.etsy.shared_secret'),
+            'x-api-key' => config('services.etsy.keystring').':'.config('services.etsy.shared_secret'),
             'Authorization' => "Bearer {$accessToken}",
         ]);
 
