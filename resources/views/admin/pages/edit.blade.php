@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div style="max-width: 860px;">
+<div>
 
     <div style="margin-bottom: 1rem;">
         <a href="{{ route('admin.pages.index') }}" style="font-size: 0.8125rem; color: #6b7280;">

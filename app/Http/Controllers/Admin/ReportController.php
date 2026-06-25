@@ -14,9 +14,9 @@ class ReportController extends Controller
         $excluded = ['cancelled', 'refunded', 'pending_payment'];
 
         $revenueByMonth = Order::whereNotIn('status', $excluded)
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, SUM(total) as revenue, COUNT(*) as orders")
-            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
-            ->orderByRaw("DATE_FORMAT(created_at, '%Y-%m') DESC")
+            ->selectRaw('substr(created_at, 1, 7) as month, SUM(total) as revenue, COUNT(*) as orders')
+            ->groupByRaw('substr(created_at, 1, 7)')
+            ->orderByRaw('substr(created_at, 1, 7) DESC')
             ->limit(12)
             ->get();
 
