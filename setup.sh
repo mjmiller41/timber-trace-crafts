@@ -3,7 +3,7 @@ set -e
 
 DEPLOY_DIR=~/public_html
 
-echo "=== Timber & Trace Crafts — First-Time Server Setup ==="
+echo "=== Timber Trace Crafts — First-Time Server Setup ==="
 echo "Deploy directory: $DEPLOY_DIR"
 echo ""
 

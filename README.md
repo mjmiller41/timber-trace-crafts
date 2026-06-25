@@ -1,4 +1,4 @@
-# Timber & Trace Crafts
+# Timber Trace Crafts
 
 E-commerce store for handmade wood and resin jewelry, built with Laravel 13.
 

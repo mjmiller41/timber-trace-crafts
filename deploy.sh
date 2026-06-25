@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Timber & Trace Crafts Deployment ==="
+echo "=== Timber Trace Crafts Deployment ==="
 
 # Install/update PHP dependencies (no dev, optimized autoloader)
 composer install --no-dev --optimize-autoloader --no-interaction

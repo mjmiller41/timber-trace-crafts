@@ -1,4 +1,4 @@
-# Timber & Trace Crafts: Project Memory & Rules
+# Timber Trace Crafts: Project Memory & Rules
 
 These guidelines document project-specific requirements, database behaviors, and environment guidelines to ensure consistency for future tasks.
 
