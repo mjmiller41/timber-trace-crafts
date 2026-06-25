@@ -13,6 +13,7 @@ use App\Services\Etsy\EtsyProductSync;
 use App\Services\Etsy\EtsyReviewSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class EtsyController extends Controller
@@ -83,6 +84,8 @@ class EtsyController extends Controller
             return redirect()->route('admin.products.edit', $product)
                 ->with('success', "Pushed to Etsy ({$action}) — listing #{$product->etsy_listing_id}");
         } catch (\Throwable $e) {
+            Log::error('Etsy product push failed', ['product_id' => $product->id, 'error' => $e->getMessage()]);
+
             return redirect()->route('admin.products.edit', $product)
                 ->with('error', 'Etsy push failed: '.$e->getMessage());
         }
