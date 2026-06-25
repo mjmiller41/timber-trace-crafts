@@ -3,20 +3,24 @@
 namespace App\Console\Commands;
 
 use App\Models\EtsyShopSection;
+use App\Models\Media;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductMedia;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EtsyImportCommand extends Command
 {
     protected $signature = 'etsy:import
-                            {--type=all : What to import — sections, listings, orders, or all}';
+                            {--type=all : What to import — sections, listings, orders, images, or all}';
 
     protected $description = 'Import Etsy data into the local database';
 
@@ -63,6 +67,10 @@ class EtsyImportCommand extends Command
 
         if (in_array($type, ['all', 'orders'])) {
             $this->importOrders();
+        }
+
+        if (in_array($type, ['all', 'images'])) {
+            $this->importImages();
         }
 
         $this->info('Done.');
@@ -239,6 +247,100 @@ class EtsyImportCommand extends Command
                 'etsy_shop_coupon' => $tx['shop_coupon'] ?? null,
             ]);
         }
+    }
+
+    private function importImages(): void
+    {
+        $this->info('Importing Etsy listing images...');
+
+        $response = $this->client->get("/application/shops/{$this->shopId}/listings", [
+            'limit' => 100,
+            'includes' => ['Images'],
+        ]);
+
+        $listings = $response['results'] ?? [];
+        $disk = config('filesystems.default', 'r2');
+        $imported = 0;
+        $skipped = 0;
+
+        foreach ($listings as $listing) {
+            $listingId = (string) $listing['listing_id'];
+            $product = Product::where('etsy_listing_id', $listingId)->first();
+
+            if (! $product) {
+                $this->line("  ~ No product found for listing [{$listingId}], skipping.");
+
+                continue;
+            }
+
+            $images = $listing['images'] ?? [];
+
+            if (empty($images)) {
+                $this->line("  ~ No images for [{$listingId}] {$product->name}");
+
+                continue;
+            }
+
+            $existingCount = ProductMedia::where('product_id', $product->id)->count();
+            if ($existingCount > 0) {
+                $this->line("  ~ [{$listingId}] {$product->name} already has {$existingCount} image(s), skipping.");
+                $skipped++;
+
+                continue;
+            }
+
+            $this->line('  Importing '.count($images)." image(s) for [{$listingId}] {$product->name}...");
+            $rank = 1;
+
+            foreach ($images as $image) {
+                $imageUrl = $image['url_fullxfull'] ?? $image['url_570xN'] ?? null;
+
+                if (! $imageUrl) {
+                    continue;
+                }
+
+                try {
+                    $imageResponse = Http::timeout(30)->get($imageUrl);
+
+                    if (! $imageResponse->successful()) {
+                        $this->warn("    ! Failed to download image {$image['listing_image_id']}");
+
+                        continue;
+                    }
+
+                    $imageId = $image['listing_image_id'];
+                    $filename = "etsy-{$imageId}.jpg";
+                    $path = "products/{$filename}";
+
+                    Storage::disk($disk)->put($path, $imageResponse->body());
+
+                    $media = Media::create([
+                        'filename' => $filename,
+                        'original_name' => $filename,
+                        'disk' => $disk,
+                        'path' => $path,
+                        'mime_type' => 'image/jpeg',
+                        'size_bytes' => strlen($imageResponse->body()),
+                        'alt_text' => $product->name,
+                    ]);
+
+                    ProductMedia::create([
+                        'product_id' => $product->id,
+                        'media_id' => $media->id,
+                        'sort_order' => $rank,
+                        'is_primary' => $rank === 1,
+                    ]);
+
+                    $this->line("    ✓ Image {$rank}: {$filename}");
+                    $rank++;
+                    $imported++;
+                } catch (\Throwable $e) {
+                    $this->warn("    ! Error importing image {$image['listing_image_id']}: {$e->getMessage()}");
+                }
+            }
+        }
+
+        $this->info("  Imported {$imported} image(s), skipped {$skipped} product(s) with existing images.");
     }
 
     private function fetchAll(string $path): Collection
