@@ -146,7 +146,7 @@ class EtsyImportCommand extends Command
                 'etsy_shop_section_id' => $sectionId,
                 'etsy_shipping_profile_id' => $listing['shipping_profile_id'] ?? null,
                 'etsy_return_policy_id' => $listing['return_policy_id'] ?? null,
-                'personalization_type' => $isPersonalizable ? 'text' : null,
+                'personalization_type' => $isPersonalizable ? 'addon' : 'none',
             ]);
 
             $this->line("  ✓ [{$listingId}] {$listing['title']} (\${$price})");
