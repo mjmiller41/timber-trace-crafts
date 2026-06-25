@@ -22,7 +22,7 @@ class EtsyProductSync
         if ($product->etsy_listing_id) {
             $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
         } else {
-            $response = $this->client->post("/application/shops/{$shopId}/listings?legacy=true", $payload);
+            $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
             $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
         }
     }
@@ -67,10 +67,7 @@ class EtsyProductSync
             'is_supply' => false,
         ];
 
-        // Only set state on new listings; preserve existing state on updates
         if (! $product->etsy_listing_id) {
-            $payload['state'] = 'draft';
-
             $taxonomyId = $product->etsy_taxonomy_id ?? Setting::get('etsy.taxonomy_id');
             $shippingProfileId = $product->etsy_shipping_profile_id ?? Setting::get('etsy.shipping_profile_id');
 
