@@ -25,6 +25,10 @@ class Order extends Model
         'coupon_code_snapshot',
         'stripe_payment_intent_id',
         'etsy_receipt_id',
+        'message_from_buyer',
+        'etsy_is_paid',
+        'etsy_is_shipped',
+        'etsy_payment_method',
         'shipping_method',
         'gift_message',
         'shipping_first_name',
@@ -51,6 +55,8 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'etsy_is_paid' => 'boolean',
+            'etsy_is_shipped' => 'boolean',
             'subtotal' => 'decimal:2',
             'discount_amount' => 'decimal:2',
             'shipping_amount' => 'decimal:2',

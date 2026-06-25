@@ -21,6 +21,10 @@ class OrderItem extends Model
         'price_snapshot',
         'qty',
         'subtotal',
+        'etsy_transaction_id',
+        'etsy_expected_ship_date',
+        'etsy_buyer_coupon',
+        'etsy_shop_coupon',
     ];
 
     protected function casts(): array
