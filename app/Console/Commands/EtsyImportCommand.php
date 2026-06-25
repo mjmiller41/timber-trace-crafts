@@ -29,10 +29,10 @@ class EtsyImportCommand extends Command
     private const ETSY_STATUS_MAP = [
         'paid' => 'processing',
         'completed' => 'delivered',
-        'open' => 'pending',
-        'payment processing' => 'pending',
+        'open' => 'pending_payment',
+        'payment processing' => 'pending_payment',
         'canceled' => 'cancelled',
-        'fully refunded' => 'cancelled',
+        'fully refunded' => 'refunded',
         'partially refunded' => 'processing',
     ];
 
@@ -175,7 +175,7 @@ class EtsyImportCommand extends Command
             $nameParts = explode(' ', $receipt['name'] ?? '', 2);
 
             $order = Order::create([
-                'status' => self::ETSY_STATUS_MAP[$receipt['status']] ?? 'pending',
+                'status' => self::ETSY_STATUS_MAP[$receipt['status']] ?? 'pending_payment',
                 'etsy_receipt_id' => $receiptId,
                 'message_from_buyer' => $receipt['message_from_buyer'] ?? null,
                 'etsy_is_paid' => $receipt['is_paid'],
