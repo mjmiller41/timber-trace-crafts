@@ -22,8 +22,14 @@ class SecurityHeaders
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
-        if (! $request->user() && $response->isSuccessful()) {
+        // Only cache routes that are truly public and stateless (no CSRF tokens or session data).
+        $publicCacheableRoutes = ['home', 'shop.index', 'shop.product', 'about', 'journal.index', 'journal.show', 'journal.tag', 'journal.feed', 'sitemap'];
+
+        if (! $request->user() && $response->isSuccessful() && in_array($request->route()?->getName(), $publicCacheableRoutes, true)) {
             $response->headers->set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+            $response->headers->set('Vary', 'Cookie, Accept-Encoding');
+        } else {
+            $response->headers->set('Cache-Control', 'private, no-store');
         }
 
         return $response;

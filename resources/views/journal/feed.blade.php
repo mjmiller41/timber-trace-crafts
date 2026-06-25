@@ -15,7 +15,7 @@
             <guid isPermaLink="true">{{ route('journal.show', $post->slug) }}</guid>
             <pubDate>{{ \Carbon\Carbon::parse($post->published_at)->toRssString() }}</pubDate>
             @if($post->author)
-            <author>{{ $post->author->email }} ({{ $post->author->name }})</author>
+            <author>noreply@timbertracecrafts.com ({{ $post->author->name }})</author>
             @endif
             @if($post->excerpt)
             <description><![CDATA[{{ $post->excerpt }}]]></description>
