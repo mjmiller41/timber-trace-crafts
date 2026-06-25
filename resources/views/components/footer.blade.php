@@ -75,6 +75,7 @@
                         type="email"
                         name="email"
                         placeholder="your@email.com"
+												autocomplete="email"
                         required
                         style="flex: 1; min-width: 0; padding: 0.5rem 0.75rem; font-size: 0.8125rem; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(244,241,234,0.25); color: #F4F1EA; outline: none; font-family: 'Montserrat', sans-serif;"
                     >
