@@ -27,6 +27,11 @@ class EtsyClient
         return $this->request('POST', $path, body: $body);
     }
 
+    public function delete(string $path): void
+    {
+        $this->request('DELETE', $path);
+    }
+
     private function request(string $method, string $path, array $query = [], array $body = []): array
     {
         $this->oauth->refreshIfExpired();
@@ -42,6 +47,7 @@ class EtsyClient
             'GET' => $pending->get(self::BASE_URL.$path, $query),
             'PUT' => $pending->put(self::BASE_URL.$path, $body),
             'POST' => $pending->post(self::BASE_URL.$path, $body),
+            'DELETE' => $pending->delete(self::BASE_URL.$path),
             default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
         };
 

@@ -19,6 +19,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\EtsyWebhookController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\NewsletterController;
@@ -203,4 +204,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/etsy/sync/products', [EtsyController::class, 'syncProducts'])->name('etsy.sync.products');
     Route::post('/etsy/sync/inventory', [EtsyController::class, 'syncInventory'])->name('etsy.sync.inventory');
     Route::post('/etsy/sync/orders', [EtsyController::class, 'syncOrders'])->name('etsy.sync.orders');
+    Route::post('/etsy/sync/reviews', [EtsyController::class, 'syncReviews'])->name('etsy.sync.reviews');
 });
+
+// Etsy webhook — public, no auth (Etsy calls this directly)
+Route::post('/webhooks/etsy', [EtsyWebhookController::class, 'handle'])->name('webhooks.etsy');

@@ -113,6 +113,22 @@
         </div>
     </div>
 
+    {{-- Reviews --}}
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <span class="admin-card-title">Reviews</span>
+        </div>
+        <div style="padding: 1rem;">
+            <p style="font-size: 0.8rem; color: #6b7280; margin-bottom: 0.75rem;">
+                Pull Etsy buyer reviews. Imported reviews require approval before displaying on the site.
+            </p>
+            <form method="POST" action="{{ route('admin.etsy.sync.reviews') }}">
+                @csrf
+                <button type="submit" class="admin-btn admin-btn-secondary">Sync Now</button>
+            </form>
+        </div>
+    </div>
+
 </div>
 @endif
 

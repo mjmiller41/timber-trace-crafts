@@ -9,6 +9,7 @@ use App\Services\Etsy\EtsyInventorySync;
 use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyOrderSync;
 use App\Services\Etsy\EtsyProductSync;
+use App\Services\Etsy\EtsyReviewSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -90,6 +91,17 @@ class EtsyController extends Controller
             return redirect()->route('admin.etsy.index')->with('success', 'Orders synced. '.$result->summary());
         } catch (\Throwable $e) {
             return redirect()->route('admin.etsy.index')->with('error', 'Order sync failed: '.$e->getMessage());
+        }
+    }
+
+    public function syncReviews(): RedirectResponse
+    {
+        try {
+            $result = (new EtsyReviewSync(new EtsyClient($this->oauth)))->sync();
+
+            return redirect()->route('admin.etsy.index')->with('success', 'Reviews synced. '.$result->summary());
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.etsy.index')->with('error', 'Review sync failed: '.$e->getMessage());
         }
     }
 }

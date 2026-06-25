@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'honeypot' => HoneypotCheck::class,
         ]);
+        // Etsy calls webhooks directly; no browser session or CSRF token
+        $middleware->validateCsrfTokens(except: ['webhooks/etsy']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

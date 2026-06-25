@@ -44,6 +44,7 @@ return [
     'etsy' => [
         'keystring' => env('ETSY_KEYSTRING'),
         'shared_secret' => env('ETSY_SHARED_SECRET'),
+        'webhook_secret' => env('ETSY_WEBHOOK_SECRET'),
     ],
 
     'imap' => [

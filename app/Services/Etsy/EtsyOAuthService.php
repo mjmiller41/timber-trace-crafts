@@ -12,12 +12,20 @@ class EtsyOAuthService
 
     private const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
 
-    private const SCOPES = 'listings_r listings_w inventory_r inventory_w transactions_r shops_r';
+    private const SCOPES = 'listings_r listings_w listings_d inventory_r inventory_w transactions_r transactions_w shops_r feedback_r';
 
     public function buildAuthUrl(): string
     {
         $state = bin2hex(random_bytes(16));
-        session(['etsy_oauth_state' => $state]);
+
+        // PKCE: verifier is a random secret; challenge is its SHA-256 digest, base64url-encoded
+        $verifier = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+        $challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+
+        session([
+            'etsy_oauth_state' => $state,
+            'etsy_oauth_code_verifier' => $verifier,
+        ]);
 
         return self::AUTH_URL.'?'.http_build_query([
             'response_type' => 'code',
@@ -25,6 +33,8 @@ class EtsyOAuthService
             'scope' => self::SCOPES,
             'client_id' => config('services.etsy.keystring'),
             'state' => $state,
+            'code_challenge' => $challenge,
+            'code_challenge_method' => 'S256',
         ]);
     }
 
@@ -34,12 +44,19 @@ class EtsyOAuthService
             throw new \RuntimeException('Invalid OAuth state — possible CSRF attempt.');
         }
 
+        $verifier = session('etsy_oauth_code_verifier');
+
+        if (! $verifier) {
+            throw new \RuntimeException('Missing PKCE code verifier — session may have expired.');
+        }
+
+        // PKCE token exchange uses code_verifier instead of client_secret
         $response = Http::post(self::TOKEN_URL, [
             'grant_type' => 'authorization_code',
             'client_id' => config('services.etsy.keystring'),
-            'client_secret' => config('services.etsy.shared_secret'),
             'redirect_uri' => $this->callbackUrl(),
             'code' => $code,
+            'code_verifier' => $verifier,
         ]);
 
         if (! $response->successful()) {
@@ -55,7 +72,7 @@ class EtsyOAuthService
         $shopId = $this->resolveShopId($data['access_token']);
         Setting::set('etsy.shop_id', (string) $shopId);
 
-        session()->forget('etsy_oauth_state');
+        session()->forget(['etsy_oauth_state', 'etsy_oauth_code_verifier']);
     }
 
     public function refreshIfExpired(): void
@@ -112,25 +129,22 @@ class EtsyOAuthService
 
     private function resolveShopId(string $accessToken): int
     {
-        $headers = [
+        // /users/me returns { user_id, shop_id } — one call is sufficient
+        $response = Http::withHeaders([
             'x-api-key' => config('services.etsy.keystring'),
             'Authorization' => "Bearer {$accessToken}",
-        ];
+        ])->get('https://api.etsy.com/v3/application/users/me');
 
-        $meResponse = Http::withHeaders($headers)->get('https://api.etsy.com/v3/application/users/me');
-
-        if (! $meResponse->successful()) {
-            throw new EtsyApiException('Failed to fetch Etsy user: '.$meResponse->body());
+        if (! $response->successful()) {
+            throw new EtsyApiException('Failed to fetch Etsy user: '.$response->body());
         }
 
-        $userId = $meResponse->json('user_id');
+        $shopId = $response->json('shop_id');
 
-        $shopResponse = Http::withHeaders($headers)->get("https://api.etsy.com/v3/application/users/{$userId}/shops");
-
-        if (! $shopResponse->successful()) {
-            throw new EtsyApiException('Failed to fetch Etsy shop: '.$shopResponse->body());
+        if (! $shopId) {
+            throw new EtsyApiException('No Etsy shop found for this account.');
         }
 
-        return $shopResponse->json('shop_id');
+        return (int) $shopId;
     }
 }
