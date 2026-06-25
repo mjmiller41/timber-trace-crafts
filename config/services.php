@@ -45,6 +45,7 @@ return [
         'keystring' => env('ETSY_KEYSTRING'),
         'shared_secret' => env('ETSY_SHARED_SECRET'),
         'webhook_secret' => env('ETSY_WEBHOOK_SECRET'),
+        'shop_name' => env('ETSY_SHOP_NAME', 'timbertracecrafts'),
     ],
 
     'imap' => [

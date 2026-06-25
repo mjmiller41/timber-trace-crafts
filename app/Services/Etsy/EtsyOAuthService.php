@@ -129,20 +129,34 @@ class EtsyOAuthService
 
     private function resolveShopId(string $accessToken): int
     {
-        // /users/me returns { user_id, shop_id } — one call is sufficient
-        $response = Http::withHeaders([
+        $headers = [
             'x-api-key' => config('services.etsy.keystring'),
             'Authorization' => "Bearer {$accessToken}",
-        ])->get('https://api.etsy.com/v3/application/users/me');
+        ];
 
-        if (! $response->successful()) {
-            throw new EtsyApiException('Failed to fetch Etsy user: '.$response->body());
+        // Try /users/me first — returns { user_id, shop_id } in one call.
+        // Etsy /users/me requires the shared secret in x-api-key for some app types,
+        // so we fall back to fetching by known shop name if that fails.
+        $meResponse = Http::withHeaders($headers)->get('https://api.etsy.com/v3/application/users/me');
+
+        if ($meResponse->successful() && $meResponse->json('shop_id')) {
+            return (int) $meResponse->json('shop_id');
         }
 
-        $shopId = $response->json('shop_id');
+        // Fallback: resolve via shop name (works with keystring + bearer token)
+        $shopName = config('services.etsy.shop_name', 'timbertracecrafts');
+        $shopResponse = Http::withHeaders($headers)->get("https://api.etsy.com/v3/application/shops/{$shopName}");
+
+        if (! $shopResponse->successful()) {
+            throw new EtsyApiException(
+                'Failed to resolve Etsy shop ID. /users/me: '.$meResponse->body().' | /shops: '.$shopResponse->body()
+            );
+        }
+
+        $shopId = $shopResponse->json('shop_id');
 
         if (! $shopId) {
-            throw new EtsyApiException('No Etsy shop found for this account.');
+            throw new EtsyApiException('No shop_id returned from Etsy API.');
         }
 
         return (int) $shopId;
