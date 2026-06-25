@@ -70,15 +70,19 @@ class EtsyProductSync
         if (! $product->etsy_listing_id) {
             $payload['state'] = 'draft';
 
-            $shippingProfileId = Setting::get('etsy.shipping_profile_id');
-            $taxonomyId = Setting::get('etsy.taxonomy_id');
+            $taxonomyId = $product->etsy_taxonomy_id ?? Setting::get('etsy.taxonomy_id');
+            $shippingProfileId = $product->etsy_shipping_profile_id ?? Setting::get('etsy.shipping_profile_id');
+
+            if (! $taxonomyId) {
+                throw new \RuntimeException(
+                    'Cannot create Etsy listing: no taxonomy_id set. Use etsy:link to copy from an existing listing first.'
+                );
+            }
+
+            $payload['taxonomy_id'] = (int) $taxonomyId;
 
             if ($shippingProfileId) {
                 $payload['shipping_profile_id'] = (int) $shippingProfileId;
-            }
-
-            if ($taxonomyId) {
-                $payload['taxonomy_id'] = (int) $taxonomyId;
             }
         }
 
