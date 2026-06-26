@@ -17,7 +17,7 @@
         class="flex min-h-screen"
         x-data="{ ...confirmDelete(), ...orderNotifier() }"
         x-init="init()"
-        x-on:confirm-delete.window="open($event.detail.form)"
+        x-on:confirm-delete.window="open($event.detail.form, $event.detail.message)"
     >
         {{-- Sidebar --}}
         @include('components.admin.sidebar')

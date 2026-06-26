@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Tag;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyProductSync;
 use App\Services\Etsy\EtsyReturnPolicyService;
 use App\Services\Etsy\EtsyShippingProfileService;
 use App\Services\Etsy\EtsyShopSectionService;
@@ -177,6 +178,16 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
+        if ($product->sold_on_etsy && $product->etsy_listing_id) {
+            try {
+                $sync = new EtsyProductSync(new EtsyClient(app(EtsyOAuthService::class)));
+                $sync->deleteProduct($product);
+            } catch (\Throwable $e) {
+                return redirect()->route('admin.products.index')
+                    ->with('error', "Etsy deletion failed: {$e->getMessage()} — product was NOT deleted.");
+            }
+        }
+
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted.');

@@ -52,6 +52,16 @@ class EtsyProductSync
         return $result;
     }
 
+    public function deleteProduct(Product $product): void
+    {
+        if (! $product->etsy_listing_id) {
+            return;
+        }
+
+        $shopId = Setting::get('etsy.shop_id');
+        $this->client->delete("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}");
+    }
+
     private function buildListingPayload(Product $product): array
     {
         $totalStock = $product->variants->sum('stock_qty');

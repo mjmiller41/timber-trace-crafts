@@ -114,7 +114,12 @@
                         <div style="display: flex; gap: 0.375rem; justify-content: flex-end;">
                             <a href="{{ route('admin.products.edit', $product) }}" class="admin-btn admin-btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.625rem;">Edit</a>
                             <form method="POST" action="{{ route('admin.products.destroy', $product) }}"
-                                  @submit.prevent="$dispatch('confirm-delete', {form: $el})">
+                                  @submit.prevent="$dispatch('confirm-delete', {
+                                      form: $el,
+                                      message: {{ $product->sold_on_etsy && $product->etsy_listing_id
+                                          ? Illuminate\Support\Js::from('This product is listed on Etsy (listing #' . $product->etsy_listing_id . '). Deleting it here will also permanently remove it from Etsy. This cannot be undone.')
+                                          : Illuminate\Support\Js::from('Are you sure? This action cannot be undone.') }}
+                                  })">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="admin-btn admin-btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.625rem;">Delete</button>

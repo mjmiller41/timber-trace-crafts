@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
 use App\Models\Setting;
+use App\Observers\ProductObserver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
@@ -13,6 +15,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Product::observe(ProductObserver::class);
+
         view()->composer('*', function ($view) {
             $view->with('cartCount', session('cart_count', 0));
 

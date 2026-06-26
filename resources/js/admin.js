@@ -10,11 +10,15 @@ Alpine.data('sidebar', () => ({
 }))
 
 // Confirm delete dialog
-Alpine.data('confirmDelete', (message = 'Are you sure?') => ({
-    message,
+Alpine.data('confirmDelete', () => ({
+    message: 'Are you sure? This action cannot be undone.',
     show: false,
     pendingForm: null,
-    open(form) { this.pendingForm = form; this.show = true },
+    open(form, message) {
+        this.pendingForm = form
+        this.message = message || 'Are you sure? This action cannot be undone.'
+        this.show = true
+    },
     confirm() { this.pendingForm?.submit(); this.show = false },
     cancel() { this.show = false; this.pendingForm = null }
 }))
