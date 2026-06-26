@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyReturnPolicyService;
+use App\Services\Etsy\EtsyShippingProfileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +21,28 @@ class SettingController extends Controller
             return explode('.', $setting->key)[0] ?? 'general';
         });
 
-        return view('admin.settings.index', compact('settings'));
+        $etsyShippingProfiles = $this->fetchEtsyShippingProfiles();
+        $etsyReturnPolicies = $this->fetchEtsyReturnPolicies();
+
+        return view('admin.settings.index', compact('settings', 'etsyShippingProfiles', 'etsyReturnPolicies'));
+    }
+
+    private function fetchEtsyShippingProfiles(): array
+    {
+        try {
+            return (new EtsyShippingProfileService(new EtsyClient(app(EtsyOAuthService::class))))->getProfiles();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function fetchEtsyReturnPolicies(): array
+    {
+        try {
+            return (new EtsyReturnPolicyService(new EtsyClient(app(EtsyOAuthService::class))))->getPolicies();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     public function update(Request $request): RedirectResponse

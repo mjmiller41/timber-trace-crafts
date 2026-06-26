@@ -107,8 +107,9 @@ class EtsyProductSync
             $payload['shop_section_id'] = $product->etsy_shop_section_id;
         }
 
-        if ($product->etsy_return_policy_id !== null) {
-            $payload['return_policy_id'] = $product->etsy_return_policy_id;
+        $returnPolicyId = $product->etsy_return_policy_id ?? Setting::get('etsy.return_policy_id');
+        if ($returnPolicyId !== null) {
+            $payload['return_policy_id'] = (int) $returnPolicyId;
         }
 
         if (! $product->etsy_listing_id) {

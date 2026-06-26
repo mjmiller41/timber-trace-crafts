@@ -107,6 +107,66 @@
     </div>
     @endforeach
 
+    {{-- Etsy Listing Default Values --}}
+    <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <div class="admin-card-header">
+            <span class="admin-card-title">Etsy Listing Default Values</span>
+        </div>
+        <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 1.25rem;">
+            These values are used when pushing a product to Etsy that doesn't have its own per-product values set.
+            Per-product overrides (set on the product edit page) always take precedence.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+            <div>
+                <label class="admin-label" for="setting_etsy_taxonomy_id">Default Taxonomy ID</label>
+                <input
+                    type="number"
+                    id="setting_etsy_taxonomy_id"
+                    name="settings[etsy.taxonomy_id]"
+                    class="admin-input"
+                    value="{{ old('settings[etsy.taxonomy_id]', Setting::get('etsy.taxonomy_id')) }}"
+                    placeholder="e.g. 1208"
+                    style="max-width: 240px;"
+                    autocomplete="off"
+                >
+                <p class="admin-hint">Find taxonomy IDs in <code>.claude/etsy_data/seller_taxonomy.json</code>.</p>
+            </div>
+
+            <div>
+                <label class="admin-label" for="setting_etsy_shipping_profile_id">Default Shipping Profile</label>
+                <select id="setting_etsy_shipping_profile_id" name="settings[etsy.shipping_profile_id]" class="admin-input" style="max-width: 480px;">
+                    <option value="">— None —</option>
+                    @foreach($etsyShippingProfiles as $profile)
+                        <option value="{{ $profile['id'] }}" @selected(Setting::get('etsy.shipping_profile_id') == $profile['id'])>
+                            {{ $profile['title'] }}
+                        </option>
+                    @endforeach
+                </select>
+                @if(empty($etsyShippingProfiles))
+                    <p class="admin-hint">Connect Etsy to load shipping profiles.</p>
+                @endif
+            </div>
+
+            <div>
+                <label class="admin-label" for="setting_etsy_return_policy_id">Default Return Policy</label>
+                <select id="setting_etsy_return_policy_id" name="settings[etsy.return_policy_id]" class="admin-input" style="max-width: 480px;">
+                    <option value="">— None —</option>
+                    @foreach($etsyReturnPolicies as $policy)
+                        <option value="{{ $policy['id'] }}" @selected(Setting::get('etsy.return_policy_id') == $policy['id'])>
+                            {{ $policy['title'] }}
+                        </option>
+                    @endforeach
+                </select>
+                @if(empty($etsyReturnPolicies))
+                    <p class="admin-hint">Connect Etsy to load return policies.</p>
+                @endif
+            </div>
+
+        </div>
+    </div>
+
     <div style="display: flex; gap: 0.75rem;">
         <button type="submit" class="admin-btn admin-btn-primary">Save Settings</button>
     </div>
