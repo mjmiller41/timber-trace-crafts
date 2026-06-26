@@ -19,7 +19,7 @@
 - [x] Shipping profiles — set `etsy.shipping_profile_id` and `etsy.taxonomy_id` in admin settings (needed before product push creates real listings)
 - [x] Product push to Etsy — add observer on Product model for publish/update/delete events to auto-sync
 - [x] Shipment push — hook EtsyShipmentSync into OrderController when order marked shipped (send tracking to Etsy)
-- [ ] Production queue worker — set up cron or supervisor on Hostinger to keep `php artisan queue:work` running so auto-sync jobs are processed
+- [x] Production queue worker — set up cron or supervisor on Hostinger to keep `php artisan queue:work` running so auto-sync jobs are processed
 - [ ] Add variant button on admin/products/create does nothing when clicked no visible error
 
 ---

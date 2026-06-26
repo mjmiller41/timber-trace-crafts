@@ -97,6 +97,7 @@ class ProductController extends Controller
         ]);
 
         $tags = $validated['tags'] ?? [];
+        $variants = $request->input('variants', []);
         unset($validated['tags']);
 
         $validated = $this->processEtsyFields($validated);
@@ -104,6 +105,7 @@ class ProductController extends Controller
         $product = (new Product)->fill($validated);
         $product->saveQuietly();
         $product->tags()->sync($tags);
+        $this->syncVariants($product, $variants);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
 
@@ -187,6 +189,7 @@ class ProductController extends Controller
         ]);
 
         $tags = $validated['tags'] ?? [];
+        $variants = $request->input('variants', []);
         unset($validated['tags']);
 
         $validated = $this->processEtsyFields($validated);
@@ -194,6 +197,7 @@ class ProductController extends Controller
         // saveQuietly suppresses model events so the observer doesn't also queue a background job
         $product->fill($validated)->saveQuietly();
         $product->tags()->sync($tags);
+        $this->syncVariants($product, $variants);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
 
@@ -239,6 +243,42 @@ class ProductController extends Controller
      *
      * @return array<int, array{id: int, title: string}>
      */
+    /**
+     * Upsert variants submitted from the product form.
+     * Creates new rows, updates existing ones by ID, deletes any not in the submission.
+     *
+     * @param  array<int, array<string, mixed>>  $variants
+     */
+    private function syncVariants(Product $product, array $variants): void
+    {
+        $submittedIds = [];
+
+        foreach ($variants as $row) {
+            $data = [
+                'label' => $row['label'] ?? '',
+                'sku' => $row['sku'] ?? null,
+                'material_code' => $row['material_code'] ?? null,
+                'stock_qty' => (int) ($row['stock_qty'] ?? 0),
+                'low_stock_threshold' => (int) ($row['low_stock_threshold'] ?? 5),
+                'sort_order' => (int) ($row['sort_order'] ?? 0),
+            ];
+
+            if (! empty($row['id'])) {
+                $variant = $product->variants()->find((int) $row['id']);
+                if ($variant) {
+                    $variant->update($data);
+                    $submittedIds[] = $variant->id;
+                }
+            } else {
+                $variant = $product->variants()->create($data);
+                $submittedIds[] = $variant->id;
+            }
+        }
+
+        // Delete variants that were removed in the form
+        $product->variants()->whereNotIn('id', $submittedIds)->delete();
+    }
+
     private function fetchEtsySections(): array
     {
         try {

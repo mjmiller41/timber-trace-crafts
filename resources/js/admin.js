@@ -42,6 +42,27 @@ Alpine.data('mediaOrderer', (items = []) => ({
     moveDown(index) { if (index < this.items.length - 1) { [this.items[index], this.items[index+1]] = [this.items[index+1], this.items[index]] } }
 }))
 
+// Product variant manager
+Alpine.data('variantManager', (initialVariants = []) => ({
+    variants: initialVariants.map((v, i) => ({ ...v, _key: i })),
+    _nextKey: initialVariants.length,
+    addVariant() {
+        this.variants.push({
+            _key: this._nextKey++,
+            id: null,
+            label: '',
+            sku: '',
+            material_code: '',
+            stock_qty: 0,
+            low_stock_threshold: 5,
+            sort_order: this.variants.length,
+        })
+    },
+    removeVariant(index) {
+        this.variants.splice(index, 1)
+    },
+}))
+
 // Etsy new-order badge — polls every 60s, shows sidebar badge + toast
 Alpine.data('orderNotifier', () => ({
     count: 0,
