@@ -9,6 +9,7 @@ use App\Models\Tag;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyProductSync;
+use App\Services\Etsy\EtsyReadinessStateService;
 use App\Services\Etsy\EtsyReturnPolicyService;
 use App\Services\Etsy\EtsyShippingProfileService;
 use App\Services\Etsy\EtsyShopSectionService;
@@ -38,8 +39,10 @@ class ProductController extends Controller
         $etsyShopSections = $this->fetchEtsySections();
         $etsyShippingProfiles = $this->fetchEtsyShippingProfiles();
         $etsyReturnPolicies = $this->fetchEtsyReturnPolicies();
+        $etsyReadinessStates = $this->fetchEtsyReadinessStates();
+        $etsyDefaultReadinessStateId = Setting::get('etsy.readiness_state_id');
 
-        return view('admin.products.create', compact('categories', 'tags', 'categoryTaxonomyMap', 'etsyTaxonomySuggestions', 'etsyShopSections', 'etsyShippingProfiles', 'etsyReturnPolicies'));
+        return view('admin.products.create', compact('categories', 'tags', 'categoryTaxonomyMap', 'etsyTaxonomySuggestions', 'etsyShopSections', 'etsyShippingProfiles', 'etsyReturnPolicies', 'etsyReadinessStates', 'etsyDefaultReadinessStateId'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -79,6 +82,7 @@ class ProductController extends Controller
             'etsy_shop_section_id' => ['nullable', 'integer'],
             'etsy_shipping_profile_id' => ['nullable', 'integer'],
             'etsy_return_policy_id' => ['nullable', 'integer'],
+            'etsy_readiness_state_id' => ['nullable', 'integer'],
             'etsy_featured_rank' => ['nullable', 'integer'],
             'etsy_tags_raw' => ['nullable', 'string'],
             'etsy_materials_raw' => ['nullable', 'string'],
@@ -112,8 +116,10 @@ class ProductController extends Controller
         $etsyShopSections = $this->fetchEtsySections();
         $etsyShippingProfiles = $this->fetchEtsyShippingProfiles();
         $etsyReturnPolicies = $this->fetchEtsyReturnPolicies();
+        $etsyReadinessStates = $this->fetchEtsyReadinessStates();
+        $etsyDefaultReadinessStateId = Setting::get('etsy.readiness_state_id');
 
-        return view('admin.products.edit', compact('product', 'categories', 'tags', 'categoryTaxonomyMap', 'etsyTaxonomySuggestions', 'etsyShopSections', 'etsyShippingProfiles', 'etsyReturnPolicies'));
+        return view('admin.products.edit', compact('product', 'categories', 'tags', 'categoryTaxonomyMap', 'etsyTaxonomySuggestions', 'etsyShopSections', 'etsyShippingProfiles', 'etsyReturnPolicies', 'etsyReadinessStates', 'etsyDefaultReadinessStateId'));
     }
 
     public function update(Request $request, Product $product): RedirectResponse
@@ -153,6 +159,7 @@ class ProductController extends Controller
             'etsy_shop_section_id' => ['nullable', 'integer'],
             'etsy_shipping_profile_id' => ['nullable', 'integer'],
             'etsy_return_policy_id' => ['nullable', 'integer'],
+            'etsy_readiness_state_id' => ['nullable', 'integer'],
             'etsy_featured_rank' => ['nullable', 'integer'],
             'etsy_tags_raw' => ['nullable', 'string'],
             'etsy_materials_raw' => ['nullable', 'string'],
@@ -211,6 +218,15 @@ class ProductController extends Controller
             $service = new EtsyShopSectionService(new EtsyClient(app(EtsyOAuthService::class)));
 
             return $service->getSections();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function fetchEtsyReadinessStates(): array
+    {
+        try {
+            return (new EtsyReadinessStateService(new EtsyClient(app(EtsyOAuthService::class))))->getStates();
         } catch (\Throwable) {
             return [];
         }

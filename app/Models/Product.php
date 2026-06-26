@@ -53,6 +53,7 @@ class Product extends Model
         'etsy_shop_section_id',
         'etsy_shipping_profile_id',
         'etsy_return_policy_id',
+        'etsy_readiness_state_id',
         'featured',
         'sort_order',
         'meta_title',

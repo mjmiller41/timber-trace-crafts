@@ -552,6 +552,21 @@
                             <p x-show="sectionError" x-text="sectionError" x-cloak
                                 style="font-size: 0.75rem; color: #991b1b; margin-top: 0.25rem;"></p>
                         </div>
+                        <div style="grid-column: span 2;">
+                            <label class="admin-label" for="etsy_readiness_state_id">Readiness State</label>
+                            <select id="etsy_readiness_state_id" name="etsy_readiness_state_id" class="admin-input" style="max-width: 480px;">
+                                <option value="">— Use shop default —</option>
+                                @foreach($etsyReadinessStates as $state)
+                                    <option value="{{ $state['id'] }}"
+                                        @selected(old('etsy_readiness_state_id', $product->etsy_readiness_state_id ?? $etsyDefaultReadinessStateId ?? '') == $state['id'])>
+                                        {{ $state['title'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if(empty($etsyReadinessStates))
+                                <p class="admin-hint">Connect Etsy to load readiness states.</p>
+                            @endif
+                        </div>
                         <div>
                             <label class="admin-label" for="etsy_shipping_profile_id">Shipping Profile</label>
                             <select id="etsy_shipping_profile_id" name="etsy_shipping_profile_id" class="admin-input">
