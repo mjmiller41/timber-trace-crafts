@@ -11,6 +11,7 @@ use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyShipmentSync;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
@@ -19,6 +20,8 @@ class OrderController extends Controller
 {
     public function index(): View
     {
+        Cache::forget('etsy.new_orders');
+
         $orders = Order::with('user')
             ->orderByDesc('created_at')
             ->paginate(25);

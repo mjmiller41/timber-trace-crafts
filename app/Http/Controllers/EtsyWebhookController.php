@@ -9,6 +9,7 @@ use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyOrderSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -113,6 +114,7 @@ class EtsyWebhookController extends Controller
         }
 
         if ($order) {
+            Cache::increment('etsy.new_orders');
             $adminEmail = config('mail.from.address');
             Mail::to($adminEmail)->send(new EtsyNewOrderMail($order->load('items')));
         }

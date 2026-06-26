@@ -38,5 +38,35 @@ Alpine.data('mediaOrderer', (items = []) => ({
     moveDown(index) { if (index < this.items.length - 1) { [this.items[index], this.items[index+1]] = [this.items[index+1], this.items[index]] } }
 }))
 
+// Etsy new-order badge — polls every 60s, shows sidebar badge + toast
+Alpine.data('orderNotifier', () => ({
+    count: 0,
+    toast: false,
+    toastTimer: null,
+    init() {
+        this.poll()
+        setInterval(() => this.poll(), 60000)
+    },
+    async poll() {
+        try {
+            const res = await fetch('/admin/etsy/orders/badge', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            if (!res.ok) return
+            const data = await res.json()
+            const prev = this.count
+            this.count = data.count ?? 0
+            if (this.count > 0 && this.count > prev) this.showToast()
+        } catch {}
+    },
+    showToast() {
+        this.toast = true
+        clearTimeout(this.toastTimer)
+        this.toastTimer = setTimeout(() => { this.toast = false }, 6000)
+    },
+    dismiss() {
+        this.toast = false
+        clearTimeout(this.toastTimer)
+    }
+}))
+
 window.Alpine = Alpine
 Alpine.start()

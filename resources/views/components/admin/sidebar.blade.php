@@ -59,9 +59,21 @@
                 href="{{ url('/admin/orders') }}"
                 class="admin-sidebar-link {{ request()->is('admin/orders*') ? 'active' : '' }}"
                 title="Orders"
+                style="position: relative;"
             >
-                <span class="nav-icon">&#x1F4E6;</span>
-                <span x-show="!collapsed">Orders</span>
+                <span class="nav-icon" style="position: relative; display: inline-block;">
+                    &#x1F4E6;
+                    <span
+                        x-show="count > 0"
+                        x-cloak
+                        x-text="count"
+                        style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: #fff; font-size: 0.625rem; font-weight: 700; line-height: 1; padding: 2px 4px; border-radius: 9999px; min-width: 14px; text-align: center;"
+                    ></span>
+                </span>
+                <span x-show="!collapsed">
+                    Orders
+                    <span x-show="count > 0" x-cloak x-text="'(' + count + ')'" style="font-size: 0.75rem; color: #fca5a5; margin-left: 0.25rem;"></span>
+                </span>
             </a>
         </div>
 

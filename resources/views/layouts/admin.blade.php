@@ -15,7 +15,8 @@
 
     <div
         class="flex min-h-screen"
-        x-data="confirmDelete()"
+        x-data="{ ...confirmDelete(), ...orderNotifier() }"
+        x-init="init()"
         x-on:confirm-delete.window="open($event.detail.form)"
     >
         {{-- Sidebar --}}
@@ -44,6 +45,26 @@
                 @yield('content')
             </div>
 
+        </div>
+
+        {{-- Etsy new order toast --}}
+        <div
+            x-show="toast"
+            x-cloak
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-2"
+            style="position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; align-items: center; gap: 0.75rem; background: #2C4C3B; color: #fff; padding: 0.875rem 1.125rem; border-radius: 0.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); font-size: 0.875rem; max-width: 320px;"
+        >
+            <span style="font-size: 1.25rem;">🛒</span>
+            <span style="flex: 1;">
+                <strong x-text="count"></strong> new Etsy order<span x-show="count !== 1">s</span> —
+                <a href="{{ route('admin.orders.index') }}" style="color: #fde68a; text-decoration: underline;">View orders</a>
+            </span>
+            <button type="button" x-on:click="dismiss()" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0;">&times;</button>
         </div>
 
         {{-- Confirm Delete Modal --}}

@@ -14,7 +14,7 @@
 - [x] Update webhook URL in portal (remove ?secret=...)
 - [x] Test webhook via Etsy's Testing tab
 - [x] Review sync — test the button in Admin → Etsy
-- [ ] Email notification on new order (not yet built)
+- [x] Email notification on new order (not yet built)
 - [x] OAuth connect flow working via ngrok in local dev
 - [ ] Shipping profiles — set `etsy.shipping_profile_id` and `etsy.taxonomy_id` in admin settings (needed before product push creates real listings)
 - [ ] Product push to Etsy — add observer on Product model for publish/update/delete events to auto-sync

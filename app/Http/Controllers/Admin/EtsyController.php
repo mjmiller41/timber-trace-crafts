@@ -15,6 +15,7 @@ use App\Services\Etsy\EtsyShopSectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -135,6 +136,11 @@ class EtsyController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function ordersBadge(): JsonResponse
+    {
+        return response()->json(['count' => (int) Cache::get('etsy.new_orders', 0)]);
     }
 
     public function createSection(Request $request): JsonResponse

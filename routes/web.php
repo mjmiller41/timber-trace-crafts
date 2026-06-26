@@ -209,6 +209,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/etsy/sync/inventory', [EtsyController::class, 'syncInventory'])->name('etsy.sync.inventory');
     Route::post('/etsy/sync/orders', [EtsyController::class, 'syncOrders'])->name('etsy.sync.orders');
     Route::post('/etsy/sync/reviews', [EtsyController::class, 'syncReviews'])->name('etsy.sync.reviews');
+    Route::get('/etsy/orders/badge', [EtsyController::class, 'ordersBadge'])->name('etsy.orders.badge');
     Route::get('/etsy/sections', [EtsyController::class, 'listSections'])->name('etsy.sections.index');
     Route::post('/etsy/sections', [EtsyController::class, 'createSection'])->name('etsy.sections.store');
 });
