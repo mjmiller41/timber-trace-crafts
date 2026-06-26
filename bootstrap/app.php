@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust all proxy headers so ngrok's X-Forwarded-Proto:https produces HTTPS URLs
+        $middleware->trustProxies(at: '*');
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'admin' => AdminMiddleware::class,

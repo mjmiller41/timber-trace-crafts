@@ -31,6 +31,7 @@ class EtsySyncTest extends TestCase
 
     public function test_sync_product_creates_new_listing_and_saves_id(): void
     {
+        Setting::set('etsy.taxonomy_id', '1208');
         $product = Product::factory()->create(['status' => 'active', 'etsy_listing_id' => null]);
         ProductVariant::factory()->create(['product_id' => $product->id, 'stock_qty' => 5]);
 
@@ -48,12 +49,13 @@ class EtsySyncTest extends TestCase
 
     public function test_sync_product_updates_existing_listing(): void
     {
+        Setting::set('etsy.shop_id', '12345678');
         $product = Product::factory()->create(['status' => 'active', 'etsy_listing_id' => '111222333']);
 
         $client = Mockery::mock(EtsyClient::class);
-        $client->shouldReceive('put')
+        $client->shouldReceive('patch')
             ->once()
-            ->with('/application/listings/111222333', Mockery::type('array'))
+            ->with('/application/shops/12345678/listings/111222333', Mockery::type('array'))
             ->andReturn(['listing_id' => 111222333]);
 
         $sync = new EtsyProductSync($client);
@@ -64,12 +66,13 @@ class EtsySyncTest extends TestCase
 
     public function test_sync_all_returns_result_counts(): void
     {
+        Setting::set('etsy.taxonomy_id', '1208');
         Product::factory()->count(2)->create(['status' => 'active', 'etsy_listing_id' => null]);
         Product::factory()->create(['status' => 'active', 'etsy_listing_id' => '555']);
 
         $client = Mockery::mock(EtsyClient::class);
         $client->shouldReceive('post')->twice()->andReturnValues([['listing_id' => 99], ['listing_id' => 100]]);
-        $client->shouldReceive('put')->once()->andReturn(['listing_id' => 555]);
+        $client->shouldReceive('patch')->once()->andReturn(['listing_id' => 555]);
 
         $sync = new EtsyProductSync($client);
         $result = $sync->syncAll();

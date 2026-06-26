@@ -78,10 +78,21 @@
                     placeholder="Optional description">{{ old('description', $category->description) }}</textarea>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
-                <label class="admin-label" for="sort_order">Sort Order</label>
-                <input type="number" id="sort_order" name="sort_order" class="admin-input"
-                    value="{{ old('sort_order', $category->sort_order) }}" min="0" style="max-width: 120px;">
+            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; margin-bottom: 1.5rem; align-items: end;">
+                <div>
+                    <label class="admin-label" for="sort_order">Sort Order</label>
+                    <input type="number" id="sort_order" name="sort_order" class="admin-input"
+                        value="{{ old('sort_order', $category->sort_order) }}" min="0">
+                </div>
+                <div>
+                    <label class="admin-label" for="etsy_taxonomy_id">
+                        Etsy Taxonomy ID
+                        <span style="font-weight: 400; color: #9ca3af;">(auto-fills on products)</span>
+                    </label>
+                    <input type="number" id="etsy_taxonomy_id" name="etsy_taxonomy_id" class="admin-input"
+                        value="{{ old('etsy_taxonomy_id', $category->etsy_taxonomy_id) }}"
+                        placeholder="e.g. 1208 — see .claude/etsy_data/seller_taxonomy.json">
+                </div>
             </div>
 
             <div style="display: flex; gap: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #f3f4f6;">

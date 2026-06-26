@@ -15,6 +15,7 @@ class Category extends Model
         'description',
         'image_id',
         'sort_order',
+        'etsy_taxonomy_id',
         'meta_title',
         'meta_description',
     ];

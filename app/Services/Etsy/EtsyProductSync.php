@@ -62,10 +62,54 @@ class EtsyProductSync
             'description' => strip_tags($product->description ?? $product->short_description ?? ''),
             'price' => $price,
             'quantity' => max(1, $totalStock),
-            'who_made' => 'i_did',
-            'when_made' => 'made_to_order',
-            'is_supply' => false,
+            'who_made' => $product->etsy_who_made ?? 'i_did',
+            'when_made' => $product->etsy_when_made ?? 'made_to_order',
+            'is_supply' => $product->etsy_is_supply ?? false,
+            'is_taxable' => $product->etsy_is_taxable ?? true,
+            'is_customizable' => $product->etsy_is_customizable ?? false,
+            'should_auto_renew' => $product->etsy_should_auto_renew ?? true,
+            'listing_type' => $product->etsy_listing_type ?? 'physical',
         ];
+
+        if ($product->etsy_processing_min !== null) {
+            $payload['processing_min'] = $product->etsy_processing_min;
+        }
+
+        if ($product->etsy_processing_max !== null) {
+            $payload['processing_max'] = $product->etsy_processing_max;
+        }
+
+        if ($product->etsy_item_weight !== null) {
+            $payload['item_weight'] = $product->etsy_item_weight;
+            $payload['item_weight_unit'] = $product->etsy_item_weight_unit ?? 'oz';
+        }
+
+        if ($product->etsy_item_length !== null) {
+            $payload['item_length'] = $product->etsy_item_length;
+            $payload['item_width'] = $product->etsy_item_width;
+            $payload['item_height'] = $product->etsy_item_height;
+            $payload['item_dimensions_unit'] = $product->etsy_item_dimensions_unit ?? 'in';
+        }
+
+        if (! empty($product->etsy_tags)) {
+            $payload['tags'] = array_values(array_slice($product->etsy_tags, 0, 13));
+        }
+
+        if (! empty($product->etsy_materials)) {
+            $payload['materials'] = array_values($product->etsy_materials);
+        }
+
+        if (! empty($product->etsy_style)) {
+            $payload['style'] = array_values(array_slice($product->etsy_style, 0, 2));
+        }
+
+        if ($product->etsy_shop_section_id !== null) {
+            $payload['shop_section_id'] = $product->etsy_shop_section_id;
+        }
+
+        if ($product->etsy_return_policy_id !== null) {
+            $payload['return_policy_id'] = $product->etsy_return_policy_id;
+        }
 
         if (! $product->etsy_listing_id) {
             $taxonomyId = $product->etsy_taxonomy_id ?? Setting::get('etsy.taxonomy_id');

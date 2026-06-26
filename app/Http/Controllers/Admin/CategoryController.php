@@ -34,6 +34,7 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer'],
+            'etsy_taxonomy_id' => ['nullable', 'integer'],
         ]);
 
         Category::create($validated);
@@ -56,6 +57,7 @@ class CategoryController extends Controller
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
             'description' => ['nullable', 'string', 'max:1000'],
             'sort_order' => ['nullable', 'integer'],
+            'etsy_taxonomy_id' => ['nullable', 'integer'],
         ]);
 
         $category->update($validated);

@@ -20,7 +20,10 @@ class EtsyOAuthTest extends TestCase
         $this->assertStringContainsString('etsy.com/oauth/connect', $url);
         $this->assertStringContainsString('response_type=code', $url);
         $this->assertStringContainsString('listings_r', $url);
+        $this->assertStringContainsString('code_challenge=', $url);
+        $this->assertStringContainsString('code_challenge_method=S256', $url);
         $this->assertNotNull(session('etsy_oauth_state'));
+        $this->assertNotNull(session('etsy_oauth_code_verifier'));
     }
 
     public function test_handle_callback_stores_tokens_and_shop_id(): void
@@ -34,14 +37,15 @@ class EtsyOAuthTest extends TestCase
             ], 200),
             'api.etsy.com/v3/application/users/me' => Http::response([
                 'user_id' => 99,
-            ], 200),
-            'api.etsy.com/v3/application/users/99/shops' => Http::response([
                 'shop_id' => 12345678,
             ], 200),
         ]);
 
         $state = 'test-state-value';
-        session(['etsy_oauth_state' => $state]);
+        session([
+            'etsy_oauth_state' => $state,
+            'etsy_oauth_code_verifier' => 'test-code-verifier',
+        ]);
 
         $service = new EtsyOAuthService;
         $service->handleCallback('auth-code', $state);

@@ -12,7 +12,7 @@ class EtsyOAuthService
 
     private const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
 
-    private const SCOPES = 'listings_r listings_w listings_d transactions_r transactions_w shops_r feedback_r';
+    private const SCOPES = 'listings_r listings_w listings_d transactions_r transactions_w shops_r shops_w feedback_r';
 
     public function buildAuthUrl(): string
     {
@@ -120,6 +120,10 @@ class EtsyOAuthService
 
     private function callbackUrl(): string
     {
+        if ($override = config('services.etsy.redirect_uri')) {
+            return $override;
+        }
+
         try {
             return route('admin.etsy.callback');
         } catch (\Exception) {

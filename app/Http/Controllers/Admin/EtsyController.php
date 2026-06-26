@@ -11,6 +11,8 @@ use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyOrderSync;
 use App\Services\Etsy\EtsyProductSync;
 use App\Services\Etsy\EtsyReviewSync;
+use App\Services\Etsy\EtsyShopSectionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -121,6 +123,34 @@ class EtsyController extends Controller
             return redirect()->route('admin.etsy.index')->with('success', 'Reviews synced. '.$result->summary());
         } catch (\Throwable $e) {
             return redirect()->route('admin.etsy.index')->with('error', 'Review sync failed: '.$e->getMessage());
+        }
+    }
+
+    public function listSections(): JsonResponse
+    {
+        try {
+            $sections = (new EtsyShopSectionService(new EtsyClient($this->oauth)))->getSections();
+
+            return response()->json($sections);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createSection(Request $request): JsonResponse
+    {
+        $title = trim((string) $request->input('title', ''));
+
+        if ($title === '') {
+            return response()->json(['error' => 'Section title is required.'], 422);
+        }
+
+        try {
+            $section = (new EtsyShopSectionService(new EtsyClient($this->oauth)))->createSection($title);
+
+            return response()->json($section);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

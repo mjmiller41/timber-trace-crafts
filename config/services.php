@@ -46,6 +46,7 @@ return [
         'shared_secret' => env('ETSY_SHARED_SECRET'),
         'webhook_secret' => env('ETSY_WEBHOOK_SECRET'),
         'shop_name' => env('ETSY_SHOP_NAME', 'timbertracecrafts'),
+        'redirect_uri' => env('ETSY_REDIRECT_URI'), // override for ngrok / local dev
     ],
 
     'imap' => [
