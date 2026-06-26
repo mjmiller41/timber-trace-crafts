@@ -16,7 +16,7 @@
 - [x] Review sync — test the button in Admin → Etsy
 - [x] Email notification on new order (not yet built)
 - [x] OAuth connect flow working via ngrok in local dev
-- [ ] Shipping profiles — set `etsy.shipping_profile_id` and `etsy.taxonomy_id` in admin settings (needed before product push creates real listings)
+- [x] Shipping profiles — set `etsy.shipping_profile_id` and `etsy.taxonomy_id` in admin settings (needed before product push creates real listings)
 - [ ] Product push to Etsy — add observer on Product model for publish/update/delete events to auto-sync
 - [ ] Shipment push — hook EtsyShipmentSync into OrderController when order marked shipped (send tracking to Etsy)
 - [ ] Add variant button on admin/products/create does nothing when clicked no visible error
