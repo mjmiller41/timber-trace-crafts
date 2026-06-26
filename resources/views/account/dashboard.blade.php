@@ -116,6 +116,11 @@
                     <a href="{{ route('account.addresses') }}" class="btn-outline text-sm">
                         Saved Addresses
                     </a>
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" class="btn-primary text-sm">
+                            Admin Dashboard
+                        </a>
+                    @endif
                 </div>
             </div>
 
