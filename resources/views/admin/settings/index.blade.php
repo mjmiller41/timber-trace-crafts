@@ -126,7 +126,7 @@
                     id="setting_etsy_taxonomy_id"
                     name="settings[etsy.taxonomy_id]"
                     class="admin-input"
-                    value="{{ old('settings[etsy.taxonomy_id]', Setting::get('etsy.taxonomy_id')) }}"
+                    value="{{ old('settings[etsy.taxonomy_id]', $etsyDefaults['taxonomy_id']) }}"
                     placeholder="e.g. 1208"
                     style="max-width: 240px;"
                     autocomplete="off"
@@ -139,7 +139,7 @@
                 <select id="setting_etsy_shipping_profile_id" name="settings[etsy.shipping_profile_id]" class="admin-input" style="max-width: 480px;">
                     <option value="">— None —</option>
                     @foreach($etsyShippingProfiles as $profile)
-                        <option value="{{ $profile['id'] }}" @selected(Setting::get('etsy.shipping_profile_id') == $profile['id'])>
+                        <option value="{{ $profile['id'] }}" @selected($etsyDefaults['shipping_profile_id'] == $profile['id'])>
                             {{ $profile['title'] }}
                         </option>
                     @endforeach
@@ -154,7 +154,7 @@
                 <select id="setting_etsy_return_policy_id" name="settings[etsy.return_policy_id]" class="admin-input" style="max-width: 480px;">
                     <option value="">— None —</option>
                     @foreach($etsyReturnPolicies as $policy)
-                        <option value="{{ $policy['id'] }}" @selected(Setting::get('etsy.return_policy_id') == $policy['id'])>
+                        <option value="{{ $policy['id'] }}" @selected($etsyDefaults['return_policy_id'] == $policy['id'])>
                             {{ $policy['title'] }}
                         </option>
                     @endforeach

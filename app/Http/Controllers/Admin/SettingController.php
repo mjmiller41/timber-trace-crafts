@@ -23,8 +23,13 @@ class SettingController extends Controller
 
         $etsyShippingProfiles = $this->fetchEtsyShippingProfiles();
         $etsyReturnPolicies = $this->fetchEtsyReturnPolicies();
+        $etsyDefaults = [
+            'taxonomy_id' => Setting::get('etsy.taxonomy_id'),
+            'shipping_profile_id' => Setting::get('etsy.shipping_profile_id'),
+            'return_policy_id' => Setting::get('etsy.return_policy_id'),
+        ];
 
-        return view('admin.settings.index', compact('settings', 'etsyShippingProfiles', 'etsyReturnPolicies'));
+        return view('admin.settings.index', compact('settings', 'etsyShippingProfiles', 'etsyReturnPolicies', 'etsyDefaults'));
     }
 
     private function fetchEtsyShippingProfiles(): array
