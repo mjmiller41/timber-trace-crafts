@@ -101,13 +101,19 @@ class ProductController extends Controller
 
         $validated = $this->processEtsyFields($validated);
 
-        $product = Product::create($validated);
+        $product = Product::withoutObservers(fn () => Product::create($validated));
         $product->tags()->sync($tags);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
 
         if ($product->sold_on_etsy && $product->status === 'active') {
-            $redirect->with('success_etsy', 'Etsy listing creation queued.');
+            try {
+                $sync = new EtsyProductSync(new EtsyClient(app(EtsyOAuthService::class)));
+                $sync->syncProduct($product);
+                $redirect->with('success_etsy', 'Etsy listing created.');
+            } catch (\Throwable $e) {
+                $redirect->with('error_etsy', 'Etsy sync failed: '.$e->getMessage());
+            }
         }
 
         return $redirect;
@@ -184,13 +190,22 @@ class ProductController extends Controller
 
         $validated = $this->processEtsyFields($validated);
 
-        $product->update($validated);
+        // Suppress observer so it doesn't also queue a background job while we sync inline
+        Product::withoutObservers(function () use ($product, $validated) {
+            $product->update($validated);
+        });
         $product->tags()->sync($tags);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
 
         if ($product->sold_on_etsy && ($product->etsy_listing_id || $product->status === 'active')) {
-            $redirect->with('success_etsy', 'Etsy listing sync queued.');
+            try {
+                $sync = new EtsyProductSync(new EtsyClient(app(EtsyOAuthService::class)));
+                $sync->syncProduct($product);
+                $redirect->with('success_etsy', 'Etsy listing updated.');
+            } catch (\Throwable $e) {
+                $redirect->with('error_etsy', 'Etsy sync failed: '.$e->getMessage());
+            }
         }
 
         return $redirect;
