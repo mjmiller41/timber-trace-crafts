@@ -1,5 +1,7 @@
 # SEO Optimization Plan — Timber Trace Crafts
 
+**Completed:** 2026-06-25
+
 **Goal:** Bring timbertracecrafts.com from 40/100 to 75+/100 SEO health by fixing all critical bugs, adding structured data, hardening technical SEO, and improving on-page signals.
 
 **Tech Stack:** Laravel 13, PHP 8.3, Blade templates, Tailwind v4, Alpine.js v3
@@ -14,7 +16,7 @@
 - [x] Task 4: XML sitemap at `/sitemap.xml` + harden `robots.txt` *(done 2026-06-25)*
 - [x] Task 5: OG / Twitter Card meta tags with per-page overrides *(done 2026-06-25)*
 - [x] Task 6: Structured data JSON-LD — Organization, WebSite, Product, Offer, AggregateRating, BreadcrumbList, BlogPosting *(done 2026-06-25)*
-- [ ] Task 7: Hero image — convert `lifestyle-1.png` → WebP, upload to R2, set R2 cache headers, update `<img>` src + `@push('preload')` href, run `npm run build` *(code done; 5 manual steps remain)*
+- [x] Task 7: Hero image — convert `lifestyle-1.png` → WebP, upload to R2, set R2 cache headers, update `<img>` src + `@push('preload')` href, run `npm run build` *(done 2026-06-25)*
 - [x] Task 8: SecurityHeaders middleware — HSTS, nosniff, X-Frame-Options, public cache for guests *(done 2026-06-25)*
 - [x] Task 9: Async Google Fonts — trim from 9 to 5 weights, non-render-blocking *(done 2026-06-25)*
 - [x] Task 10: Remove `Str::limit(400)` from product description *(done 2026-06-25)*

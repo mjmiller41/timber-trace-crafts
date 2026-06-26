@@ -24,7 +24,19 @@
 - [x] Tag archive pages — `GET /journal/tag/{tag}` + view *(done 2026-06-25)*
 - [x] Fix journal/show.blade.php JSON-LD — convert @@context escape to json_encode() *(done 2026-06-25)*
 
-### Month 1 Content — Week 3–4
+### FLOW 90-Day Content Calendar (gift-intent first, added 2026-06-25)
+- [ ] Week 1: Write hub post "The Best Handmade Gifts for Women Who Appreciate the Details" (pillar, ~2,500 words)
+- [ ] Week 2: Write "Valentine's Day Jewelry Gift Guide" (listicle, publish by Jan 10)
+- [ ] Week 3: Write "How Wood Earrings Are Made: A Look Inside the Workshop" (how-to)
+- [ ] Week 4: Write "Personalized Jewelry Box Ideas: How to Make a Gift She'll Keep Forever" (listicle)
+- [ ] Week 6: Write "What to Get a Woman Who Has Everything: 7 Handmade Ideas" (listicle)
+- [ ] Week 7: Write "Why We Started Timber Trace Crafts" (thought-leadership / brand story)
+- [ ] Week 8: Write "Mother's Day Gifts from a Small Maker" (listicle, publish by Apr 1)
+- [ ] Week 10: Write hub post "Handmade Wedding Party Gifts: A Complete Guide for Brides" (pillar)
+- [ ] Week 12: Write "Wood vs. Metal Earrings: Which Is Better for Sensitive Ears?" (comparison)
+- [ ] After each post: run `/blog analyze`, score 80+, add internal links to product pages, apply tags
+
+### Month 1 Content — Week 3–4 (original plan)
 - [ ] Write Pillar 6 pillar page: "How Laser Cutting and Engraving Works" (~3,000 words)
 - [ ] Write Spoke 3.2: "Can you wear wood earrings in the shower?" (FAQ, ~500 words)
 - [ ] Write Spoke 5.2: "Are engraved tumblers dishwasher safe?" (FAQ, ~500 words)

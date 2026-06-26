@@ -28,3 +28,6 @@ Thumbs.db
 /.agents/product-images
 /.wrangler
 /.claude/product-images
+/.claude/worktrees/
+/.claude/etsy_data/
+*:Zone.Identifier
