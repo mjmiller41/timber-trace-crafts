@@ -18,12 +18,14 @@ class EtsyInventorySync
 
         $product->loadMissing('variants');
 
-        $products = $product->variants->map(function ($variant) {
+        $price = (float) ($product->sale_price ?? $product->price);
+
+        $products = $product->variants->map(function ($variant) use ($price) {
             return [
                 'sku' => $variant->sku ?? '',
                 'offerings' => [
                     [
-                        'price' => 0,
+                        'price' => $price,
                         'quantity' => max(0, $variant->stock_qty),
                         'is_enabled' => $variant->stock_qty > 0,
                     ],

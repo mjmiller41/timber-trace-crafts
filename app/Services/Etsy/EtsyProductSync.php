@@ -19,6 +19,8 @@ class EtsyProductSync
 
         $shopId = Setting::get('etsy.shop_id');
 
+        $inventorySync = new EtsyInventorySync($this->client);
+
         if ($product->etsy_listing_id) {
             try {
                 $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
@@ -34,6 +36,9 @@ class EtsyProductSync
                     throw $e;
                 }
             }
+
+            // Price and stock only update via the inventory endpoint, not PATCH
+            $inventorySync->syncProduct($product);
         } else {
             $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
             $product->update(['etsy_listing_id' => (string) $response['listing_id']]);

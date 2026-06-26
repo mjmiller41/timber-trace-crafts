@@ -58,6 +58,10 @@ class EtsySyncTest extends TestCase
             ->once()
             ->with('/application/shops/12345678/listings/111222333', Mockery::type('array'))
             ->andReturn(['listing_id' => 111222333]);
+        $client->shouldReceive('put')
+            ->once()
+            ->with('/application/listings/111222333/inventory', Mockery::type('array'))
+            ->andReturn([]);
 
         $sync = new EtsyProductSync($client);
         $sync->syncProduct($product);
@@ -74,6 +78,7 @@ class EtsySyncTest extends TestCase
         $client = Mockery::mock(EtsyClient::class);
         $client->shouldReceive('post')->twice()->andReturnValues([['listing_id' => 99], ['listing_id' => 100]]);
         $client->shouldReceive('patch')->once()->andReturn(['listing_id' => 555]);
+        $client->shouldReceive('put')->once()->andReturn([]);
 
         $sync = new EtsyProductSync($client);
         $result = $sync->syncAll();
