@@ -7,9 +7,14 @@
 <div class="admin-card" style="margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
     <div style="display: flex; align-items: center; justify-content: space-between;">
         <span style="font-size: 0.875rem; color: #6b7280;">{{ $posts->total() }} {{ Str::plural('post', $posts->total()) }}</span>
-        <a href="{{ route('admin.journal.create') }}" class="admin-btn" style="background-color: #2C4C3B; color: #fff;">
-            + New Post
-        </a>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ route('admin.journal.import') }}" class="admin-btn admin-btn-outline">
+                Import Drafts
+            </a>
+            <a href="{{ route('admin.journal.create') }}" class="admin-btn" style="background-color: #2C4C3B; color: #fff;">
+                + New Post
+            </a>
+        </div>
     </div>
 </div>
 

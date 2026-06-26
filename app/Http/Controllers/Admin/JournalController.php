@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\JournalPost;
 use App\Models\Media;
 use App\Models\Tag;
+use App\Services\BlogDraftParser;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -119,6 +121,89 @@ class JournalController extends Controller
         ]);
 
         return $media->id;
+    }
+
+    public function importIndex(): View
+    {
+        $draftsPath = base_path('.claude/blog/posts');
+        $importedSlugs = JournalPost::pluck('slug')->flip();
+
+        $drafts = collect(glob("{$draftsPath}/*.{md,html}", GLOB_BRACE))
+            ->map(function (string $path) use ($importedSlugs): array {
+                $filename = basename($path);
+                $slug = pathinfo($filename, PATHINFO_FILENAME);
+
+                return [
+                    'filename' => $filename,
+                    'slug' => $slug,
+                    'extension' => strtolower(pathinfo($filename, PATHINFO_EXTENSION)),
+                    'modified_at' => Carbon::createFromTimestamp(filemtime($path)),
+                    'imported' => $importedSlugs->has($slug),
+                ];
+            })
+            ->sortByDesc('modified_at')
+            ->values();
+
+        return view('admin.journal.import', compact('drafts'));
+    }
+
+    public function import(Request $request, string $filename): RedirectResponse
+    {
+        $path = base_path('.claude/blog/posts/'.basename($filename));
+
+        abort_unless(file_exists($path), 404);
+
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        abort_unless(in_array($extension, ['md', 'html']), 422, 'Unsupported file type.');
+
+        $parser = new BlogDraftParser;
+        $fields = $parser->parse($path);
+
+        abort_if(empty($fields['title']) || empty($fields['slug']), 422, 'Draft is missing title or slug.');
+
+        $existingPost = JournalPost::where('slug', $fields['slug'])->first();
+
+        if ($existingPost) {
+            $existingPost->update([
+                'title' => $fields['title'],
+                'excerpt' => $fields['excerpt'],
+                'body' => $fields['body'],
+                'meta_title' => $fields['meta_title'],
+                'meta_description' => $fields['meta_description'],
+                'status' => $fields['status'],
+                'published_at' => $fields['published_at'],
+                'user_id' => auth()->id(),
+            ]);
+            $post = $existingPost;
+            $message = "'{$post->title}' updated from draft.";
+        } else {
+            $post = JournalPost::create([
+                'title' => $fields['title'],
+                'slug' => $fields['slug'],
+                'excerpt' => $fields['excerpt'],
+                'body' => $fields['body'],
+                'meta_title' => $fields['meta_title'],
+                'meta_description' => $fields['meta_description'],
+                'status' => $fields['status'],
+                'published_at' => $fields['published_at'],
+                'user_id' => auth()->id(),
+            ]);
+            $message = "'{$post->title}' imported successfully.";
+        }
+
+        if (! empty($fields['tags'])) {
+            $tagIds = collect($fields['tags'])
+                ->filter()
+                ->map(fn (string $name): int => Tag::firstOrCreate(
+                    ['slug' => Str::slug($name)],
+                    ['name' => $name]
+                )->id)
+                ->all();
+
+            $post->tags()->sync($tagIds);
+        }
+
+        return redirect()->route('admin.journal.import')->with('success', $message);
     }
 
     public function destroy(JournalPost $journal): RedirectResponse

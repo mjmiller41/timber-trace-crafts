@@ -164,6 +164,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Journal
     Route::resource('journal', App\Http\Controllers\Admin\JournalController::class)->except(['show']);
+    Route::get('journal/import', [App\Http\Controllers\Admin\JournalController::class, 'importIndex'])->name('journal.import');
+    Route::post('journal/import/{filename}', [App\Http\Controllers\Admin\JournalController::class, 'import'])->name('journal.import.file');
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
