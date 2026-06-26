@@ -104,7 +104,13 @@ class ProductController extends Controller
         $product = Product::create($validated);
         $product->tags()->sync($tags);
 
-        return redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
+        $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
+
+        if ($product->sold_on_etsy && $product->status === 'active') {
+            $redirect->with('success_etsy', 'Etsy listing creation queued.');
+        }
+
+        return $redirect;
     }
 
     public function edit(Product $product): View
@@ -181,7 +187,13 @@ class ProductController extends Controller
         $product->update($validated);
         $product->tags()->sync($tags);
 
-        return redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
+        $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
+
+        if ($product->sold_on_etsy && ($product->etsy_listing_id || $product->status === 'active')) {
+            $redirect->with('success_etsy', 'Etsy listing sync queued.');
+        }
+
+        return $redirect;
     }
 
     public function destroy(Product $product): RedirectResponse

@@ -34,6 +34,11 @@
                 ✓ {{ session('success') }}
             </div>
             @endif
+            @if(session('success_etsy'))
+            <div style="margin: 0.5rem 1.5rem 0; padding: 0.75rem 1rem; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 0.375rem; color: #1e40af; font-size: 0.875rem;">
+                ↑ {{ session('success_etsy') }}
+            </div>
+            @endif
             @if(session('error'))
             <div style="margin: 1rem 1.5rem 0; padding: 0.75rem 1rem; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 0.375rem; color: #991b1b; font-size: 0.875rem;">
                 ✕ {{ session('error') }}
