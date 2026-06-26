@@ -29,15 +29,26 @@
         </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.journal.update', $post) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.journal.update', $post) }}" enctype="multipart/form-data"
+              x-data="{ publish() { document.getElementById('status').value = 'published'; this.$el.submit(); } }">
             @csrf
             @method('PUT')
 
             @include('admin.journal.form')
 
-            <div style="display: flex; gap: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #f3f4f6;">
-                <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
-                <a href="{{ route('admin.journal.index') }}" class="admin-btn admin-btn-outline">Cancel</a>
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid #f3f4f6; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; gap: 0.75rem;">
+                    <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
+                    @if($post->status === 'draft')
+                    <button type="button" @click="publish()" class="admin-btn" style="background-color: #2C4C3B; color: #fff;">
+                        Publish Now
+                    </button>
+                    @endif
+                    <a href="{{ route('admin.journal.index') }}" class="admin-btn admin-btn-outline">Cancel</a>
+                </div>
+                <a href="{{ route('admin.journal.preview', $post) }}" target="_blank" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;">
+                    Preview &nearr;
+                </a>
             </div>
         </form>
     </div>

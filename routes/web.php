@@ -163,9 +163,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/reviews/{review}', [ReviewController::class, 'updateStatus'])->name('reviews.status');
 
     // Journal
-    Route::resource('journal', App\Http\Controllers\Admin\JournalController::class)->except(['show']);
     Route::get('journal/import', [App\Http\Controllers\Admin\JournalController::class, 'importIndex'])->name('journal.import');
     Route::post('journal/import/{filename}', [App\Http\Controllers\Admin\JournalController::class, 'import'])->name('journal.import.file');
+    Route::get('journal/{journal}/preview', [App\Http\Controllers\Admin\JournalController::class, 'preview'])->name('journal.preview');
+    Route::resource('journal', App\Http\Controllers\Admin\JournalController::class)->except(['show']);
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');

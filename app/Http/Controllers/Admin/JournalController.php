@@ -123,6 +123,25 @@ class JournalController extends Controller
         return $media->id;
     }
 
+    public function preview(JournalPost $journal): View
+    {
+        $post = $journal->load(['featuredImage', 'tags', 'author']);
+
+        $tagIds = $post->tags->pluck('id');
+
+        $relatedPosts = $tagIds->isNotEmpty()
+            ? JournalPost::with('featuredImage')
+                ->where('status', 'published')
+                ->where('id', '!=', $post->id)
+                ->whereHas('tags', fn ($q) => $q->whereIn('tags.id', $tagIds))
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get()
+            : collect();
+
+        return view('journal.show', compact('post', 'relatedPosts'));
+    }
+
     public function importIndex(): View
     {
         $draftsPath = base_path('.claude/blog/posts');
