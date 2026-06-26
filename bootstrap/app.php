@@ -15,8 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Trust all proxy headers so ngrok's X-Forwarded-Proto:https produces HTTPS URLs
-        $middleware->trustProxies(at: '*');
+        // Wildcard only in local dev (ngrok). Production trusts only loopback — the real
+        // web server (nginx/Apache) is the only proxy and runs on the same host.
+        if (app()->environment('local')) {
+            $middleware->trustProxies(at: '*');
+        } else {
+            $middleware->trustProxies(at: ['127.0.0.1', '::1']);
+        }
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
