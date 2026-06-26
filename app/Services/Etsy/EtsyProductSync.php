@@ -20,7 +20,18 @@ class EtsyProductSync
         $shopId = Setting::get('etsy.shop_id');
 
         if ($product->etsy_listing_id) {
-            $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
+            try {
+                $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
+            } catch (EtsyApiException $e) {
+                // Listing was deleted on Etsy — clear the stale ID and create a fresh one
+                if ($e->statusCode === 403 && str_contains($e->getMessage(), 'removed')) {
+                    $product->update(['etsy_listing_id' => null]);
+                    $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
+                    $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
+                } else {
+                    throw $e;
+                }
+            }
         } else {
             $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
             $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
