@@ -93,11 +93,12 @@ class OrderController extends Controller
         }
 
         // Push tracking to Etsy if this is an Etsy order
-        try {
-            $etsySync = new EtsyShipmentSync(new EtsyClient(new EtsyOAuthService));
-            $etsySync->pushShipment($order, $shipment);
-        } catch (\Throwable $e) {
-            Log::error('Etsy shipment hook failed', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+        $etsyFlash = [];
+        if ($order->etsy_receipt_id) {
+            $pushed = (new EtsyShipmentSync(new EtsyClient(new EtsyOAuthService)))->pushShipment($order, $shipment);
+            $etsyFlash = $pushed
+                ? ['success_etsy' => 'Tracking sent to Etsy.']
+                : ['error_etsy' => 'Etsy tracking push failed — check logs.'];
         }
 
         // Notify customer
@@ -111,7 +112,9 @@ class OrderController extends Controller
             Log::error('Shipped email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
         }
 
-        return redirect()->route('admin.orders.show', $order)->with('success', 'Shipment added.');
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Shipment added.')
+            ->with($etsyFlash);
     }
 
     public function packingSlip(Order $order): View

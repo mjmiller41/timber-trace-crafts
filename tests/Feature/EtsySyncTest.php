@@ -212,7 +212,9 @@ class EtsySyncTest extends TestCase
             ->andReturn([]);
 
         $sync = new EtsyShipmentSync($client);
-        $sync->pushShipment($order, $shipment);
+        $result = $sync->pushShipment($order, $shipment);
+
+        $this->assertTrue($result);
     }
 
     public function test_shipment_push_skips_non_etsy_orders(): void
@@ -225,6 +227,8 @@ class EtsySyncTest extends TestCase
         $client->shouldNotReceive('post');
 
         $sync = new EtsyShipmentSync($client);
-        $sync->pushShipment($order, $shipment);
+        $result = $sync->pushShipment($order, $shipment);
+
+        $this->assertFalse($result);
     }
 }

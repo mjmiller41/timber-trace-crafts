@@ -11,10 +11,10 @@ class EtsyShipmentSync
 {
     public function __construct(private readonly EtsyClient $client) {}
 
-    public function pushShipment(Order $order, Shipment $shipment): void
+    public function pushShipment(Order $order, Shipment $shipment): bool
     {
         if (! $order->etsy_receipt_id) {
-            return;
+            return false;
         }
 
         $shopId = Setting::get('etsy.shop_id');
@@ -28,12 +28,16 @@ class EtsyShipmentSync
                     'send_bcc' => true,
                 ]
             );
+
+            return true;
         } catch (\Throwable $e) {
             Log::error('Etsy shipment push failed', [
                 'order_id' => $order->id,
                 'receipt_id' => $order->etsy_receipt_id,
                 'error' => $e->getMessage(),
             ]);
+
+            return false;
         }
     }
 }
