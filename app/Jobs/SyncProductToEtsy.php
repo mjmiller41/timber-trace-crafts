@@ -24,7 +24,12 @@ class SyncProductToEtsy implements ShouldQueue
     {
         $product = Product::with(['variants', 'media'])->find($this->productId);
 
-        if (! $product || ! $product->sold_on_etsy || $product->status !== 'active') {
+        if (! $product || ! $product->sold_on_etsy) {
+            return;
+        }
+
+        // Skip if no existing listing and product isn't active yet (don't auto-create for drafts)
+        if (! $product->etsy_listing_id && $product->status !== 'active') {
             return;
         }
 
