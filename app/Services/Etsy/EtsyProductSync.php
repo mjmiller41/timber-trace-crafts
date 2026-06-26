@@ -125,8 +125,15 @@ class EtsyProductSync
         if (! $product->etsy_listing_id) {
             $taxonomyId = $product->etsy_taxonomy_id ?? Setting::get('etsy.taxonomy_id');
             $shippingProfileId = $product->etsy_shipping_profile_id ?? Setting::get('etsy.shipping_profile_id');
-            // 1=draft, 2=inactive, 3=active — default to draft so listings are reviewed before going live
-            $readinessStateId = (int) (Setting::get('etsy.readiness_state_id') ?? 1);
+            $readinessStateId = Setting::get('etsy.readiness_state_id');
+
+            if (! $readinessStateId) {
+                throw new \RuntimeException(
+                    'Cannot create Etsy listing: no readiness_state_id set. Configure it in Admin → Settings → Etsy.'
+                );
+            }
+
+            $readinessStateId = (int) $readinessStateId;
 
             if (! $taxonomyId) {
                 throw new \RuntimeException(

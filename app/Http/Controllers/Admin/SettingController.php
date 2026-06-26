@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyReadinessStateService;
 use App\Services\Etsy\EtsyReturnPolicyService;
 use App\Services\Etsy\EtsyShippingProfileService;
 use Illuminate\Http\RedirectResponse;
@@ -23,13 +24,24 @@ class SettingController extends Controller
 
         $etsyShippingProfiles = $this->fetchEtsyShippingProfiles();
         $etsyReturnPolicies = $this->fetchEtsyReturnPolicies();
+        $etsyReadinessStates = $this->fetchEtsyReadinessStates();
         $etsyDefaults = [
             'taxonomy_id' => Setting::get('etsy.taxonomy_id'),
             'shipping_profile_id' => Setting::get('etsy.shipping_profile_id'),
             'return_policy_id' => Setting::get('etsy.return_policy_id'),
+            'readiness_state_id' => Setting::get('etsy.readiness_state_id'),
         ];
 
-        return view('admin.settings.index', compact('settings', 'etsyShippingProfiles', 'etsyReturnPolicies', 'etsyDefaults'));
+        return view('admin.settings.index', compact('settings', 'etsyShippingProfiles', 'etsyReturnPolicies', 'etsyReadinessStates', 'etsyDefaults'));
+    }
+
+    private function fetchEtsyReadinessStates(): array
+    {
+        try {
+            return (new EtsyReadinessStateService(new EtsyClient(app(EtsyOAuthService::class))))->getStates();
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     private function fetchEtsyShippingProfiles(): array

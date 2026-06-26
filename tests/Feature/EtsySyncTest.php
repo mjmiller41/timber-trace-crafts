@@ -25,6 +25,7 @@ class EtsySyncTest extends TestCase
         parent::setUp();
         Setting::set('etsy.shop_id', '12345678');
         Setting::set('etsy.access_token', 'fake-token');
+        Setting::set('etsy.readiness_state_id', '1');
     }
 
     // ── Product Sync ──────────────────────────────────────────────────

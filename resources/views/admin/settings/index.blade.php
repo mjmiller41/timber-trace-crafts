@@ -26,7 +26,7 @@
             'analytics' => 'Analytics',
         ];
         $brandKeys    = ['store.name', 'store.tagline', 'store.logo_path'];
-        $etsyDefaultKeys = ['etsy.taxonomy_id', 'etsy.shipping_profile_id', 'etsy.return_policy_id'];
+        $etsyDefaultKeys = ['etsy.taxonomy_id', 'etsy.shipping_profile_id', 'etsy.return_policy_id', 'etsy.readiness_state_id'];
         $logoPath  = $settings['store']?->firstWhere('key', 'store.logo_path')?->value ?? '';
         $logoUrl   = $logoPath ? Storage::disk(config('filesystems.default'))->url($logoPath) : asset('images/logo.png');
     @endphp
@@ -158,6 +158,21 @@
                     </select>
                     @if(empty($etsyReturnPolicies))
                         <p class="admin-hint">Connect Etsy to load return policies.</p>
+                    @endif
+                </div>
+
+                <div>
+                    <label class="admin-label" for="setting_etsy_readiness_state_id">Default Readiness State</label>
+                    <select id="setting_etsy_readiness_state_id" name="settings[etsy.readiness_state_id]" class="admin-input" style="max-width: 480px;">
+                        <option value="">— None —</option>
+                        @foreach($etsyReadinessStates as $state)
+                            <option value="{{ $state['id'] }}" @selected($etsyDefaults['readiness_state_id'] == $state['id'])>
+                                {{ $state['title'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(empty($etsyReadinessStates))
+                        <p class="admin-hint">Connect Etsy to load readiness states.</p>
                     @endif
                 </div>
 
