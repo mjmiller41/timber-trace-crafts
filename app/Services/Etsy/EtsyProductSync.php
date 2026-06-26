@@ -13,7 +13,7 @@ class EtsyProductSync
 
     public function syncProduct(Product $product): void
     {
-        $product->loadMissing(['variants', 'media']);
+        $product->load(['variants', 'media']);
 
         $payload = $this->buildListingPayload($product);
 

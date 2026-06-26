@@ -13,17 +13,23 @@ class ProductVariant extends Model
 
     protected $fillable = [
         'product_id',
+        'variation_type_id',
         'sku',
         'label',
+        'price',
+        'is_enabled',
         'material_code',
         'stock_qty',
         'low_stock_threshold',
         'sort_order',
+        'etsy_offering_id',
     ];
 
     protected function casts(): array
     {
         return [
+            'price' => 'decimal:2',
+            'is_enabled' => 'boolean',
             'stock_qty' => 'integer',
             'low_stock_threshold' => 'integer',
             'sort_order' => 'integer',

@@ -42,26 +42,55 @@ Alpine.data('mediaOrderer', (items = []) => ({
     moveDown(index) { if (index < this.items.length - 1) { [this.items[index], this.items[index+1]] = [this.items[index+1], this.items[index]] } }
 }))
 
-// Product variant manager
-Alpine.data('variantManager', (initialVariants = []) => ({
-    variants: initialVariants.map((v, i) => ({ ...v, _key: i })),
-    _nextKey: initialVariants.length,
-    addVariant() {
-        this.variants.push({
-            _key: this._nextKey++,
-            id: null,
-            label: '',
-            sku: '',
-            material_code: '',
-            stock_qty: 0,
-            low_stock_threshold: 5,
-            sort_order: this.variants.length,
-        })
-    },
-    removeVariant(index) {
-        this.variants.splice(index, 1)
-    },
-}))
+// Product variation manager — supports up to 3 named variation types, each with multiple options
+Alpine.data('variationManager', (initialTypes = []) => {
+    let _nextKey = 0
+
+    function makeOption(data = {}) {
+        return {
+            _key: _nextKey++,
+            id: data.id ?? null,
+            label: data.label ?? '',
+            sku: data.sku ?? '',
+            price: data.price ?? null,
+            is_enabled: data.is_enabled ?? true,
+            material_code: data.material_code ?? '',
+            stock_qty: data.stock_qty ?? 0,
+            low_stock_threshold: data.low_stock_threshold ?? 5,
+            sort_order: data.sort_order ?? 0,
+        }
+    }
+
+    function makeType(data = {}) {
+        return {
+            _key: _nextKey++,
+            id: data.id ?? null,
+            name: data.name ?? '',
+            options: (data.options ?? [{ }]).map(o => makeOption(o)),
+        }
+    }
+
+    return {
+        variationTypes: initialTypes.map(t => makeType(t)),
+
+        addType() {
+            if (this.variationTypes.length >= 3) return
+            this.variationTypes.push(makeType())
+        },
+
+        removeType(typeIndex) {
+            this.variationTypes.splice(typeIndex, 1)
+        },
+
+        addOption(typeIndex) {
+            this.variationTypes[typeIndex].options.push(makeOption())
+        },
+
+        removeOption(typeIndex, optionIndex) {
+            this.variationTypes[typeIndex].options.splice(optionIndex, 1)
+        },
+    }
+})
 
 // Etsy new-order badge — polls every 60s, shows sidebar badge + toast
 Alpine.data('orderNotifier', () => ({

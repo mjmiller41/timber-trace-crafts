@@ -275,126 +275,217 @@
                 </div>
             </div>
 
-            {{-- Variants --}}
-            <div class="admin-card"
-                 x-data="variantManager({{ json_encode(
-                     isset($product) ? $product->variants->map(fn($v) => [
-                         'id'                  => $v->id,
-                         'label'               => $v->label,
-                         'sku'                 => $v->sku,
-                         'material_code'       => $v->material_code,
-                         'stock_qty'           => $v->stock_qty,
-                         'low_stock_threshold' => $v->low_stock_threshold,
-                         'sort_order'          => $v->sort_order,
-                     ])->values()->toArray()
-                     : []
-                 ) }})">
+            {{-- Variations --}}
+            @php
+                $variationTypeData = [];
+                if (isset($product)) {
+                    if ($product->variationTypes->isNotEmpty()) {
+                        $variationTypeData = $product->variationTypes->map(fn($type) => [
+                            'id'      => $type->id,
+                            'name'    => $type->name,
+                            'options' => $type->variants->map(fn($v) => [
+                                'id'                  => $v->id,
+                                'label'               => $v->label,
+                                'sku'                 => $v->sku,
+                                'price'               => $v->price,
+                                'is_enabled'          => $v->is_enabled ?? true,
+                                'material_code'       => $v->material_code,
+                                'stock_qty'           => $v->stock_qty,
+                                'low_stock_threshold' => $v->low_stock_threshold,
+                                'sort_order'          => $v->sort_order,
+                            ])->values()->toArray(),
+                        ])->values()->toArray();
+                    } elseif ($product->variants->isNotEmpty()) {
+                        // Legacy: group orphaned variants under a single type
+                        $variationTypeData = [[
+                            'id'      => null,
+                            'name'    => $product->etsy_variation_name ?? 'Style',
+                            'options' => $product->variants->map(fn($v) => [
+                                'id'                  => $v->id,
+                                'label'               => $v->label,
+                                'sku'                 => $v->sku,
+                                'price'               => $v->price,
+                                'is_enabled'          => $v->is_enabled ?? true,
+                                'material_code'       => $v->material_code,
+                                'stock_qty'           => $v->stock_qty,
+                                'low_stock_threshold' => $v->low_stock_threshold,
+                                'sort_order'          => $v->sort_order,
+                            ])->values()->toArray(),
+                        ]];
+                    }
+                }
+            @endphp
+
+            <div class="admin-card" x-data="variationManager({{ Illuminate\Support\Js::from($variationTypeData) }})">
                 <div class="admin-card-header">
-                    <span class="admin-card-title">Variants</span>
-                    <button type="button" class="admin-btn admin-btn-outline" @click="addVariant()" style="font-size: 0.75rem;">+ Add Variant</button>
+                    <span class="admin-card-title">Variations</span>
+                    <button
+                        type="button"
+                        class="admin-btn admin-btn-outline"
+                        @click="addType()"
+                        :disabled="variationTypes.length >= 3"
+                        style="font-size: 0.75rem;"
+                    >+ Add variation</button>
                 </div>
 
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8125rem;">
-                        <thead>
-                            <tr>
-                                <th style="text-align: left; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Label</th>
-                                <th style="text-align: left; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">SKU</th>
-                                <th style="text-align: left; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Material Code</th>
-                                <th style="text-align: right; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Stock</th>
-                                <th style="text-align: right; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Low Stock</th>
-                                <th style="text-align: right; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Sort</th>
-                                <th style="border-bottom: 1px solid #e5e7eb; width: 2rem;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="(variant, index) in variants" :key="variant._key">
-                                <tr style="border-bottom: 1px solid #f3f4f6;">
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <template x-if="variant.id">
-                                            <input type="hidden" :name="'variants[' + index + '][id]'" :value="variant.id">
-                                        </template>
-                                        <input
-                                            type="text"
-                                            :name="'variants[' + index + '][label]'"
-                                            x-model="variant.label"
-                                            class="admin-input"
-                                            style="min-width: 120px;"
-                                            placeholder="e.g. Small Oak"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <input
-                                            type="text"
-                                            :name="'variants[' + index + '][sku]'"
-                                            x-model="variant.sku"
-                                            class="admin-input"
-                                            style="min-width: 110px; font-family: monospace; font-size: 0.8125rem;"
-                                            placeholder="WB-OAK-SM"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <input
-                                            type="text"
-                                            :name="'variants[' + index + '][material_code]'"
-                                            x-model="variant.material_code"
-                                            class="admin-input"
-                                            style="min-width: 100px; font-family: monospace; font-size: 0.8125rem;"
-                                            placeholder="OAK"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <input
-                                            type="number"
-                                            :name="'variants[' + index + '][stock_qty]'"
-                                            x-model="variant.stock_qty"
-                                            class="admin-input"
-                                            style="min-width: 70px; text-align: right;"
-                                            min="0"
-                                            placeholder="0"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <input
-                                            type="number"
-                                            :name="'variants[' + index + '][low_stock_threshold]'"
-                                            x-model="variant.low_stock_threshold"
-                                            class="admin-input"
-                                            style="min-width: 70px; text-align: right;"
-                                            min="0"
-                                            placeholder="5"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.5rem;">
-                                        <input
-                                            type="number"
-                                            :name="'variants[' + index + '][sort_order]'"
-                                            x-model="variant.sort_order"
-                                            class="admin-input"
-                                            style="min-width: 60px; text-align: right;"
-                                            min="0"
-                                            placeholder="0"
-                                        >
-                                    </td>
-                                    <td style="padding: 0.5rem 0.25rem; text-align: center;">
-                                        <button
-                                            type="button"
-                                            @click="removeVariant(index)"
-                                            style="background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1rem; padding: 0.25rem; transition: color 0.15s;"
-                                            onmouseover="this.style.color='#991b1b'"
-                                            onmouseout="this.style.color='#9ca3af'"
-                                            title="Remove variant"
-                                        >&#x2715;</button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                <div x-show="variationTypes.length === 0" style="text-align: center; color: #9ca3af; padding: 1.5rem; font-size: 0.875rem;">
+                    No variations yet. Click "+ Add variation" to add one.
                 </div>
 
-                <div x-show="variants.length === 0" style="text-align: center; color: #9ca3af; padding: 1.5rem; font-size: 0.875rem;">
-                    No variants yet. Click "Add Variant" to add one.
-                </div>
+                <datalist id="variation-name-suggestions">
+                    <option value="Style">
+                    <option value="Size">
+                    <option value="Color">
+                    <option value="Wood Type">
+                    <option value="Finish">
+                    <option value="Material">
+                    <option value="Length">
+                    <option value="Design">
+                </datalist>
+
+                <template x-for="(vtype, typeIndex) in variationTypes" :key="vtype._key">
+                    <div style="border: 1px solid #e5e7eb; border-radius: 0.375rem; margin-top: 1rem; padding: 0.75rem;">
+
+                        {{-- Type header --}}
+                        <div style="display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem;">
+                            <input type="hidden" :name="'variation_types[' + typeIndex + '][id]'" :value="vtype.id ?? ''">
+                            <label style="font-size: 0.75rem; color: #8C7B6C; white-space: nowrap; font-weight: 600;">Variation name:</label>
+                            <input
+                                type="text"
+                                :name="'variation_types[' + typeIndex + '][name]'"
+                                x-model="vtype.name"
+                                class="admin-input"
+                                style="width: 160px; font-size: 0.8125rem; padding: 0.25rem 0.5rem;"
+                                list="variation-name-suggestions"
+                                placeholder="e.g. Size"
+                            >
+                            <span
+                                style="font-size: 0.6875rem; color: #9ca3af;"
+                                x-text="typeIndex === 0 ? '(Etsy property 1)' : typeIndex === 1 ? '(Etsy property 2)' : '(local only)'"
+                            ></span>
+                            <button
+                                type="button"
+                                @click="removeType(typeIndex)"
+                                style="margin-left: auto; background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1rem; padding: 0.25rem; transition: color 0.15s;"
+                                onmouseover="this.style.color='#991b1b'"
+                                onmouseout="this.style.color='#9ca3af'"
+                                title="Remove variation"
+                            >&#x2715;</button>
+                        </div>
+
+                        {{-- Options table --}}
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.8125rem;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Option</th>
+                                        <th style="text-align: left; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">SKU</th>
+                                        <th style="text-align: right; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Price</th>
+                                        <th style="text-align: right; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Quantity</th>
+                                        <th style="text-align: center; padding: 0.5rem 0.75rem; font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #8C7B6C; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Visible</th>
+                                        <th style="border-bottom: 1px solid #e5e7eb; width: 2rem;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(option, optIndex) in vtype.options" :key="option._key">
+                                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                                            <td style="padding: 0.5rem 0.5rem;">
+                                                <template x-if="option.id">
+                                                    <input type="hidden" :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][id]'" :value="option.id">
+                                                </template>
+                                                <input
+                                                    type="text"
+                                                    :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][label]'"
+                                                    x-model="option.label"
+                                                    class="admin-input"
+                                                    style="min-width: 120px;"
+                                                    placeholder="e.g. Small"
+                                                >
+                                            </td>
+                                            <td style="padding: 0.5rem 0.5rem;">
+                                                <input
+                                                    type="text"
+                                                    :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][sku]'"
+                                                    x-model="option.sku"
+                                                    class="admin-input"
+                                                    style="min-width: 110px; font-family: monospace; font-size: 0.8125rem;"
+                                                    placeholder="WB-OAK-SM"
+                                                >
+                                            </td>
+                                            <td style="padding: 0.5rem 0.5rem;">
+                                                <div style="position: relative;">
+                                                    <span style="position: absolute; left: 0.5rem; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.75rem; pointer-events: none;">$</span>
+                                                    <input
+                                                        type="number"
+                                                        :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][price]'"
+                                                        x-model="option.price"
+                                                        class="admin-input"
+                                                        style="min-width: 80px; text-align: right; padding-left: 1.25rem;"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="—"
+                                                    >
+                                                </div>
+                                            </td>
+                                            <td style="padding: 0.5rem 0.5rem;">
+                                                <input
+                                                    type="number"
+                                                    :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][stock_qty]'"
+                                                    x-model="option.stock_qty"
+                                                    class="admin-input"
+                                                    style="min-width: 70px; text-align: right;"
+                                                    min="0"
+                                                    placeholder="0"
+                                                >
+                                            </td>
+                                            <td style="padding: 0.5rem 0.5rem; text-align: center;">
+                                                <input
+                                                    type="hidden"
+                                                    :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][is_enabled]'"
+                                                    :value="option.is_enabled ? '1' : '0'"
+                                                >
+                                                <button
+                                                    type="button"
+                                                    @click="option.is_enabled = !option.is_enabled"
+                                                    :style="option.is_enabled
+                                                        ? 'background:#2C4C3B; border:none; border-radius:9999px; width:2.25rem; height:1.25rem; cursor:pointer; position:relative; transition:background 0.2s;'
+                                                        : 'background:#d1d5db; border:none; border-radius:9999px; width:2.25rem; height:1.25rem; cursor:pointer; position:relative; transition:background 0.2s;'"
+                                                >
+                                                    <span :style="option.is_enabled
+                                                        ? 'position:absolute; right:2px; top:2px; width:0.875rem; height:0.875rem; background:#fff; border-radius:50%; transition:right 0.2s;'
+                                                        : 'position:absolute; left:2px; top:2px; width:0.875rem; height:0.875rem; background:#fff; border-radius:50%; transition:left 0.2s;'">
+                                                    </span>
+                                                </button>
+                                            </td>
+                                            <td style="padding: 0.5rem 0.25rem; text-align: center;">
+                                                <input type="hidden" :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][material_code]'" :value="option.material_code">
+                                                <input type="hidden" :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][low_stock_threshold]'" :value="option.low_stock_threshold">
+                                                <input type="hidden" :name="'variation_types[' + typeIndex + '][options][' + optIndex + '][sort_order]'" :value="option.sort_order">
+                                                <button
+                                                    type="button"
+                                                    @click="removeOption(typeIndex, optIndex)"
+                                                    style="background: none; border: none; cursor: pointer; color: #9ca3af; font-size: 1rem; padding: 0.25rem; transition: color 0.15s;"
+                                                    onmouseover="this.style.color='#991b1b'"
+                                                    onmouseout="this.style.color='#9ca3af'"
+                                                    title="Remove option"
+                                                >&#x2715;</button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 0.5rem;">
+                            <button
+                                type="button"
+                                @click="addOption(typeIndex)"
+                                class="admin-btn admin-btn-outline"
+                                style="font-size: 0.75rem;"
+                            >+ Add option</button>
+                        </div>
+                    </div>
+                </template>
             </div>
 
             {{-- Etsy Listing --}}
@@ -466,6 +557,24 @@
                             </select>
                         </div>
 
+                        <div>
+                            <label class="admin-label" for="etsy_language">Language</label>
+                            <select id="etsy_language" name="etsy_language" class="admin-input">
+                                <option value="en-US" @selected(old('etsy_language', $product->etsy_language ?? 'en-US') === 'en-US')>English (US)</option>
+                                <option value="en-GB" @selected(old('etsy_language', $product->etsy_language ?? '') === 'en-GB')>English (UK)</option>
+                                <option value="de"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'de')>German</option>
+                                <option value="fr"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'fr')>French</option>
+                                <option value="it"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'it')>Italian</option>
+                                <option value="es"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'es')>Spanish</option>
+                                <option value="nl"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'nl')>Dutch</option>
+                                <option value="pl"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'pl')>Polish</option>
+                                <option value="pt"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'pt')>Portuguese</option>
+                                <option value="ja"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'ja')>Japanese</option>
+                                <option value="ru"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'ru')>Russian</option>
+                                <option value="sv"    @selected(old('etsy_language', $product->etsy_language ?? '') === 'sv')>Swedish</option>
+                            </select>
+                        </div>
+
                         <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem;">
                             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
                                 <input type="checkbox" name="etsy_is_taxable" value="1" @checked(old('etsy_is_taxable', $product->etsy_is_taxable ?? true)) style="width: 1rem; height: 1rem; accent-color: #2C4C3B;">
@@ -478,6 +587,14 @@
                             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
                                 <input type="checkbox" name="etsy_is_customizable" value="1" @checked(old('etsy_is_customizable', $product->etsy_is_customizable ?? false)) style="width: 1rem; height: 1rem; accent-color: #2C4C3B;">
                                 Customizable
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
+                                <input type="checkbox" name="etsy_is_personalizable" value="1" @checked(old('etsy_is_personalizable', $product->etsy_is_personalizable ?? false)) style="width: 1rem; height: 1rem; accent-color: #2C4C3B;">
+                                Personalizable
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
+                                <input type="checkbox" name="etsy_has_variations" value="1" @checked(old('etsy_has_variations', $product->etsy_has_variations ?? false)) style="width: 1rem; height: 1rem; accent-color: #2C4C3B;">
+                                Has variations
                             </label>
                             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.8125rem;">
                                 <input type="checkbox" name="etsy_is_supply" value="1" @checked(old('etsy_is_supply', $product->etsy_is_supply ?? false)) style="width: 1rem; height: 1rem; accent-color: #2C4C3B;">
@@ -744,7 +861,7 @@
         {{-- end left column --}}
 
         {{-- RIGHT: Status + Submit --}}
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 1.5rem; align-self: start;">
 
             {{-- Status --}}
             <div class="admin-card">
@@ -777,6 +894,10 @@
                         Save Product
                     </button>
                     @if($isEditing)
+                    <button type="submit" form="etsy-push-form" class="admin-btn admin-btn-outline" style="width: 100%; justify-content: center; padding: 0.625rem; border-color: #f59e0b; color: #92400e;"
+                        onclick="return confirm({{ Illuminate\Support\Js::from('Push '.$product->name.' to Etsy?') }})">
+                        {{ $product->etsy_listing_id ? '↑ Update on Etsy' : '↑ Create on Etsy' }}
+                    </button>
                     <a
                         href="{{ route('admin.products.show', $product) ?? '#' }}"
                         target="_blank"
@@ -792,23 +913,6 @@
                 </div>
             </div>
 
-            @if($isEditing)
-            {{-- Etsy Push --}}
-            <div class="admin-card" style="border-color: #f59e0b;">
-                <div class="admin-card-header" style="margin-bottom: 0.75rem;">
-                    <span class="admin-card-title" style="font-size: 0.8125rem;">Etsy</span>
-                    @if($product->etsy_listing_id)
-                        <span style="font-size: 0.6875rem; color: #6b7280; font-family: monospace;">#{{ $product->etsy_listing_id }}</span>
-                    @else
-                        <span style="font-size: 0.6875rem; color: #9ca3af;">Not linked</span>
-                    @endif
-                </div>
-                <button type="submit" form="etsy-push-form" class="admin-btn admin-btn-outline" style="width: 100%; justify-content: center; font-size: 0.8125rem; border-color: #f59e0b; color: #92400e;"
-                    onclick="return confirm({{ Illuminate\Support\Js::from('Push '.$product->name.' to Etsy?') }})">
-                    {{ $product->etsy_listing_id ? '↑ Update on Etsy' : '↑ Create on Etsy' }}
-                </button>
-            </div>
-            @endif
 
         </div>
         {{-- end right column --}}

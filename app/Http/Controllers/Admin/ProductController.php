@@ -72,11 +72,14 @@ class ProductController extends Controller
             'etsy_listing_type' => ['nullable', 'string', 'in:physical,digital,download'],
             'etsy_is_taxable' => ['boolean'],
             'etsy_is_customizable' => ['boolean'],
+            'etsy_is_personalizable' => ['boolean'],
             'etsy_is_private' => ['boolean'],
             'etsy_should_auto_renew' => ['boolean'],
+            'etsy_has_variations' => ['boolean'],
             'etsy_who_made' => ['nullable', 'string', 'in:i_did,collective,someone_else'],
             'etsy_when_made' => ['nullable', 'string'],
             'etsy_is_supply' => ['boolean'],
+            'etsy_language' => ['nullable', 'string', 'max:10'],
             'etsy_processing_min' => ['nullable', 'integer', 'min:0'],
             'etsy_processing_max' => ['nullable', 'integer', 'min:0'],
             'etsy_taxonomy_id' => ['nullable', 'integer'],
@@ -94,18 +97,22 @@ class ProductController extends Controller
             'etsy_item_width' => ['nullable', 'numeric', 'min:0'],
             'etsy_item_height' => ['nullable', 'numeric', 'min:0'],
             'etsy_item_dimensions_unit' => ['nullable', 'string', 'in:in,cm'],
+            'variation_types' => ['nullable', 'array'],
+            'variation_types.*.name' => ['nullable', 'string', 'max:50'],
+            'variation_types.*.options' => ['nullable', 'array'],
+            'variation_types.*.options.*.price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $tags = $validated['tags'] ?? [];
-        $variants = $request->input('variants', []);
-        unset($validated['tags']);
+        $variationTypes = $request->input('variation_types', []);
+        unset($validated['tags'], $validated['variation_types']);
 
         $validated = $this->processEtsyFields($validated);
 
         $product = (new Product)->fill($validated);
         $product->saveQuietly();
         $product->tags()->sync($tags);
-        $this->syncVariants($product, $variants);
+        $this->syncVariationTypes($product, $variationTypes);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
 
@@ -124,7 +131,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['variants', 'tags', 'media']);
+        $product->load(['variationTypes.variants', 'variants', 'tags', 'media']);
         $categories = Category::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
         $categoryTaxonomyMap = $categories->pluck('etsy_taxonomy_id', 'id')->filter()->toArray();
@@ -164,11 +171,14 @@ class ProductController extends Controller
             'etsy_listing_type' => ['nullable', 'string', 'in:physical,digital,download'],
             'etsy_is_taxable' => ['boolean'],
             'etsy_is_customizable' => ['boolean'],
+            'etsy_is_personalizable' => ['boolean'],
             'etsy_is_private' => ['boolean'],
             'etsy_should_auto_renew' => ['boolean'],
+            'etsy_has_variations' => ['boolean'],
             'etsy_who_made' => ['nullable', 'string', 'in:i_did,collective,someone_else'],
             'etsy_when_made' => ['nullable', 'string'],
             'etsy_is_supply' => ['boolean'],
+            'etsy_language' => ['nullable', 'string', 'max:10'],
             'etsy_processing_min' => ['nullable', 'integer', 'min:0'],
             'etsy_processing_max' => ['nullable', 'integer', 'min:0'],
             'etsy_taxonomy_id' => ['nullable', 'integer'],
@@ -186,18 +196,22 @@ class ProductController extends Controller
             'etsy_item_width' => ['nullable', 'numeric', 'min:0'],
             'etsy_item_height' => ['nullable', 'numeric', 'min:0'],
             'etsy_item_dimensions_unit' => ['nullable', 'string', 'in:in,cm'],
+            'variation_types' => ['nullable', 'array'],
+            'variation_types.*.name' => ['nullable', 'string', 'max:50'],
+            'variation_types.*.options' => ['nullable', 'array'],
+            'variation_types.*.options.*.price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $tags = $validated['tags'] ?? [];
-        $variants = $request->input('variants', []);
-        unset($validated['tags']);
+        $variationTypes = $request->input('variation_types', []);
+        unset($validated['tags'], $validated['variation_types']);
 
         $validated = $this->processEtsyFields($validated);
 
         // saveQuietly suppresses model events so the observer doesn't also queue a background job
         $product->fill($validated)->saveQuietly();
         $product->tags()->sync($tags);
-        $this->syncVariants($product, $variants);
+        $this->syncVariationTypes($product, $variationTypes);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
 
@@ -232,51 +246,63 @@ class ProductController extends Controller
     }
 
     /**
-     * Curated Etsy taxonomy suggestions per product category.
-     * Keys are our internal category IDs; values are ordered from most-specific to broadest.
-     * Sourced from .claude/etsy_data/seller_taxonomy.json — update there when adding categories.
-     *
-     * @return array<int, array<int, array{id: int, label: string}>>
+     * @param  array<int, array<string, mixed>>  $types
      */
-    /**
-     * Fetch live shop sections from Etsy (cached). Returns empty array if Etsy is not connected.
-     *
-     * @return array<int, array{id: int, title: string}>
-     */
-    /**
-     * Upsert variants submitted from the product form.
-     * Creates new rows, updates existing ones by ID, deletes any not in the submission.
-     *
-     * @param  array<int, array<string, mixed>>  $variants
-     */
-    private function syncVariants(Product $product, array $variants): void
+    private function syncVariationTypes(Product $product, array $types): void
     {
-        $submittedIds = [];
+        $submittedTypeIds = [];
+        $submittedVariantIds = [];
 
-        foreach ($variants as $row) {
-            $data = [
-                'label' => $row['label'] ?? '',
-                'sku' => $row['sku'] ?? null,
-                'material_code' => $row['material_code'] ?? null,
-                'stock_qty' => (int) ($row['stock_qty'] ?? 0),
-                'low_stock_threshold' => (int) ($row['low_stock_threshold'] ?? 5),
-                'sort_order' => (int) ($row['sort_order'] ?? 0),
-            ];
+        foreach ($types as $sortOrder => $typeData) {
+            $typeName = $typeData['name'] ?? 'Style';
+            $typeId = ! empty($typeData['id']) ? (int) $typeData['id'] : null;
 
-            if (! empty($row['id'])) {
-                $variant = $product->variants()->find((int) $row['id']);
-                if ($variant) {
-                    $variant->update($data);
-                    $submittedIds[] = $variant->id;
+            if ($typeId) {
+                $type = $product->variationTypes()->find($typeId);
+                if ($type) {
+                    $type->update(['name' => $typeName, 'sort_order' => $sortOrder]);
+                } else {
+                    $type = $product->variationTypes()->create(['name' => $typeName, 'sort_order' => $sortOrder]);
                 }
             } else {
-                $variant = $product->variants()->create($data);
-                $submittedIds[] = $variant->id;
+                $type = $product->variationTypes()->create(['name' => $typeName, 'sort_order' => $sortOrder]);
+            }
+
+            $submittedTypeIds[] = $type->id;
+
+            foreach ($typeData['options'] ?? [] as $optIndex => $optData) {
+                $price = $optData['price'] ?? null;
+                $variantData = [
+                    'variation_type_id' => $type->id,
+                    'label' => $optData['label'] ?? '',
+                    'sku' => $optData['sku'] ?? null,
+                    'price' => ($price !== null && $price !== '') ? (float) $price : null,
+                    'is_enabled' => ($optData['is_enabled'] ?? '1') !== '0',
+                    'material_code' => $optData['material_code'] ?? null,
+                    'stock_qty' => (int) ($optData['stock_qty'] ?? 0),
+                    'low_stock_threshold' => (int) ($optData['low_stock_threshold'] ?? 5),
+                    'sort_order' => $optIndex,
+                ];
+
+                $variantId = ! empty($optData['id']) ? (int) $optData['id'] : null;
+                if ($variantId) {
+                    $variant = $product->variants()->find($variantId);
+                    if ($variant) {
+                        $variant->update($variantData);
+                        $submittedVariantIds[] = $variant->id;
+
+                        continue;
+                    }
+                }
+
+                $variant = $product->variants()->create($variantData);
+                $submittedVariantIds[] = $variant->id;
             }
         }
 
-        // Delete variants that were removed in the form
-        $product->variants()->whereNotIn('id', $submittedIds)->delete();
+        // Delete types and variants not present in the submission
+        $product->variationTypes()->whereNotIn('id', $submittedTypeIds)->delete();
+        $product->variants()->whereNotIn('id', $submittedVariantIds)->delete();
     }
 
     private function fetchEtsySections(): array
@@ -376,7 +402,7 @@ class ProductController extends Controller
         unset($data['etsy_tags_raw'], $data['etsy_materials_raw'], $data['etsy_style_raw']);
 
         // Checkboxes are absent from POST when unchecked — normalise to false
-        foreach (['sold_on_etsy', 'etsy_is_taxable', 'etsy_is_customizable', 'etsy_is_private', 'etsy_should_auto_renew', 'etsy_is_supply'] as $bool) {
+        foreach (['sold_on_etsy', 'etsy_is_taxable', 'etsy_is_customizable', 'etsy_is_personalizable', 'etsy_is_private', 'etsy_should_auto_renew', 'etsy_is_supply', 'etsy_has_variations'] as $bool) {
             $data[$bool] = (bool) ($data[$bool] ?? false);
         }
 

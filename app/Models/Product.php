@@ -54,6 +54,15 @@ class Product extends Model
         'etsy_shipping_profile_id',
         'etsy_return_policy_id',
         'etsy_readiness_state_id',
+        'etsy_url',
+        'etsy_language',
+        'etsy_is_personalizable',
+        'etsy_has_variations',
+        'etsy_variation_name',
+        'etsy_views',
+        'etsy_num_favorers',
+        'etsy_ending_timestamp',
+        'etsy_last_synced_at',
         'featured',
         'sort_order',
         'meta_title',
@@ -76,6 +85,12 @@ class Product extends Model
             'etsy_tags' => 'array',
             'etsy_materials' => 'array',
             'etsy_style' => 'array',
+            'etsy_is_personalizable' => 'boolean',
+            'etsy_has_variations' => 'boolean',
+            'etsy_views' => 'integer',
+            'etsy_num_favorers' => 'integer',
+            'etsy_ending_timestamp' => 'datetime',
+            'etsy_last_synced_at' => 'datetime',
             'sort_order' => 'integer',
             'personalization_max_chars' => 'integer',
         ];
@@ -117,6 +132,11 @@ class Product extends Model
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    public function variationTypes(): HasMany
+    {
+        return $this->hasMany(ProductVariationType::class)->orderBy('sort_order');
     }
 
     public function tags(): BelongsToMany
