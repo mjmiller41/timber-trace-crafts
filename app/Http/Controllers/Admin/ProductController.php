@@ -101,7 +101,8 @@ class ProductController extends Controller
 
         $validated = $this->processEtsyFields($validated);
 
-        $product = Product::withoutObservers(fn () => Product::create($validated));
+        $product = (new Product)->fill($validated);
+        $product->saveQuietly();
         $product->tags()->sync($tags);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
@@ -190,10 +191,8 @@ class ProductController extends Controller
 
         $validated = $this->processEtsyFields($validated);
 
-        // Suppress observer so it doesn't also queue a background job while we sync inline
-        Product::withoutObservers(function () use ($product, $validated) {
-            $product->update($validated);
-        });
+        // saveQuietly suppresses model events so the observer doesn't also queue a background job
+        $product->fill($validated)->saveQuietly();
         $product->tags()->sync($tags);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
