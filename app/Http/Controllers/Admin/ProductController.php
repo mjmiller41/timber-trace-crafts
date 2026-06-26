@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\Tag;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
