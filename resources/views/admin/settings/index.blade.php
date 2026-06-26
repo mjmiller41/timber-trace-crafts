@@ -25,7 +25,8 @@
             'social'    => 'Social Media',
             'analytics' => 'Analytics',
         ];
-        $brandKeys = ['store.name', 'store.tagline', 'store.logo_path'];
+        $brandKeys    = ['store.name', 'store.tagline', 'store.logo_path'];
+        $etsyDefaultKeys = ['etsy.taxonomy_id', 'etsy.shipping_profile_id', 'etsy.return_policy_id'];
         $logoPath  = $settings['store']?->firstWhere('key', 'store.logo_path')?->value ?? '';
         $logoUrl   = $logoPath ? Storage::disk(config('filesystems.default'))->url($logoPath) : asset('images/logo.png');
     @endphp
@@ -71,9 +72,10 @@
 
     @foreach($settings as $group => $groupSettings)
     @php
-        $visibleSettings = $groupSettings->reject(fn($s) => in_array($s->key, $brandKeys));
+        $excludedKeys    = array_merge($brandKeys, $etsyDefaultKeys);
+        $visibleSettings = $groupSettings->reject(fn($s) => in_array($s->key, $excludedKeys));
     @endphp
-    @if($visibleSettings->isEmpty()) @continue @endif
+    @if($visibleSettings->isEmpty() && $group !== 'etsy') @continue @endif
     <div class="admin-card" style="margin-bottom: 1.5rem;">
         <div class="admin-card-header">
             <span class="admin-card-title">{{ $groupLabels[$group] ?? ucfirst($group) }}</span>
@@ -104,68 +106,67 @@
             </div>
             @endforeach
         </div>
+
+        @if($group === 'etsy')
+        {{-- Etsy Listing Default Values --}}
+        <div style="border-top: 1px solid #e5e7eb; margin-top: 1.5rem; padding-top: 1.5rem;">
+            <p class="admin-label" style="font-size: 0.9375rem; margin-bottom: 0.25rem;">Listing Default Values</p>
+            <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 1.25rem;">
+                Used when pushing a product that has no per-product value set. Per-product values always take precedence.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+                <div>
+                    <label class="admin-label" for="setting_etsy_taxonomy_id">Default Taxonomy ID</label>
+                    <input
+                        type="number"
+                        id="setting_etsy_taxonomy_id"
+                        name="settings[etsy.taxonomy_id]"
+                        class="admin-input"
+                        value="{{ old('settings[etsy.taxonomy_id]', $etsyDefaults['taxonomy_id']) }}"
+                        placeholder="e.g. 1203"
+                        style="max-width: 240px;"
+                        autocomplete="off"
+                    >
+                    <p class="admin-hint">1203 = Jewelry › Earrings. Find others in <code>.claude/etsy_data/seller_taxonomy.json</code>.</p>
+                </div>
+
+                <div>
+                    <label class="admin-label" for="setting_etsy_shipping_profile_id">Default Shipping Profile</label>
+                    <select id="setting_etsy_shipping_profile_id" name="settings[etsy.shipping_profile_id]" class="admin-input" style="max-width: 480px;">
+                        <option value="">— None —</option>
+                        @foreach($etsyShippingProfiles as $profile)
+                            <option value="{{ $profile['id'] }}" @selected($etsyDefaults['shipping_profile_id'] == $profile['id'])>
+                                {{ $profile['title'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(empty($etsyShippingProfiles))
+                        <p class="admin-hint">Connect Etsy to load shipping profiles.</p>
+                    @endif
+                </div>
+
+                <div>
+                    <label class="admin-label" for="setting_etsy_return_policy_id">Default Return Policy</label>
+                    <select id="setting_etsy_return_policy_id" name="settings[etsy.return_policy_id]" class="admin-input" style="max-width: 480px;">
+                        <option value="">— None —</option>
+                        @foreach($etsyReturnPolicies as $policy)
+                            <option value="{{ $policy['id'] }}" @selected($etsyDefaults['return_policy_id'] == $policy['id'])>
+                                {{ $policy['title'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(empty($etsyReturnPolicies))
+                        <p class="admin-hint">Connect Etsy to load return policies.</p>
+                    @endif
+                </div>
+
+            </div>
+        </div>
+        @endif
+
     </div>
     @endforeach
-
-    {{-- Etsy Listing Default Values --}}
-    <div class="admin-card" style="margin-bottom: 1.5rem;">
-        <div class="admin-card-header">
-            <span class="admin-card-title">Etsy Listing Default Values</span>
-        </div>
-        <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 1.25rem;">
-            These values are used when pushing a product to Etsy that doesn't have its own per-product values set.
-            Per-product overrides (set on the product edit page) always take precedence.
-        </p>
-
-        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-
-            <div>
-                <label class="admin-label" for="setting_etsy_taxonomy_id">Default Taxonomy ID</label>
-                <input
-                    type="number"
-                    id="setting_etsy_taxonomy_id"
-                    name="settings[etsy.taxonomy_id]"
-                    class="admin-input"
-                    value="{{ old('settings[etsy.taxonomy_id]', $etsyDefaults['taxonomy_id']) }}"
-                    placeholder="e.g. 1208"
-                    style="max-width: 240px;"
-                    autocomplete="off"
-                >
-                <p class="admin-hint">Find taxonomy IDs in <code>.claude/etsy_data/seller_taxonomy.json</code>.</p>
-            </div>
-
-            <div>
-                <label class="admin-label" for="setting_etsy_shipping_profile_id">Default Shipping Profile</label>
-                <select id="setting_etsy_shipping_profile_id" name="settings[etsy.shipping_profile_id]" class="admin-input" style="max-width: 480px;">
-                    <option value="">— None —</option>
-                    @foreach($etsyShippingProfiles as $profile)
-                        <option value="{{ $profile['id'] }}" @selected($etsyDefaults['shipping_profile_id'] == $profile['id'])>
-                            {{ $profile['title'] }}
-                        </option>
-                    @endforeach
-                </select>
-                @if(empty($etsyShippingProfiles))
-                    <p class="admin-hint">Connect Etsy to load shipping profiles.</p>
-                @endif
-            </div>
-
-            <div>
-                <label class="admin-label" for="setting_etsy_return_policy_id">Default Return Policy</label>
-                <select id="setting_etsy_return_policy_id" name="settings[etsy.return_policy_id]" class="admin-input" style="max-width: 480px;">
-                    <option value="">— None —</option>
-                    @foreach($etsyReturnPolicies as $policy)
-                        <option value="{{ $policy['id'] }}" @selected($etsyDefaults['return_policy_id'] == $policy['id'])>
-                            {{ $policy['title'] }}
-                        </option>
-                    @endforeach
-                </select>
-                @if(empty($etsyReturnPolicies))
-                    <p class="admin-hint">Connect Etsy to load return policies.</p>
-                @endif
-            </div>
-
-        </div>
-    </div>
 
     <div style="display: flex; gap: 0.75rem;">
         <button type="submit" class="admin-btn admin-btn-primary">Save Settings</button>
