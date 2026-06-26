@@ -25,8 +25,10 @@ class EtsyProductSync
             } catch (EtsyApiException $e) {
                 // Listing was deleted on Etsy — clear the stale ID and create a fresh one
                 if ($e->statusCode === 403 && str_contains($e->getMessage(), 'removed')) {
-                    $product->update(['etsy_listing_id' => null]);
-                    $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
+                    $product->etsy_listing_id = null;
+                    $product->save();
+                    $createPayload = $this->buildListingPayload($product);
+                    $response = $this->client->post("/application/shops/{$shopId}/listings", $createPayload);
                     $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
                 } else {
                     throw $e;
