@@ -4,6 +4,7 @@ namespace App\Services\Etsy;
 
 use App\Exceptions\EtsyApiException;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 
 class EtsyInventorySync
@@ -19,28 +20,46 @@ class EtsyInventorySync
         $product->loadMissing('variants');
 
         $price = (float) ($product->sale_price ?? $product->price);
+        $readinessStateId = (int) ($product->etsy_readiness_state_id ?? Setting::get('etsy.readiness_state_id') ?? 0) ?: null;
 
-        $products = $product->variants->map(function ($variant) use ($price) {
-            return [
-                'sku' => $variant->sku ?? '',
-                'offerings' => [
-                    [
-                        'price' => $price,
-                        'quantity' => max(0, $variant->stock_qty),
-                        'is_enabled' => $variant->stock_qty > 0,
-                    ],
-                ],
-                'property_values' => [
-                    [
-                        'property_id' => 513,
-                        'value_ids' => [],
-                        'scale_id' => null,
-                        'property_name' => 'Style',
-                        'values' => [$variant->label ?? $variant->sku],
-                    ],
+        if ($product->variants->isEmpty()) {
+            $offering = ['price' => $price, 'quantity' => 1, 'is_enabled' => true];
+            if ($readinessStateId) {
+                $offering['readiness_state_id'] = $readinessStateId;
+            }
+            $products = [
+                [
+                    'sku' => $product->sku_base ?? '',
+                    'offerings' => [$offering],
+                    'property_values' => [],
                 ],
             ];
-        })->values()->all();
+        } else {
+            $products = $product->variants->map(function ($variant) use ($price, $readinessStateId) {
+                $offering = [
+                    'price' => $price,
+                    'quantity' => max(0, $variant->stock_qty),
+                    'is_enabled' => $variant->stock_qty > 0,
+                ];
+                if ($readinessStateId) {
+                    $offering['readiness_state_id'] = $readinessStateId;
+                }
+
+                return [
+                    'sku' => $variant->sku ?? '',
+                    'offerings' => [$offering],
+                    'property_values' => [
+                        [
+                            'property_id' => 513,
+                            'value_ids' => [],
+                            'scale_id' => null,
+                            'property_name' => 'Style',
+                            'values' => [$variant->label ?? $variant->sku],
+                        ],
+                    ],
+                ];
+            })->values()->all();
+        }
 
         $this->client->put("/application/listings/{$product->etsy_listing_id}/inventory", [
             'products' => $products,
