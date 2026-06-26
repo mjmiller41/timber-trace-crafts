@@ -17,11 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Wildcard only in local dev (ngrok). Production trusts only loopback — the real
         // web server (nginx/Apache) is the only proxy and runs on the same host.
-        if (app()->environment('local')) {
-            $middleware->trustProxies(at: '*');
-        } else {
-            $middleware->trustProxies(at: ['127.0.0.1', '::1']);
-        }
+        // Use env() directly — app()->environment() is not yet bound at this stage.
+        $middleware->trustProxies(at: env('APP_ENV') === 'local' ? '*' : ['127.0.0.1', '::1']);
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
