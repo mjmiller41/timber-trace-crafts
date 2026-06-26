@@ -65,6 +65,16 @@
             theme: 'default',
             plugins: activePlugins,
             hooks: activeHooks,
+            // Allow semantic HTML tags that DOMPurify strips by default
+            customHTMLSanitizer: (html) => {
+                if (window.DOMPurify) {
+                    return window.DOMPurify.sanitize(html, {
+                        ADD_TAGS: ['figure', 'figcaption'],
+                        ADD_ATTR: ['class', 'style'],
+                    });
+                }
+                return html;
+            },
             toolbarItems: [
                 ['heading', 'bold', 'italic', 'strike'],
                 ['hr', 'quote'],
