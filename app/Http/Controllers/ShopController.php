@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ShopController extends Controller
@@ -31,12 +32,16 @@ class ShopController extends Controller
             }
         }
 
-        // Search
+        // Search — FULLTEXT on MySQL/MariaDB, LIKE fallback on SQLite (tests)
         if ($search = $request->query('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('short_description', 'like', "%{$search}%");
-            });
+            if (DB::getDriverName() === 'mysql') {
+                $query->whereFullText(['name', 'short_description'], $search);
+            } else {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('short_description', 'like', "%{$search}%");
+                });
+            }
         }
 
         // Sale filter
