@@ -29,5 +29,11 @@ Thumbs.db
 /.wrangler
 /.claude/product-images
 /.claude/worktrees/
+/.worktrees/
 /.claude/etsy_data/
 *:Zone.Identifier
+notes.txt
+notes.jsonc
+/.claude/etsy_api_listings_tutorial.md
+/.claude/taxonomy-with-ids.en-US.csv
+/public/etsy-schema-map.html

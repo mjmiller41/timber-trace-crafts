@@ -16,6 +16,7 @@ use App\Services\Etsy\EtsyShippingProfileService;
 use App\Services\Etsy\EtsyShopSectionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -23,6 +24,7 @@ class ProductController extends Controller
     public function index(): View
     {
         $products = Product::with('category')
+            ->withCount('variants')
             ->orderByDesc('created_at')
             ->paginate(25);
 
@@ -307,44 +309,46 @@ class ProductController extends Controller
 
     private function fetchEtsySections(): array
     {
-        try {
-            $service = new EtsyShopSectionService(new EtsyClient(app(EtsyOAuthService::class)));
-
-            return $service->getSections();
-        } catch (\Throwable) {
-            return [];
-        }
+        return Cache::remember('etsy.admin.sections', 3600, function () {
+            try {
+                return (new EtsyShopSectionService(new EtsyClient(app(EtsyOAuthService::class))))->getSections();
+            } catch (\Throwable) {
+                return [];
+            }
+        });
     }
 
     private function fetchEtsyReadinessStates(): array
     {
-        try {
-            return (new EtsyReadinessStateService(new EtsyClient(app(EtsyOAuthService::class))))->getStates();
-        } catch (\Throwable) {
-            return [];
-        }
+        return Cache::remember('etsy.admin.readiness_states', 3600, function () {
+            try {
+                return (new EtsyReadinessStateService(new EtsyClient(app(EtsyOAuthService::class))))->getStates();
+            } catch (\Throwable) {
+                return [];
+            }
+        });
     }
 
     private function fetchEtsyShippingProfiles(): array
     {
-        try {
-            $service = new EtsyShippingProfileService(new EtsyClient(app(EtsyOAuthService::class)));
-
-            return $service->getProfiles();
-        } catch (\Throwable) {
-            return [];
-        }
+        return Cache::remember('etsy.admin.shipping_profiles', 3600, function () {
+            try {
+                return (new EtsyShippingProfileService(new EtsyClient(app(EtsyOAuthService::class))))->getProfiles();
+            } catch (\Throwable) {
+                return [];
+            }
+        });
     }
 
     private function fetchEtsyReturnPolicies(): array
     {
-        try {
-            $service = new EtsyReturnPolicyService(new EtsyClient(app(EtsyOAuthService::class)));
-
-            return $service->getPolicies();
-        } catch (\Throwable) {
-            return [];
-        }
+        return Cache::remember('etsy.admin.return_policies', 3600, function () {
+            try {
+                return (new EtsyReturnPolicyService(new EtsyClient(app(EtsyOAuthService::class))))->getPolicies();
+            } catch (\Throwable) {
+                return [];
+            }
+        });
     }
 
     private static function etsyTaxonomySuggestions(): array

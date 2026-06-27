@@ -64,7 +64,7 @@
                     prose-a:text-forest-green prose-a:underline hover:prose-a:opacity-75
                     prose-img:w-full prose-blockquote:border-l-forest-green
                     prose-blockquote:font-heading prose-blockquote:font-light prose-blockquote:text-charcoal">
-            {!! $post->body !!}
+            {!! clean($post->body, 'body_content') !!}
         </div>
 
         {{-- Tags --}}
