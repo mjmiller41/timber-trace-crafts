@@ -5,56 +5,211 @@
 @section('content')
 
 {{-- Upload Form --}}
-<div class="admin-card" style="margin-bottom: 1.5rem;">
+<div class="admin-card" style="margin-bottom: 1.5rem;" x-data="mediaUploader('{{ route('admin.media.store') }}', '{{ csrf_token() }}')">
     <div class="admin-card-header">
         <span class="admin-card-title">Upload Media</span>
     </div>
-    <form method="POST" action="{{ route('admin.media.store') }}" enctype="multipart/form-data"
-          style="display: flex; gap: 0.875rem; align-items: flex-end; flex-wrap: wrap;">
-        @csrf
 
-        <div style="flex: 2; min-width: 240px;">
-            <label class="admin-label" for="files">Files</label>
-            <input
-                type="file"
-                id="files"
-                name="files[]"
-                class="admin-input"
-                multiple
-                accept="image/*,video/mp4"
-                style="padding: 0.375rem 0.75rem; cursor: pointer;"
-                required
-            >
-            <p class="admin-hint">Images (JPG, PNG, WebP, GIF) and MP4 videos. Multiple allowed.</p>
-        </div>
+    <div
+        @dragenter.prevent="dragCount++; dragging = true"
+        @dragleave.prevent="if (--dragCount === 0) dragging = false"
+        @dragover.prevent
+        @drop.prevent="dragCount = 0; dropFiles($event); dragging = false"
+        @click="$refs.fileInput.click()"
+        :style="{
+            border: dragging ? '2px dashed #2C4C3B' : '2px dashed #9ca3af',
+            background: dragging ? '#f0f5f2' : '#fafafa',
+            borderRadius: '0.5rem',
+            padding: '2.5rem 1.5rem',
+            minHeight: '10rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, background 0.15s',
+        }"
+    >
+        <div style="font-size: 2rem; margin-bottom: 0.5rem; pointer-events: none;">&#x1F4C2;</div>
+        <p style="font-size: 0.9375rem; color: #4b5563; margin: 0; pointer-events: none;">
+            <strong>Drop files here</strong> or click to browse
+        </p>
+        <p style="font-size: 0.75rem; color: #9ca3af; margin: 0.375rem 0 0; pointer-events: none;">
+            JPG, PNG, WebP, GIF, PDF — up to 10 MB each
+        </p>
+        <template x-if="queue.length > 0 && !uploading">
+            <p style="font-size: 0.8125rem; color: #2C4C3B; margin: 0.625rem 0 0; font-weight: 600; pointer-events: none;"
+               x-text="queue.length + ' file' + (queue.length !== 1 ? 's' : '') + ' selected'"></p>
+        </template>
+    </div>
+    <input
+        type="file"
+        x-ref="fileInput"
+        multiple
+        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+        style="display: none;"
+        @change="selectFiles($event)"
+    >
 
-        <div style="flex: 1; min-width: 200px;">
-            <label class="admin-label" for="alt_text">Alt Text</label>
-            <input
-                type="text"
-                id="alt_text"
-                name="alt_text"
-                class="admin-input"
-                placeholder="Describe the image for accessibility…"
-            >
-            <p class="admin-hint">Applied to all uploaded files.</p>
-        </div>
+    <div style="margin-top: 0.75rem; text-align: right;">
+        <button
+            type="button"
+            class="admin-btn"
+            style="background: #2C4C3B; color: #fff;"
+            :disabled="uploading || queue.length === 0"
+            @click="startUpload()"
+        >
+            <span x-show="!uploading">&#x2B06; Upload <span x-show="queue.length > 0" x-text="'(' + queue.length + ')'"></span></span>
+            <span x-show="uploading">Uploading…</span>
+        </button>
+    </div>
 
-        <div style="padding-bottom: 1.375rem;">
-            <button type="submit" class="admin-btn" style="background: #2C4C3B; color: #fff;">
-                &#x2B06; Upload
-            </button>
-        </div>
-
-    </form>
+    {{-- Per-file status list --}}
+    <template x-if="queue.length > 0">
+        <ul style="list-style: none; padding: 0; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.375rem;">
+            <template x-for="item in queue" :key="item.name">
+                <li style="display: flex; align-items: center; gap: 0.625rem; font-size: 0.8125rem;">
+                    <span
+                        :style="item.status === 'done'    ? 'color:#16a34a' :
+                                item.status === 'error'   ? 'color:#dc2626' :
+                                item.status === 'loading' ? 'color:#2563eb' : 'color:#9ca3af'"
+                        style="width:1rem;text-align:center;flex-shrink:0;"
+                    >
+                        <span x-show="item.status === 'done'">&#x2713;</span>
+                        <span x-show="item.status === 'error'">&#x2717;</span>
+                        <span x-show="item.status === 'loading'">&#x29D7;</span>
+                        <span x-show="item.status === 'pending'">&#x25CB;</span>
+                    </span>
+                    <span x-text="item.name" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                    <span x-show="item.status === 'error'" x-text="item.error" style="color:#dc2626;font-size:0.75rem;"></span>
+                </li>
+            </template>
+        </ul>
+    </template>
 </div>
 
-{{-- Media Stats --}}
+@push('scripts')
+<script>
+function mediaUploader(storeUrl, csrfToken) {
+    return {
+        queue: [],
+        uploading: false,
+        dragging: false,
+        dragCount: 0,
+
+        filesToQueue(files) {
+            const incoming = Array.from(files).map(f => ({
+                file: f,
+                name: f.name,
+                status: 'pending',
+                error: '',
+            }));
+            // Merge with existing queue, skip duplicates by name
+            const existing = new Set(this.queue.map(i => i.name));
+            this.queue.push(...incoming.filter(i => !existing.has(i.name)));
+        },
+
+        selectFiles(event) {
+            this.filesToQueue(event.target.files);
+        },
+
+        dropFiles(event) {
+            this.filesToQueue(event.dataTransfer.files);
+        },
+
+        beforeUnloadHandler: null,
+
+        async startUpload() {
+            if (this.uploading || this.queue.length === 0) return;
+            this.uploading = true;
+
+            this.beforeUnloadHandler = e => { e.preventDefault(); };
+            window.addEventListener('beforeunload', this.beforeUnloadHandler);
+
+            for (const item of this.queue) {
+                if (item.status === 'done') continue;
+                item.status = 'loading';
+
+                const body = new FormData();
+                body.append('file', item.file);
+                body.append('_token', csrfToken);
+
+                try {
+                    const res = await fetch(storeUrl, {
+                        method: 'POST',
+                        headers: { Accept: 'application/json' },
+                        body,
+                    });
+                    if (res.ok) {
+                        item.status = 'done';
+                    } else {
+                        const data = await res.json().catch(() => ({}));
+                        item.status = 'error';
+                        item.error = data.message ?? data.error ?? `HTTP ${res.status}`;
+                    }
+                } catch {
+                    item.status = 'error';
+                    item.error = 'Network error';
+                }
+            }
+
+            this.uploading = false;
+            window.removeEventListener('beforeunload', this.beforeUnloadHandler);
+
+            if (this.queue.some(i => i.status === 'done')) {
+                window.location.reload();
+            }
+        },
+    };
+}
+</script>
+@endpush
+
+{{-- Search + Sort --}}
+<form method="GET" action="{{ route('admin.media.index') }}"
+      style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+    <div style="flex: 2; min-width: 200px;">
+        <label class="admin-label" for="search">Search</label>
+        <input
+            type="search"
+            id="search"
+            name="search"
+            value="{{ $search }}"
+            placeholder="Filename or alt text…"
+            class="admin-input"
+        >
+    </div>
+    <div style="min-width: 160px;">
+        <label class="admin-label" for="sort">Sort by</label>
+        <select id="sort" name="sort" class="admin-input" onchange="this.form.submit()">
+            <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Newest first</option>
+            <option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>Oldest first</option>
+            <option value="name"   {{ $sort === 'name'   ? 'selected' : '' }}>Name (A–Z)</option>
+            <option value="size"   {{ $sort === 'size'   ? 'selected' : '' }}>Largest first</option>
+        </select>
+    </div>
+    <div style="padding-bottom: 1.375rem;">
+        <button type="submit" class="admin-btn">Search</button>
+        @if($search)
+            <a href="{{ route('admin.media.index', ['sort' => $sort]) }}"
+               class="admin-btn admin-btn-outline" style="margin-left: 0.375rem;">Clear</a>
+        @endif
+    </div>
+</form>
+
+{{-- Media Stats + Sync --}}
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
     <p style="font-size: 0.875rem; color: #6b7280;">
         {{ $mediaItems->total() }} {{ Str::plural('file', $mediaItems->total()) }}
+        @if($search) matching <em>"{{ $search }}"</em> @endif
         &nbsp;&middot;&nbsp; Page {{ $mediaItems->currentPage() }} of {{ $mediaItems->lastPage() }}
     </p>
+    <form method="POST" action="{{ route('admin.media.sync') }}">
+        @csrf
+        <button type="submit" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;">
+            &#x21BB; Sync from R2
+        </button>
+    </form>
 </div>
 
 {{-- Media Grid --}}

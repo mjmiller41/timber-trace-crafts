@@ -1,3 +1,7 @@
+# Increase upload limits for media library
+php_value upload_max_filesize 64M
+php_value post_max_size 64M
+
 <IfModule mod_expires.c>
     ExpiresActive On
     <FilesMatch "\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|webp|gif|ico)$">
