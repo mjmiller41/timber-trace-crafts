@@ -64,7 +64,7 @@ Route::get('/order-status', [OrderStatusController::class, 'index'])->name('orde
 Route::post('/order-status', [OrderStatusController::class, 'lookup'])->name('order.status.lookup');
 
 // Restock request
-Route::post('/restock-request', [RestockController::class, 'store'])->name('restock.store');
+Route::post('/restock-request', [RestockController::class, 'store'])->middleware('honeypot')->name('restock.store');
 
 // Journal
 Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
@@ -73,7 +73,7 @@ Route::get('/journal/tag/{tag:slug}', [JournalController::class, 'tag'])->name('
 Route::get('/journal/{slug}', [JournalController::class, 'show'])->name('journal.show');
 
 // Newsletter
-Route::post('/newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('honeypot')->name('newsletter.store');
 
 // Contact
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
@@ -86,7 +86,7 @@ Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
 // Auth
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('honeypot');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
