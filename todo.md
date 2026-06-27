@@ -84,6 +84,7 @@
 
 ### FLOW 90-Day Calendar (gift-intent first)
 
+- [x] Create featured image for Week 1 blog post before publishing
 - [ ] Week 1: "The Best Handmade Gifts for Women Who Appreciate the Details" (pillar, ~2,500 words)
 - [ ] Week 2: "Valentine's Day Jewelry Gift Guide" (listicle, publish by Jan 10)
 - [ ] Week 3: "How Wood Earrings Are Made: A Look Inside the Workshop" (how-to)
