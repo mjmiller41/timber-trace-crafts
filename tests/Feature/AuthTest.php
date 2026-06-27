@@ -27,9 +27,10 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function second_user_login_does_not_become_admin(): void
+    public function sole_remaining_customer_does_not_become_admin_on_login(): void
     {
-        User::factory()->create(['role' => 'admin']);
+        // Bug scenario: admin account was deleted, leaving only one customer.
+        // Without the fix, that customer would be silently elevated to admin on next login.
         $customer = User::factory()->create([
             'role' => 'customer',
             'password' => Hash::make('Password1!'),

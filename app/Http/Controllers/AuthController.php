@@ -34,15 +34,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            $user = Auth::user();
-
-            // Elevate first user to admin if still a customer
-            if ($user->role === 'customer' && User::count() === 1) {
-                $user->role = 'admin';
-                $user->save();
-            }
-
-            $this->cartService->mergeSessions($user->id);
+            $this->cartService->mergeSessions(Auth::id());
 
             return redirect()->intended(route('account.dashboard'));
         }

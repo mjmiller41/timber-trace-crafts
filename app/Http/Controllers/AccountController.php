@@ -168,9 +168,17 @@ class AccountController extends Controller
             $user->password = Hash::make($validated['password']);
         }
 
+        $emailChanged = $user->email !== $validated['email'];
+
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->save();
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+            $user->save();
+            $user->sendEmailVerificationNotification();
+        }
 
         return redirect()->route('account.profile')->with('success', 'Profile updated.');
     }
