@@ -49,7 +49,7 @@
 
 ### Phase 1 — Code & Content
 
-- [ ] Write FAQ page content (10-15 Q&A entries: materials, shipping, custom orders, care)
+- [x] Write FAQ page content (10-15 Q&A entries: materials, shipping, custom orders, care)
 - [ ] Rewrite product description openers — remove emoji/promo intro, lead with 40-60 word factual block
 - [ ] Add question-based H2s to about-us ("What is Timber Trace Crafts?", "What materials does Timber Trace Crafts use?", etc.)
 - [ ] Add 134-167 word "What is laser-cut woodworking?" definition block to about-us (above the fold)
