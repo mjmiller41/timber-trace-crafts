@@ -4,6 +4,8 @@ namespace App\Services\Etsy;
 
 use App\Exceptions\EtsyApiException;
 use App\Models\Setting;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
 class EtsyOAuthService
@@ -65,8 +67,8 @@ class EtsyOAuthService
 
         $data = $response->json();
 
-        Setting::set('etsy.access_token', $data['access_token']);
-        Setting::set('etsy.refresh_token', $data['refresh_token']);
+        $this->storeToken('etsy.access_token', $data['access_token']);
+        $this->storeToken('etsy.refresh_token', $data['refresh_token']);
         Setting::set('etsy.token_expires_at', now()->addSeconds($data['expires_in'])->toISOString());
 
         $shopId = $this->resolveShopId($data['access_token']);
@@ -86,7 +88,7 @@ class EtsyOAuthService
 
     public function refreshToken(): void
     {
-        $refreshToken = Setting::get('etsy.refresh_token');
+        $refreshToken = $this->retrieveToken('etsy.refresh_token');
 
         if (! $refreshToken) {
             throw new \RuntimeException('No Etsy refresh token. Reconnect via Admin → Etsy.');
@@ -105,17 +107,42 @@ class EtsyOAuthService
 
         $data = $response->json();
 
-        Setting::set('etsy.access_token', $data['access_token']);
+        $this->storeToken('etsy.access_token', $data['access_token']);
         Setting::set('etsy.token_expires_at', now()->addSeconds($data['expires_in'])->toISOString());
 
         if (isset($data['refresh_token'])) {
-            Setting::set('etsy.refresh_token', $data['refresh_token']);
+            $this->storeToken('etsy.refresh_token', $data['refresh_token']);
         }
+    }
+
+    public function getAccessToken(): ?string
+    {
+        return $this->retrieveToken('etsy.access_token');
     }
 
     public function isConnected(): bool
     {
-        return ! empty(Setting::get('etsy.access_token')) && ! empty(Setting::get('etsy.shop_id'));
+        return ! empty($this->retrieveToken('etsy.access_token')) && ! empty(Setting::get('etsy.shop_id'));
+    }
+
+    private function storeToken(string $key, string $value): void
+    {
+        Setting::set($key, Crypt::encryptString($value));
+    }
+
+    private function retrieveToken(string $key): ?string
+    {
+        $encrypted = Setting::get($key);
+
+        if (! $encrypted) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($encrypted);
+        } catch (DecryptException) {
+            return null;
+        }
     }
 
     private function callbackUrl(): string

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyOAuthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -50,10 +51,12 @@ class EtsyOAuthTest extends TestCase
         $service = new EtsyOAuthService;
         $service->handleCallback('auth-code', $state);
 
-        $this->assertEquals('test-access-token', Setting::get('etsy.access_token'));
-        $this->assertEquals('test-refresh-token', Setting::get('etsy.refresh_token'));
+        // Tokens are stored encrypted; verify via the service's accessor
+        $this->assertEquals('test-access-token', $service->getAccessToken());
         $this->assertEquals('12345678', Setting::get('etsy.shop_id'));
         $this->assertNotNull(Setting::get('etsy.token_expires_at'));
+        // Raw DB value must be ciphertext, not plaintext
+        $this->assertNotEquals('test-access-token', Setting::get('etsy.access_token'));
     }
 
     public function test_handle_callback_rejects_invalid_state(): void
@@ -76,18 +79,19 @@ class EtsyOAuthTest extends TestCase
             ], 200),
         ]);
 
-        Setting::set('etsy.refresh_token', 'old-refresh-token');
-        Setting::set('etsy.access_token', 'old-access-token');
+        // Seed tokens encrypted (as the service now stores them)
+        Setting::set('etsy.refresh_token', Crypt::encryptString('old-refresh-token'));
+        Setting::set('etsy.access_token', Crypt::encryptString('old-access-token'));
 
         $service = new EtsyOAuthService;
         $service->refreshToken();
 
-        $this->assertEquals('new-access-token', Setting::get('etsy.access_token'));
+        $this->assertEquals('new-access-token', $service->getAccessToken());
     }
 
     public function test_is_connected_returns_true_when_tokens_exist(): void
     {
-        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.access_token', Crypt::encryptString('some-token'));
         Setting::set('etsy.shop_id', '12345');
 
         $service = new EtsyOAuthService;

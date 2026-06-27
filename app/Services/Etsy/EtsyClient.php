@@ -3,7 +3,6 @@
 namespace App\Services\Etsy;
 
 use App\Exceptions\EtsyApiException;
-use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 
 class EtsyClient
@@ -41,7 +40,7 @@ class EtsyClient
     {
         $this->oauth->refreshIfExpired();
 
-        $accessToken = Setting::get('etsy.access_token');
+        $accessToken = $this->oauth->getAccessToken();
 
         $pending = Http::withHeaders([
             'x-api-key' => config('services.etsy.keystring').':'.config('services.etsy.shared_secret'),
