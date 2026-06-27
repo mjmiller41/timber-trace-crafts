@@ -202,7 +202,7 @@ class CheckoutController extends Controller
         $this->cartService->clear();
 
         try {
-            Mail::to($buyerEmail)->send(new OrderConfirmationMail($order->load('items')));
+            Mail::to($buyerEmail)->queue(new OrderConfirmationMail($order->load('items')));
         } catch (\Throwable $e) {
             Log::error('Order confirmation email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
         }

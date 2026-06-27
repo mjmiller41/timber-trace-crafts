@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ImportEtsyOrder;
 use App\Mail\EtsyNewOrderMail;
 use App\Models\Order;
-use App\Services\Etsy\EtsyClient;
-use App\Services\Etsy\EtsyOAuthService;
-use App\Services\Etsy\EtsyOrderSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -104,13 +102,9 @@ class EtsyWebhookController extends Controller
         if ($order) {
             $order->update(['etsy_is_paid' => true, 'status' => 'processing']);
         } else {
-            // New order — fetch full receipt and import it
-            $receipt = $this->fetchReceipt($resourceUrl);
-
-            if ($receipt) {
-                app(EtsyOrderSync::class)->importReceipt($receipt);
-                $order = Order::where('etsy_receipt_id', $receiptId)->first();
-            }
+            // New order — dispatch async import job (avoids blocking the webhook response)
+            ImportEtsyOrder::dispatch($resourceUrl);
+            $order = Order::where('etsy_receipt_id', $receiptId)->first();
         }
 
         if ($order) {
@@ -163,21 +157,5 @@ class EtsyWebhookController extends Controller
         }
 
         return null;
-    }
-
-    private function fetchReceipt(string $resourceUrl): ?array
-    {
-        try {
-            $oauth = app(EtsyOAuthService::class);
-            $client = new EtsyClient($oauth);
-            // Extract path after /v3 from resource_url
-            $path = preg_replace('#^https://api\.etsy\.com/v3#', '', $resourceUrl);
-
-            return $client->get($path);
-        } catch (\Throwable $e) {
-            Log::error('Failed to fetch Etsy receipt', ['url' => $resourceUrl, 'error' => $e->getMessage()]);
-
-            return null;
-        }
     }
 }

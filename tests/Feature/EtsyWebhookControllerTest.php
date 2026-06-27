@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\ImportEtsyOrder;
+use App\Mail\EtsyNewOrderMail;
+use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -124,7 +127,7 @@ class EtsyWebhookControllerTest extends TestCase
     {
         Mail::fake();
 
-        $order = \App\Models\Order::factory()->create([
+        $order = Order::factory()->create([
             'etsy_receipt_id' => '12345',
             'etsy_is_paid' => false,
             'status' => 'pending_payment',
@@ -135,7 +138,7 @@ class EtsyWebhookControllerTest extends TestCase
             'resource_url' => 'https://api.etsy.com/v3/application/shops/1/receipts/12345',
         ]);
 
-        Mail::assertSent(\App\Mail\EtsyNewOrderMail::class, fn ($mail) => $mail->order->id === $order->id);
+        Mail::assertSent(EtsyNewOrderMail::class, fn ($mail) => $mail->order->id === $order->id);
 
         $order->refresh();
         $this->assertEquals('processing', $order->status);
@@ -145,7 +148,7 @@ class EtsyWebhookControllerTest extends TestCase
     #[Test]
     public function it_updates_order_status_on_shipped(): void
     {
-        $order = \App\Models\Order::factory()->create([
+        $order = Order::factory()->create([
             'etsy_receipt_id' => '99999',
             'status' => 'processing',
         ]);
@@ -163,7 +166,7 @@ class EtsyWebhookControllerTest extends TestCase
     #[Test]
     public function it_updates_order_status_on_canceled(): void
     {
-        $order = \App\Models\Order::factory()->create([
+        $order = Order::factory()->create([
             'etsy_receipt_id' => '77777',
             'status' => 'processing',
         ]);
@@ -180,7 +183,7 @@ class EtsyWebhookControllerTest extends TestCase
     #[Test]
     public function it_updates_order_status_on_delivered(): void
     {
-        $order = \App\Models\Order::factory()->create([
+        $order = Order::factory()->create([
             'etsy_receipt_id' => '55555',
             'status' => 'shipped',
         ]);
@@ -192,5 +195,21 @@ class EtsyWebhookControllerTest extends TestCase
 
         $order->refresh();
         $this->assertEquals('delivered', $order->status);
+    }
+
+    #[Test]
+    public function order_paid_webhook_dispatches_import_job_for_new_receipts(): void
+    {
+        Queue::fake();
+
+        $this->postWebhook([
+            'event_type' => 'order.paid',
+            'resource_url' => 'https://api.etsy.com/v3/application/shops/123/receipts/999',
+        ]);
+
+        Queue::assertPushed(
+            ImportEtsyOrder::class,
+            fn ($job) => $job->resourceUrl === 'https://api.etsy.com/v3/application/shops/123/receipts/999'
+        );
     }
 }

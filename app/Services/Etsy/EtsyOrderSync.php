@@ -71,6 +71,16 @@ class EtsyOrderSync
         return $result;
     }
 
+    public function importFromResourceUrl(string $resourceUrl): void
+    {
+        $path = preg_replace('#^https://api\.etsy\.com/v3#', '', $resourceUrl);
+        $receipt = $this->client->get($path);
+
+        if ($receipt) {
+            $this->importReceipt($receipt);
+        }
+    }
+
     public function importReceipt(array $receipt): void
     {
         [$firstName, $lastName] = $this->splitName($receipt['name'] ?? '');
