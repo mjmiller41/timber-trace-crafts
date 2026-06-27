@@ -15,6 +15,7 @@ class ProductMedia extends Model
         'media_id',
         'sort_order',
         'is_primary',
+        'alt_text',
     ];
 
     protected function casts(): array
