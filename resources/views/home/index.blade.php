@@ -5,7 +5,7 @@
 
 @push('preload')
 <link rel="preload" as="image" fetchpriority="high"
-      href="https://pub-82fe4a94d274416a9b5ab8028bcd8627.r2.dev/products/lifestyle-1.webp"
+      href="{{ Storage::disk('r2')->url('products/lifestyle-1.webp') }}"
       type="image/webp">
 @endpush
 

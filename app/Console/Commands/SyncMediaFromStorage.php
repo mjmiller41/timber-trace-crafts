@@ -15,13 +15,22 @@ class SyncMediaFromStorage extends Command
 
     public function handle(): int
     {
-        $files = Storage::disk('public')->allFiles();
+        $disk = config('filesystems.default');
+        $mimeMap = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            'pdf' => 'application/pdf',
+        ];
+
+        $files = Storage::disk($disk)->allFiles();
         $existing = Media::pluck('path')->flip();
 
-        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-
         $missing = collect($files)
-            ->filter(fn ($file) => in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), $imageExtensions))
+            ->filter(fn ($file) => array_key_exists(strtolower(pathinfo($file, PATHINFO_EXTENSION)), $mimeMap))
             ->reject(fn ($file) => $existing->has($file));
 
         if ($missing->isEmpty()) {
@@ -32,19 +41,17 @@ class SyncMediaFromStorage extends Command
 
         $this->info("Found {$missing->count()} file(s) without media records. Inserting...");
 
-        $missing->each(function (string $path) {
-            $fullPath = Storage::disk('public')->path($path);
-            $mimeType = mime_content_type($fullPath) ?: 'application/octet-stream';
-            $size = Storage::disk('public')->size($path);
+        $missing->each(function (string $path) use ($disk, $mimeMap) {
             $filename = basename($path);
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
             Media::create([
                 'filename' => $filename,
                 'original_name' => $filename,
-                'disk' => 'public',
+                'disk' => $disk,
                 'path' => $path,
-                'mime_type' => $mimeType,
-                'size_bytes' => $size,
+                'mime_type' => $mimeMap[$ext] ?? 'application/octet-stream',
+                'size_bytes' => Storage::disk($disk)->size($path),
                 'alt_text' => Str::of(pathinfo($filename, PATHINFO_FILENAME))
                     ->replace(['-', '_'], ' ')
                     ->title()
