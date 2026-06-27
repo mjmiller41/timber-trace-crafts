@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\CartService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -17,8 +16,6 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly CartService $cartService) {}
-
     public function showLogin(): View
     {
         return view('auth.login');
@@ -33,8 +30,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-            $this->cartService->mergeSessions(Auth::id());
 
             return redirect()->intended(route('account.dashboard'));
         }

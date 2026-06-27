@@ -68,10 +68,4 @@ class CartService
         unset($cart[$key]);
         $this->saveCart($cart);
     }
-
-    public function mergeSessions(int $userId): void
-    {
-        // After login: persist session cart to DB (Phase 2 enhancement)
-        // For now, session cart persists as-is
-    }
 }
