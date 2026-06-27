@@ -6,7 +6,7 @@
 
 ## Security
 
-- [ ] M2: Add CSRF token rotation on privilege escalation — regenerate CSRF token after any role/permission change (e.g., admin elevation) so attacker-held pre-escalation tokens become invalid. See docs/superpowers/plans/2026-06-26-audit-fixes.md for context.
+- [x] M2: Add CSRF token rotation on privilege escalation — regenerate CSRF token after any role/permission change (e.g., admin elevation) so attacker-held pre-escalation tokens become invalid. See docs/superpowers/plans/2026-06-26-audit-fixes.md for context.
 
 ## Miscellaneous
 
