@@ -34,7 +34,7 @@ class StripeService
      * @throws ApiErrorException
      * @throws \RuntimeException
      */
-    public function verifyPaymentIntent(string $paymentIntentId): PaymentIntent
+    public function verifyPaymentIntent(string $paymentIntentId): object
     {
         $intent = PaymentIntent::retrieve($paymentIntentId);
 

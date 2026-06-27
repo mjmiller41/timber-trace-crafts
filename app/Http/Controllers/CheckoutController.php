@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\OrderConfirmationMail;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Services\CartService;
 use App\Services\ShippingService;
@@ -132,72 +133,115 @@ class CheckoutController extends Controller
             ? auth()->user()->email
             : $validated['guest_email'];
 
-        // Create order + items in a transaction
-        $order = DB::transaction(function () use (
-            $validated, $cart, $subtotal, $discountAmount,
-            $shippingAmount, $taxAmount, $total,
-            $shippingMethod, $intent, $buyerEmail, $coupon
-        ) {
-            $order = Order::create([
-                'user_id' => auth()->id(),
-                'guest_email' => auth()->check() ? null : $buyerEmail,
-                'status' => 'processing',
-                'subtotal' => $subtotal,
-                'discount_amount' => $discountAmount,
-                'shipping_amount' => $shippingAmount,
-                'tax_amount' => $taxAmount,
-                'total' => $total,
-                'coupon_id' => $coupon?->id,
-                'coupon_code_snapshot' => $coupon?->code,
-                'stripe_payment_intent_id' => $intent->id,
-                'shipping_method' => $shippingMethod->name,
-                'gift_message' => $validated['gift_message'] ?? null,
-                'shipping_first_name' => $validated['shipping_first_name'],
-                'shipping_last_name' => $validated['shipping_last_name'],
-                'shipping_line1' => $validated['shipping_address_1'],
-                'shipping_line2' => $validated['shipping_address_2'] ?? null,
-                'shipping_city' => $validated['shipping_city'],
-                'shipping_state' => strtoupper($validated['shipping_state']),
-                'shipping_zip' => $validated['shipping_zip'],
-                'shipping_country' => 'US',
-                'shipping_phone' => $validated['phone'] ?? null,
-                'billing_first_name' => $validated['shipping_first_name'],
-                'billing_last_name' => $validated['shipping_last_name'],
-                'billing_line1' => $validated['shipping_address_1'],
-                'billing_line2' => $validated['shipping_address_2'] ?? null,
-                'billing_city' => $validated['shipping_city'],
-                'billing_state' => strtoupper($validated['shipping_state']),
-                'billing_zip' => $validated['shipping_zip'],
-                'billing_country' => 'US',
-                'ip_address' => request()->ip(),
+        // C1: Reject if Stripe amount doesn't match our server-calculated total
+        $expectedCents = (int) round($total * 100);
+        if ($intent->amount_received !== $expectedCents || $intent->currency !== 'usd') {
+            Log::warning('Checkout amount mismatch', [
+                'expected_cents' => $expectedCents,
+                'received_cents' => $intent->amount_received,
+                'currency' => $intent->currency,
             ]);
 
-            foreach ($cart as $item) {
-                $itemSubtotal = round(($item['price'] + ($item['personalization_price'] ?? 0)) * $item['qty'], 2);
-                $order->items()->create([
-                    'product_id' => $item['product_id'],
-                    'variant_id' => $item['variant_id'],
-                    'sku_snapshot' => $item['sku'] ?? '',
-                    'name_snapshot' => $item['name'],
-                    'variant_label_snapshot' => $item['variant_label'] ?? '',
-                    'personalization_text' => $item['personalization_text'] ?? null,
-                    'price_snapshot' => $item['price'],
-                    'qty' => $item['qty'],
-                    'subtotal' => $itemSubtotal,
+            return back()->withErrors(['payment' => 'Payment amount does not match order total.'])->withInput();
+        }
+
+        // C2: Idempotency — block replay of the same payment intent
+        if (Order::where('stripe_payment_intent_id', $intent->id)->exists()) {
+            $existingOrder = Order::where('stripe_payment_intent_id', $intent->id)->first();
+
+            return redirect()->route('checkout.confirmation', [
+                'order' => $existingOrder,
+                'email' => $buyerEmail,
+            ]);
+        }
+
+        // Create order + items in a transaction (RuntimeException from C3 rolls back and surfaces as error)
+        try {
+            $order = DB::transaction(function () use (
+                $validated, $cart, $subtotal, $discountAmount,
+                $shippingAmount, $taxAmount, $total,
+                $shippingMethod, $intent, $buyerEmail, $coupon
+            ) {
+                // C3: Pessimistic stock lock — prevent overselling under concurrent checkouts
+                foreach ($cart as $item) {
+                    if (! isset($item['variant_id'])) {
+                        continue;
+                    }
+
+                    $variant = ProductVariant::where('id', $item['variant_id'])
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (! $variant || $variant->stock_qty < $item['qty']) {
+                        throw new \RuntimeException("Item '{$item['name']}' is out of stock.");
+                    }
+
+                    $variant->decrement('stock_qty', $item['qty']);
+                }
+
+                $order = Order::create([
+                    'user_id' => auth()->id(),
+                    'guest_email' => auth()->check() ? null : $buyerEmail,
+                    'status' => 'processing',
+                    'subtotal' => $subtotal,
+                    'discount_amount' => $discountAmount,
+                    'shipping_amount' => $shippingAmount,
+                    'tax_amount' => $taxAmount,
+                    'total' => $total,
+                    'coupon_id' => $coupon?->id,
+                    'coupon_code_snapshot' => $coupon?->code,
+                    'stripe_payment_intent_id' => $intent->id,
+                    'shipping_method' => $shippingMethod->name,
+                    'gift_message' => $validated['gift_message'] ?? null,
+                    'shipping_first_name' => $validated['shipping_first_name'],
+                    'shipping_last_name' => $validated['shipping_last_name'],
+                    'shipping_line1' => $validated['shipping_address_1'],
+                    'shipping_line2' => $validated['shipping_address_2'] ?? null,
+                    'shipping_city' => $validated['shipping_city'],
+                    'shipping_state' => strtoupper($validated['shipping_state']),
+                    'shipping_zip' => $validated['shipping_zip'],
+                    'shipping_country' => 'US',
+                    'shipping_phone' => $validated['phone'] ?? null,
+                    'billing_first_name' => $validated['shipping_first_name'],
+                    'billing_last_name' => $validated['shipping_last_name'],
+                    'billing_line1' => $validated['shipping_address_1'],
+                    'billing_line2' => $validated['shipping_address_2'] ?? null,
+                    'billing_city' => $validated['shipping_city'],
+                    'billing_state' => strtoupper($validated['shipping_state']),
+                    'billing_zip' => $validated['shipping_zip'],
+                    'billing_country' => 'US',
+                    'ip_address' => request()->ip(),
                 ]);
-            }
 
-            $order->statusHistory()->create([
-                'status' => 'processing',
-                'note' => 'Order placed via website.',
-            ]);
+                foreach ($cart as $item) {
+                    $itemSubtotal = round(($item['price'] + ($item['personalization_price'] ?? 0)) * $item['qty'], 2);
+                    $order->items()->create([
+                        'product_id' => $item['product_id'],
+                        'variant_id' => $item['variant_id'],
+                        'sku_snapshot' => $item['sku'] ?? '',
+                        'name_snapshot' => $item['name'],
+                        'variant_label_snapshot' => $item['variant_label'] ?? '',
+                        'personalization_text' => $item['personalization_text'] ?? null,
+                        'price_snapshot' => $item['price'],
+                        'qty' => $item['qty'],
+                        'subtotal' => $itemSubtotal,
+                    ]);
+                }
 
-            if ($coupon) {
-                $coupon->increment('used_count');
-            }
+                $order->statusHistory()->create([
+                    'status' => 'processing',
+                    'note' => 'Order placed via website.',
+                ]);
 
-            return $order;
-        });
+                if ($coupon) {
+                    $coupon->increment('used_count');
+                }
+
+                return $order;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['stock' => $e->getMessage()])->withInput();
+        }
 
         $this->cartService->clear();
 
