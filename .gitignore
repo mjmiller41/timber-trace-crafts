@@ -29,6 +29,7 @@ Thumbs.db
 /.wrangler
 /.claude/product-images
 /.claude/worktrees/
+/.worktrees/
 /.claude/etsy_data/
 *:Zone.Identifier
 notes.txt
