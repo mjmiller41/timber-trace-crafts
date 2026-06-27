@@ -13,16 +13,28 @@ class OrderStatusController extends Controller
         return view('order.status');
     }
 
-    public function lookup(Request $request): View
+    public function lookup(Request $request): mixed
     {
         $validated = $request->validate([
-            'order_number' => ['required', 'string', 'max:50'],
+            'order_number' => ['required', 'integer', 'min:1'],
             'email' => ['required', 'email', 'max:255'],
         ]);
 
-        $order = Order::where('order_number', $validated['order_number'])
-            ->where('email', strtolower($validated['email']))
-            ->firstOrFail();
+        $email = strtolower($validated['email']);
+
+        $order = Order::with(['items', 'shipments', 'statusHistory'])
+            ->where('id', $validated['order_number'])
+            ->where(function ($q) use ($email) {
+                $q->where('guest_email', $email)
+                    ->orWhereHas('user', fn ($u) => $u->where('email', $email));
+            })
+            ->first();
+
+        if (! $order) {
+            return back()
+                ->withErrors(['lookup' => 'No order found with that order number and email address.'])
+                ->withInput();
+        }
 
         return view('order.status', compact('order'));
     }

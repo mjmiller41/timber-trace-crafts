@@ -20,7 +20,7 @@
             @if($post->excerpt)
             <description><![CDATA[{{ $post->excerpt }}]]></description>
             @endif
-            <content:encoded><![CDATA[{!! $post->body !!}]]></content:encoded>
+            <content:encoded><![CDATA[{!! clean($post->body, 'body_content') !!}]]></content:encoded>
         </item>
         @endforeach
     </channel>

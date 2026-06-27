@@ -126,14 +126,14 @@
                     @foreach($order->items as $item)
                         <div class="flex items-start justify-between gap-4 py-2">
                             <div>
-                                <p class="font-body text-sm text-charcoal font-500">{{ $item->product_name }}</p>
-                                @if($item->variant_label)
-                                    <p class="section-label">{{ $item->variant_label }}</p>
+                                <p class="font-body text-sm text-charcoal font-500">{{ $item->name_snapshot }}</p>
+                                @if($item->variant_label_snapshot)
+                                    <p class="section-label">{{ $item->variant_label_snapshot }}</p>
                                 @endif
-                                <p class="section-label">Qty: {{ $item->quantity }}</p>
+                                <p class="section-label">Qty: {{ $item->qty }}</p>
                             </div>
                             <p class="font-body text-sm text-charcoal font-600 flex-shrink-0">
-                                ${{ number_format($item->line_total, 2) }}
+                                ${{ number_format($item->subtotal, 2) }}
                             </p>
                         </div>
                     @endforeach

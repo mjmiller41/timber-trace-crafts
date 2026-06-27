@@ -23,6 +23,7 @@ class OrderController extends Controller
         Cache::forget('etsy.new_orders');
 
         $orders = Order::with('user')
+            ->withCount('items')
             ->orderByDesc('created_at')
             ->paginate(25);
 
@@ -57,7 +58,7 @@ class OrderController extends Controller
                 $email = $order->user?->email ?? $order->guest_email;
                 if ($email) {
                     Mail::to($email)
-                        ->send(new OrderStatusChangedMail($order));
+                        ->queue(new OrderStatusChangedMail($order));
                 }
             } catch (\Throwable $e) {
                 Log::error('Status change email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
@@ -106,7 +107,7 @@ class OrderController extends Controller
             $email = $order->user?->email ?? $order->guest_email;
             if ($email) {
                 Mail::to($email)
-                    ->send(new OrderShippedMail($order, $shipment));
+                    ->queue(new OrderShippedMail($order, $shipment));
             }
         } catch (\Throwable $e) {
             Log::error('Shipped email failed', ['order' => $order->id, 'error' => $e->getMessage()]);

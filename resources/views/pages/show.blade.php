@@ -35,7 +35,7 @@
                     prose-strong:font-600 prose-strong:text-charcoal
                     prose-blockquote:border-l-forest-green prose-blockquote:font-heading prose-blockquote:font-light
                     prose-hr:border-walnut/20">
-            {!! $page->body !!}
+            {!! clean($page->body, 'body_content') !!}
         </div>
     </div>
 </div>
