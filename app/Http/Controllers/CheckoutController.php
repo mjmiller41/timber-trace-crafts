@@ -207,7 +207,10 @@ class CheckoutController extends Controller
             Log::error('Order confirmation email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
         }
 
-        return redirect()->route('checkout.confirmation', $order);
+        return redirect()->route('checkout.confirmation', [
+            'order' => $order,
+            'email' => $buyerEmail,
+        ]);
     }
 
     public function confirmation(Order $order): View
