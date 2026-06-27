@@ -32,11 +32,16 @@ class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        return Cache::rememberForever('setting.'.$key, function () use ($key, $default) {
+        // Cache the raw DB value (null = not set). Apply $default at read time so
+        // callers with different defaults all get the right answer, and the first
+        // call's default is never permanently locked into cache.
+        $value = Cache::rememberForever('setting.'.$key, function () use ($key) {
             $setting = static::find($key);
 
-            return $setting ? $setting->value : $default;
+            return $setting?->value;
         });
+
+        return $value ?? $default;
     }
 
     public static function set(string $key, mixed $value): void

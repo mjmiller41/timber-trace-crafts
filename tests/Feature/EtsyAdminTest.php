@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
 class EtsyAdminTest extends TestCase
@@ -27,7 +28,7 @@ class EtsyAdminTest extends TestCase
 
     public function test_etsy_admin_page_shows_connected_state(): void
     {
-        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.access_token', Crypt::encryptString('some-token'));
         Setting::set('etsy.shop_id', '12345678');
 
         $response = $this->actingAs($this->adminUser())
@@ -48,7 +49,7 @@ class EtsyAdminTest extends TestCase
 
     public function test_disconnect_clears_etsy_settings(): void
     {
-        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.access_token', Crypt::encryptString('some-token'));
         Setting::set('etsy.shop_id', '12345');
 
         $response = $this->actingAs($this->adminUser())

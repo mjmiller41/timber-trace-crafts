@@ -22,6 +22,7 @@ class EtsyClientTest extends TestCase
 
         $oauth = Mockery::mock(EtsyOAuthService::class);
         $oauth->shouldReceive('refreshIfExpired')->once();
+        $oauth->shouldReceive('getAccessToken')->andReturn('test-token');
 
         $client = new EtsyClient($oauth);
 
@@ -38,6 +39,7 @@ class EtsyClientTest extends TestCase
 
         $oauth = Mockery::mock(EtsyOAuthService::class);
         $oauth->shouldReceive('refreshIfExpired')->once();
+        $oauth->shouldReceive('getAccessToken')->andReturn('test-token');
 
         $client = new EtsyClient($oauth);
 
