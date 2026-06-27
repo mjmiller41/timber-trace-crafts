@@ -25,9 +25,9 @@
         {{-- LEFT: CONTACT FORM --}}
         {{-- ====================================================== --}}
         <div class="lg:col-span-2">
-            <p class="font-body text-sm text-walnut leading-relaxed mb-8">
-                Whether you have a question about an order, want to discuss a custom piece, or just want to say hello — we'd love to hear from you.
-            </p>
+            <div class="font-body text-sm text-walnut leading-relaxed mb-8">
+                {!! clean($page->body, 'body_content') !!}
+            </div>
 
             @if(session('success'))
                 <div class="border border-forest-green/30 bg-forest-green/5 px-6 py-5 mb-8">
@@ -128,7 +128,8 @@
 
             {{-- Business hours --}}
             <div>
-                <p class="section-label mb-3">Studio Hours</p>
+                <p class="section-label mb-3">When We Respond</p>
+                <p class="font-body text-xs text-charcoal/60 mb-3 leading-relaxed">We're an online shop — no physical storefront. These are the hours we're most active and likely to reply.</p>
                 <div class="space-y-1">
                     <div class="flex justify-between font-body text-sm">
                         <span class="text-walnut">Monday – Friday</span>

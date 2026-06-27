@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactSubmission;
+use App\Models\Page;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,9 @@ class ContactController extends Controller
 {
     public function index(): View
     {
-        return view('contact.index');
+        $page = Page::where('slug', 'contact')->firstOrFail();
+
+        return view('contact.index', compact('page'));
     }
 
     public function submit(Request $request): RedirectResponse
