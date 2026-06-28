@@ -149,10 +149,9 @@ class CheckoutController extends Controller
         if (Order::where('stripe_payment_intent_id', $intent->id)->exists()) {
             $existingOrder = Order::where('stripe_payment_intent_id', $intent->id)->first();
 
-            return redirect()->route('checkout.confirmation', [
-                'order' => $existingOrder,
-                'email' => $buyerEmail,
-            ]);
+            session()->push('confirmed_orders', $existingOrder->id);
+
+            return redirect()->route('checkout.confirmation', ['order' => $existingOrder]);
         }
 
         // Create order + items in a transaction (RuntimeException from C3 rolls back and surfaces as error)
@@ -271,10 +270,9 @@ class CheckoutController extends Controller
             Log::error('Order confirmation email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
         }
 
-        return redirect()->route('checkout.confirmation', [
-            'order' => $order,
-            'email' => $buyerEmail,
-        ]);
+        session()->push('confirmed_orders', $order->id);
+
+        return redirect()->route('checkout.confirmation', ['order' => $order]);
     }
 
     public function confirmation(Order $order): View
@@ -282,9 +280,10 @@ class CheckoutController extends Controller
         if (auth()->check()) {
             abort_unless($order->user_id === auth()->id(), 403);
         } else {
+            // Guests are authorised via the session set at checkout, so the
+            // email never travels in the URL (access logs / history / Referer).
             abort_unless(
-                request()->query('email') &&
-                strtolower($order->guest_email ?? '') === strtolower(request()->query('email')),
+                in_array($order->id, (array) session('confirmed_orders', []), true),
                 403
             );
         }

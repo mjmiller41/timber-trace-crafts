@@ -137,7 +137,8 @@
 - [x] **[Medium]** Coupon `max_uses` can be exceeded under concurrent checkouts — `app/Models/Coupon.php:61`, `app/Http/Controllers/CheckoutController.php:236`
       Fixed (Option A): lock the coupon row + re-check inside the order transaction; honour the already-paid order and log an overshoot warning rather than rejecting. Covered by a deterministic concurrency test.
       Fix: `isValid()` reads `used_count` without a lock; the increment happens later in the order transaction. Lock the coupon row (`lockForUpdate`) and re-check `used_count < max_uses` inside the same `DB::transaction` before incrementing.
-- [ ] **[Low]** Guest email leaked in confirmation URL query string — `app/Http/Controllers/CheckoutController.php:254`
+- [x] **[Low]** Guest email leaked in confirmation URL query string — `app/Http/Controllers/CheckoutController.php:254`
+      Fixed: guest confirmation access is now authorised via `session('confirmed_orders')`; the `?email=` param is gone. (Note: order emails still link to `/order-status?...&email=` — separate pre-existing leak, see below.)
       Fix: Redirect passes `?email=` (lands in access logs, history, Referer). Stash email/authorization in session or sign the confirmation URL instead.
 - [ ] **[Low]** First registered user silently promoted to admin — `app/Http/Controllers/AuthController.php:56`
       Fix: `register()` grants `role = 'admin'` when `User::count() === 0`. If `/register` is reachable before an admin is seeded, an outsider can claim admin. Seed the admin explicitly and remove auto-promotion, or gate behind a one-time setup token.
