@@ -4,6 +4,33 @@
 
 ---
 
+## Design / Visual Identity (audit: `no-slop-results.md`, run 2026-06-28)
+
+### Priority 1 — Subtraction (de-template, quick wins)
+
+- [ ] **[High]** Remove the hero's redundant "TIMBER TRACE CRAFTS" eyebrow (repeats the logo)
+- [ ] **[High]** Delete one of the two stacked newsletter signups ("Join Our Community" block vs. footer "NEWSLETTER" block)
+- [ ] **[High]** Demote all-caps tracked eyebrows — keep on only the 2–3 sections that actually classify content; drop from the rest (FEATURED COLLECTION, NEW ARRIVALS, EXPLORE ×3, STAY CONNECTED, FROM THE WORKSHOP, etc.)
+- [~] **[High]** Fix broken featured image on "The Best Handmade Gifts for Women" journal post — root cause: missing `.webp` sibling in R2, so `<picture>` breaks. Built `media:backfill-webp` command (+tests) that backfills the 3 gapped images. **Blocked:** local R2 token is read/write-denied via S3 API (`put()` returns false, Get/Head 403); run `php artisan media:backfill-webp` in an environment with valid R2 write creds (prod/deploy) to apply.
+
+### Priority 2 — Typography (highest-leverage de-slop)
+
+- [ ] **[High]** Replace Playfair Display + Montserrat default pairing — try Fraunces or Cormorant (headline) + a humanist sans (Inter Tight / Public Sans / Söhne) for body; update `--font-heading`/`--font-body` in `resources/css/app.css` and the Google Fonts link in `layouts/app.blade.php`
+- [ ] **[Medium]** Increase weight/size variation in type scale so hierarchy isn't carried by size alone (headings currently all `font-weight: 300`)
+
+### Priority 3 — Signature element (the core differentiator)
+
+- [ ] **[Medium]** Create a laser-cut fretwork SVG from a real product pattern and use it as a section divider / corner inlay on the forest-green bands (2–3 uses)
+- [ ] **[Medium]** Give product cards a subtle laser-kerf edge treatment instead of a plain hairline rule
+- [ ] **[Low]** Lead the hero image with a product shot instead of the market-tent scene (box is currently lost)
+- [ ] **[Low]** Rewrite template-generic section headlines ("Fresh from the Studio", "Crafted with Precision") with the specificity of the "Our Philosophy" pull quote
+
+### Priority 4 — Motion (on-brand interaction)
+
+- [ ] **[Low]** Add one signature "engrave reveal" hover interaction on product card images (mask wipe) instead of generic opacity fade
+
+---
+
 ## Blog Content (plan: `.claude/plans/blog_content_strategy.md`)
 
 ### FLOW 90-Day Calendar (gift-intent first)

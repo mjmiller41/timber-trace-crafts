@@ -74,7 +74,10 @@ class MediaUploader
         try {
             $contents ??= Storage::disk($disk)->get($path);
             $encoded = (string) $this->imageManager->decode($contents)->encode(new WebpEncoder(quality: 80));
-            Storage::disk($disk)->put($webpPath, $encoded);
+
+            if (Storage::disk($disk)->put($webpPath, $encoded) === false) {
+                throw new \RuntimeException("Storage write failed for {$webpPath}");
+            }
 
             return $webpPath;
         } catch (\Throwable $e) {
