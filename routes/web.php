@@ -62,6 +62,8 @@ Route::middleware('throttle:60,1')->group(function () {
 // Order status lookup (no login)
 Route::get('/order-status', [OrderStatusController::class, 'index'])->name('order.status');
 Route::post('/order-status', [OrderStatusController::class, 'lookup'])->middleware('throttle:5,1')->name('order.status.lookup');
+// Signed deep-link used in order emails — authorises one order without an email in the URL
+Route::get('/order-status/{order}', [OrderStatusController::class, 'view'])->middleware('signed')->name('order.status.view');
 
 // Restock request
 Route::post('/restock-request', [RestockController::class, 'store'])->middleware('honeypot')->name('restock.store');

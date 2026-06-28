@@ -34,7 +34,7 @@ $msg = $statusMessages[$order->status] ?? ['title' => 'Your order has been updat
     @if($order->user_id)
         <a href="{{ url('/account/orders/' . $order->id) }}" class="email-btn email-btn-forest">View Order</a>
     @else
-        <a href="{{ url('/order-status?order=' . $order->id . '&email=' . urlencode($order->guest_email ?? '')) }}" class="email-btn email-btn-forest">Track Order</a>
+        <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('order.status.view', ['order' => $order->id]) }}" class="email-btn email-btn-forest">Track Order</a>
     @endif
 </p>
 

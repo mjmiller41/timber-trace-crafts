@@ -38,4 +38,15 @@ class OrderStatusController extends Controller
 
         return view('order.status', compact('order'));
     }
+
+    /**
+     * Show an order via a signed deep-link (used in order emails). The `signed`
+     * middleware authorises the request, so no email is needed in the URL.
+     */
+    public function view(Order $order): View
+    {
+        $order->load(['items', 'shipments', 'statusHistory']);
+
+        return view('order.status', compact('order'));
+    }
 }
