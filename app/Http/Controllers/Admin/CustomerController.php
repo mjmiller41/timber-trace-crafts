@@ -20,8 +20,12 @@ class CustomerController extends Controller
 
     public function show(User $user): View
     {
-        $user->load(['orders' => fn ($q) => $q->orderByDesc('created_at')->limit(20), 'addresses']);
+        $user->load([
+            'orders' => fn ($q) => $q->orderByDesc('created_at')->limit(20),
+            'addresses',
+            'reviews',
+        ]);
 
-        return view('admin.customers.show', compact('user'));
+        return view('admin.customers.show', ['customer' => $user]);
     }
 }
