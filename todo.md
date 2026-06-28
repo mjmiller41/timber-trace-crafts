@@ -143,3 +143,10 @@
 - [x] **[Low]** First registered user silently promoted to admin — `app/Http/Controllers/AuthController.php:56`
       Fixed: registration always creates a `customer`; admins are promoted explicitly via the new `php artisan app:make-admin {email}` command.
       Fix: `register()` grants `role = 'admin'` when `User::count() === 0`. If `/register` is reachable before an admin is seeded, an outsider can claim admin. Seed the admin explicitly and remove auto-promotion, or gate behind a one-time setup token.
+
+## Audit follow-ups — 2026-06-28
+
+- [x] **[Low]** Order emails leak guest email in the "Track Order" URL — `resources/views/emails/{order-confirmation,order-status-changed,order-shipped}.blade.php`
+      Fixed: added a `signed` `order.status.view` route; emails now link to `URL::signedRoute(...)` with no email in the URL.
+- [x] **[Perf]** Admin JS bundle is ~712 kB (Vite warns >500 kB) — `resources/js/admin.js`
+      Fixed: `tui-image-editor` is now dynamically imported in `initEditor()`; the initial admin bundle dropped from ~712 kB to ~6 kB and the editor loads in its own chunk on demand.
