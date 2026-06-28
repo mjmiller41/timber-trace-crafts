@@ -35,6 +35,33 @@
                 border-bottom-color: #2C4C3B;
                 background: #f6f8f6;
             }
+            /* display:flex lives in the class (not inline) because Alpine's
+               x-show removes the inline display property when it shows the
+               element, which would otherwise fall back to block. */
+            .mp-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 10000;
+                background: rgba(17, 24, 39, 0.55);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+            }
+            .mp-selected-badge {
+                position: absolute;
+                top: 0.25rem;
+                right: 0.25rem;
+                width: 1.25rem;
+                height: 1.25rem;
+                border-radius: 9999px;
+                background: #2C4C3B;
+                color: #fff;
+                font-size: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         </style>
     @endpush
 @endonce
@@ -54,7 +81,7 @@
         x-show="open"
         x-cloak
         @keydown.escape.window="open && close()"
-        style="position: fixed; inset: 0; z-index: 10000; background: rgba(17, 24, 39, 0.55); display: flex; align-items: center; justify-content: center; padding: 1rem;"
+        class="mp-overlay"
     >
     <div
         @click.outside="close()"
@@ -94,8 +121,7 @@
                             <template x-if="!item.is_image">
                                 <span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 1.75rem; color: #9ca3af;">&#x1F4C4;</span>
                             </template>
-                            <span x-show="isSelected(item.id)"
-                                style="position: absolute; top: 0.25rem; right: 0.25rem; background: #2C4C3B; color: #fff; width: 1.25rem; height: 1.25rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">&#x2713;</span>
+                            <span x-show="isSelected(item.id)" class="mp-selected-badge">&#x2713;</span>
                         </button>
                     </template>
                 </div>

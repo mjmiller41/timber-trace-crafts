@@ -14,6 +14,18 @@
 			align-self: center;
 		}
 
+		/* display:flex lives in a class because Alpine's x-show removes the
+		   inline display property when showing, which would fall back to block. */
+		.media-card-details {
+			position: absolute;
+			inset: 0;
+			background: rgba(30, 53, 41, 0.93);
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 0.875rem 0.75rem;
+		}
+
 		.tui-image-editor-wrap {
 			width: 100% !important;
 			height: 100% !important;
@@ -332,8 +344,7 @@
 					</div>
 
 					{{-- Details Overlay --}}
-					<div x-show="showDetails" @click.stop
-						style="position: absolute; inset: 0; background: rgba(30, 53, 41, 0.93); display: flex; flex-direction: column; justify-content: space-between; padding: 0.875rem 0.75rem;">
+					<div x-show="showDetails" @click.stop class="media-card-details">
 						<div>
 							<div
 								style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
