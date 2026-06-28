@@ -32,19 +32,167 @@ Alpine.data("confirmDelete", () => ({
     },
 }));
 
-// Media library picker for admin forms
-Alpine.data("mediaPicker", (selected = []) => ({
-    selected,
-    toggle(id, url) {
-        const idx = this.selected.findIndex((m) => m.id === id);
-        if (idx > -1) this.selected.splice(idx, 1);
-        else this.selected.push({ id, url });
+// Shared media-library picker modal (used by <x-admin.media-picker>).
+// Opens on window event `media-picker:open:{channel}`, and on confirm emits
+// `media-picker:picked:{channel}` with { detail: { items: [...] } }.
+Alpine.data("mediaPickerModal", (config = {}) => ({
+    channel: config.channel,
+    multiple: config.multiple ?? false,
+    libraryUrl: config.libraryUrl,
+    uploadUrl: config.uploadUrl,
+    csrf: config.csrf,
+
+    open: false,
+    tab: "library",
+    items: [],
+    selected: [],
+    search: "",
+    page: 1,
+    lastPage: 1,
+    loading: false,
+    searchTimer: null,
+
+    queue: [],
+    uploading: false,
+    dragging: false,
+    dragCount: 0,
+
+    init() {
+        window.addEventListener(`media-picker:open:${this.channel}`, () => {
+            this.openModal();
+        });
     },
+
+    openModal() {
+        this.open = true;
+        this.selected = [];
+        this.tab = "library";
+        if (this.items.length === 0) this.fetchLibrary(true);
+    },
+
+    close() {
+        this.open = false;
+        this.queue = [];
+    },
+
+    debouncedSearch() {
+        clearTimeout(this.searchTimer);
+        this.searchTimer = setTimeout(() => this.fetchLibrary(true), 300);
+    },
+
+    async fetchLibrary(reset = false) {
+        if (this.loading) return;
+        this.loading = true;
+        if (reset) {
+            this.page = 1;
+            this.items = [];
+        }
+        const url = new URL(this.libraryUrl, window.location.origin);
+        if (this.search) url.searchParams.set("search", this.search);
+        url.searchParams.set("page", this.page);
+
+        try {
+            const res = await fetch(url, {
+                headers: { Accept: "application/json" },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                this.items.push(...data.data);
+                this.lastPage = data.last_page;
+            }
+        } catch {}
+        this.loading = false;
+    },
+
+    loadMore() {
+        if (this.page >= this.lastPage || this.loading) return;
+        this.page++;
+        this.fetchLibrary(false);
+    },
+
+    toggle(item) {
+        const idx = this.selected.findIndex((m) => m.id === item.id);
+        if (idx > -1) {
+            this.selected.splice(idx, 1);
+        } else if (this.multiple) {
+            this.selected.push(item);
+        } else {
+            this.selected = [item];
+        }
+    },
+
     isSelected(id) {
         return this.selected.some((m) => m.id === id);
     },
-    remove(id) {
-        this.selected = this.selected.filter((m) => m.id !== id);
+
+    confirm() {
+        window.dispatchEvent(
+            new CustomEvent(`media-picker:picked:${this.channel}`, {
+                detail: { items: this.selected },
+            }),
+        );
+        this.close();
+    },
+
+    // --- Upload tab ---
+    filesToQueue(files) {
+        const existing = new Set(this.queue.map((i) => i.name));
+        this.queue.push(
+            ...Array.from(files)
+                .filter((f) => !existing.has(f.name))
+                .map((f) => ({ file: f, name: f.name, status: "pending", error: "" })),
+        );
+    },
+    selectFiles(event) {
+        this.filesToQueue(event.target.files);
+    },
+    dropFiles(event) {
+        this.filesToQueue(event.dataTransfer.files);
+    },
+    async startUpload() {
+        if (this.uploading || this.queue.length === 0) return;
+        this.uploading = true;
+        const uploaded = [];
+
+        for (const item of this.queue) {
+            if (item.status === "done") continue;
+            item.status = "loading";
+            const body = new FormData();
+            body.append("file", item.file);
+            body.append("_token", this.csrf);
+            try {
+                const res = await fetch(this.uploadUrl, {
+                    method: "POST",
+                    headers: { Accept: "application/json" },
+                    body,
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    item.status = "done";
+                    uploaded.push({
+                        id: data.id,
+                        url: data.url,
+                        name: data.name,
+                        alt: null,
+                        is_image: true,
+                    });
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    item.status = "error";
+                    item.error = data.message ?? data.error ?? `HTTP ${res.status}`;
+                }
+            } catch {
+                item.status = "error";
+                item.error = "Network error";
+            }
+        }
+
+        this.uploading = false;
+        // Surface freshly-uploaded files at the top of the library, pre-selected.
+        this.items = [...uploaded, ...this.items];
+        uploaded.forEach((u) => this.toggle(u));
+        this.queue = this.queue.filter((i) => i.status === "error");
+        if (uploaded.length > 0) this.tab = "library";
     },
 }));
 

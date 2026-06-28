@@ -79,6 +79,40 @@ class MediaUploadTest extends TestCase
     }
 
     #[Test]
+    public function the_library_json_endpoint_returns_media_for_the_picker(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $media = Media::factory()->count(3)->create();
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('admin.media.index'));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [['id', 'url', 'name', 'alt', 'is_image']],
+                'current_page',
+                'last_page',
+            ])
+            ->assertJsonCount(3, 'data');
+
+        $this->assertContains($media->first()->id, collect($response->json('data'))->pluck('id'));
+    }
+
+    #[Test]
+    public function the_library_json_endpoint_filters_by_search(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Media::factory()->create(['original_name' => 'walnut-earrings.png']);
+        Media::factory()->create(['original_name' => 'maple-box.png']);
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('admin.media.index', ['search' => 'walnut']));
+
+        $response->assertOk()->assertJsonCount(1, 'data');
+        $this->assertStringContainsString('walnut', $response->json('data.0.name'));
+    }
+
+    #[Test]
     public function a_non_admin_cannot_upload_media(): void
     {
         Storage::fake($this->disk());

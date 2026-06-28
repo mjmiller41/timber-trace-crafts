@@ -18,7 +18,7 @@ class MediaController extends Controller
 {
     public function __construct(private MediaUploader $uploader) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $query = Media::query();
 
@@ -36,6 +36,23 @@ class MediaController extends Controller
             'size' => $query->orderByDesc('size_bytes'),
             default => $query->orderByDesc('created_at'),
         };
+
+        // JSON branch powers the shared <x-admin.media-picker> library tab.
+        if ($request->wantsJson()) {
+            $items = $query->paginate(24)->withQueryString();
+
+            return response()->json([
+                'data' => $items->getCollection()->map(fn (Media $media): array => [
+                    'id' => $media->id,
+                    'url' => $media->url(),
+                    'name' => $media->original_name,
+                    'alt' => $media->alt_text,
+                    'is_image' => str_starts_with((string) $media->mime_type, 'image/'),
+                ])->all(),
+                'current_page' => $items->currentPage(),
+                'last_page' => $items->lastPage(),
+            ]);
+        }
 
         $mediaItems = $query->paginate(40)->withQueryString();
 

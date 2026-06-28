@@ -8,7 +8,7 @@
 
 ### Shared media picker
 
-- [ ] **[High]** Build reusable `<x-admin.media-picker>` modal wrapping the existing (currently unused) `mediaPicker` Alpine component — tabbed UI to **upload new** OR **browse/search the existing library**; emits selected media (id + url). Reused by product form and journal featured-image field.
+- [x] **[High]** Build reusable `<x-admin.media-picker>` modal wrapping the `mediaPickerModal` Alpine component — tabbed UI to **upload new** OR **browse/search the existing library**; emits selected media via the `media-picker:picked:{channel}` event. Reused by product form and journal featured-image field. Backed by a JSON branch on `admin.media.index`.
 
 ### Product media (replaces the Phase 2 placeholder)
 
