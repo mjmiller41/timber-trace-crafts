@@ -128,7 +128,8 @@
       Fix: Use `product_variant_id` in the `firstOrCreate` attributes (line 63-66) and the `where` clause (line 73-74); the `wishlists` table and `Wishlist` model use `product_variant_id`. Both actions currently throw a SQL column-not-found 500. Add an AccountTest case for wishlist add/remove.
 - [x] **[High]** Order status lookup has no rate limiting (PII exposure / ID enumeration) — `routes/web.php:64`
       Fix: Add `->middleware('throttle:5,1')` to the `order.status.lookup` route. It returns full order PII (address, items, gift message) gated only by email + sequential integer order ID, while all other sensitive endpoints are throttled.
-- [ ] **[Medium]** New Etsy orders never trigger admin notification (async race) — `app/Http/Controllers/EtsyWebhookController.php:104`
+- [x] **[Medium]** New Etsy orders never trigger admin notification (async race) — `app/Http/Controllers/EtsyWebhookController.php:104`
+      Also fixed: webhook signature verification rejected real Etsy/Svix `v1,`-prefixed signatures (401). Now strips the scheme prefix before comparing.
       Fix: For new receipts the controller dispatches `ImportEtsyOrder` async then immediately re-queries the order (still null), skipping `Cache::increment('etsy.new_orders')` and `EtsyNewOrderMail`. Move the cache increment + admin email into the job after the order is persisted, and queue the mail instead of `->send()`.
 - [ ] **[Medium]** Variant-level price ignored when adding to cart — `app/Http/Controllers/CartController.php:53`
       Fix: Cart stores `$product->currentPrice()` and never consults `$variant->price`, so per-variant price overrides are not charged. Use `$variant->price ?? $product->currentPrice()`. (Confirm variant pricing is intended to override.)
