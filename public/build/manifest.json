@@ -8,7 +8,7 @@
     "src": "node_modules/tui-image-editor/dist/tui-image-editor.css"
   },
   "node_modules/tui-image-editor/dist/tui-image-editor.js": {
-    "file": "assets/tui-image-editor-Lfv3klqI.js",
+    "file": "assets/tui-image-editor-DTDow-ij.js",
     "name": "tui-image-editor",
     "src": "node_modules/tui-image-editor/dist/tui-image-editor.js",
     "isDynamicEntry": true,
@@ -26,7 +26,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-LvV2Rgt9.css",
+    "file": "assets/app-t3thMneY.css",
     "name": "app",
     "names": [
       "app.css"
@@ -35,7 +35,7 @@
     "isEntry": true
   },
   "resources/js/admin.js": {
-    "file": "assets/admin-CuutEWMK.js",
+    "file": "assets/admin-Fk2yrW5V.js",
     "name": "admin",
     "src": "resources/js/admin.js",
     "isEntry": true,
