@@ -84,6 +84,24 @@ return [
             ]) : [],
         ],
 
+        // Remote Hostinger (MariaDB) over public host — used from local for the
+        // db:export-hostinger push and for applying pending migrations remotely
+        // (`migrate --database=hostinger`). Credentials come from env only.
+        'hostinger' => [
+            'driver' => 'mariadb',
+            'host' => env('HOSTINGER_DB_HOST', '195.35.61.20'),
+            'port' => env('HOSTINGER_DB_PORT', '3306'),
+            'database' => env('HOSTINGER_DB_DATABASE', 'u903552178_ttc'),
+            'username' => env('HOSTINGER_DB_USERNAME', 'u903552178_ttc_admin'),
+            'password' => env('HOSTINGER_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
