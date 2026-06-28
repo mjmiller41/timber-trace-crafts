@@ -3,9 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\JournalPost;
+use App\Models\Media;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\Media\MediaUploader;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class JournalTest extends TestCase
@@ -210,6 +214,66 @@ class JournalTest extends TestCase
         $post->refresh()->load('tags');
         $this->assertFalse($post->tags->contains($oldTag));
         $this->assertTrue($post->tags->contains($newTag));
+    }
+
+    // ── Admin: featured image (shared picker) ───────────────────────────────
+
+    public function test_admin_can_attach_featured_image_from_library(): void
+    {
+        $media = Media::factory()->create();
+
+        $this->actingAs($this->adminUser())
+            ->post(route('admin.journal.store'), [
+                'title' => 'Post With Image',
+                'slug' => 'post-with-image',
+                'body' => 'Body.',
+                'status' => 'draft',
+                'featured_image_id' => $media->id,
+            ])
+            ->assertRedirect(route('admin.journal.index'));
+
+        $post = JournalPost::where('slug', 'post-with-image')->firstOrFail();
+        $this->assertSame($media->id, $post->featured_image_id);
+    }
+
+    public function test_admin_can_upload_a_featured_image_file_that_gets_a_webp_variant(): void
+    {
+        $disk = config('filesystems.default');
+        Storage::fake($disk);
+
+        $this->actingAs($this->adminUser())
+            ->post(route('admin.journal.store'), [
+                'title' => 'Uploaded Image Post',
+                'slug' => 'uploaded-image-post',
+                'body' => 'Body.',
+                'status' => 'draft',
+                'featured_image' => UploadedFile::fake()->image('feat.png', 64, 64),
+            ])
+            ->assertRedirect();
+
+        $post = JournalPost::where('slug', 'uploaded-image-post')->firstOrFail();
+        $this->assertNotNull($post->featured_image_id);
+
+        $media = Media::findOrFail($post->featured_image_id);
+        Storage::disk($disk)->assertExists($media->path);
+        Storage::disk($disk)->assertExists(MediaUploader::webpPath($media->path));
+    }
+
+    public function test_admin_can_remove_a_featured_image_on_update(): void
+    {
+        $media = Media::factory()->create();
+        $post = JournalPost::factory()->create(['featured_image_id' => $media->id]);
+
+        $this->actingAs($this->adminUser())
+            ->put(route('admin.journal.update', $post), [
+                'title' => $post->title,
+                'slug' => $post->slug,
+                'body' => $post->body,
+                'status' => 'draft',
+                'featured_image_id' => '',
+            ]);
+
+        $this->assertNull($post->refresh()->featured_image_id);
     }
 
     // ── Admin: destroy ──────────────────────────────────────────────────────

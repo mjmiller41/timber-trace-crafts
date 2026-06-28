@@ -23,7 +23,7 @@
 
 ### Journal featured image
 
-- [ ] **[Medium]** Swap the journal featured-image direct-upload field for the shared media picker (upload OR choose from library), keeping `featured_image_id` wiring — `resources/views/admin/journal/form.blade.php:98`.
+- [x] **[Medium]** Swap the journal featured-image direct-upload field for the shared media picker (upload OR choose from library), keeping `featured_image_id` wiring — `resources/views/admin/journal/form.blade.php`.
 
 ### Editor responsiveness
 

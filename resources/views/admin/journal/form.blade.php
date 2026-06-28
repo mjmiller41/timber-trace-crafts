@@ -83,29 +83,43 @@
 </div>
 @include('components.admin.zencomposer', ['targetId' => 'body'])
 
-{{-- Featured Image --}}
-<div style="margin-bottom: 1.25rem;" x-data="{ preview: '{{ isset($post) && $post->featuredImage ? $post->featuredImage->url() : '' }}' }">
+{{-- Featured Image (shared media picker: upload OR choose from library) --}}
+<div style="margin-bottom: 1.25rem;"
+    x-data="{
+        preview: '{{ isset($post) && $post->featuredImage ? $post->featuredImage->url() : '' }}',
+        mediaId: '{{ old('featured_image_id', isset($post) ? $post->featured_image_id : '') }}',
+    }"
+    @media-picker:picked:journal-featured.window="
+        const item = $event.detail.items[0];
+        if (item) { mediaId = item.id; preview = item.url; }
+    "
+>
     <label class="admin-label">Featured Image</label>
 
-    {{-- Current image preview --}}
+    {{-- Current selection preview --}}
     <template x-if="preview">
         <div style="margin-bottom: 0.75rem;">
-            <img :src="preview" alt="Featured image" style="max-height: 180px; max-width: 100%; object-fit: cover; border: 1px solid #e5e7eb;">
-            <p class="admin-hint" style="margin-top: 0.25rem;">Upload a new file below to replace this image.</p>
+            <img :src="preview" alt="Featured image" style="max-height: 180px; max-width: 100%; object-fit: cover; border: 1px solid #e5e7eb; display: block;">
         </div>
     </template>
 
-    <input
-        type="file"
-        id="featured_image"
-        name="featured_image"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-        class="admin-input"
-        style="padding: 0.375rem;"
-        @change="preview = $el.files[0] ? URL.createObjectURL($el.files[0]) : preview"
-    >
-    @error('featured_image') <p class="admin-error-text">{{ $message }}</p> @enderror
+    {{-- Submitted value (id of the chosen / uploaded media) --}}
+    <input type="hidden" name="featured_image_id" :value="mediaId">
+
+    <div style="display: flex; gap: 0.5rem;">
+        <button type="button" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;"
+            @click="$dispatch('media-picker:open:journal-featured')">
+            <span x-text="preview ? 'Change image' : 'Choose image'"></span>
+        </button>
+        <button type="button" x-show="preview" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;"
+            @click="mediaId = ''; preview = ''">
+            Remove
+        </button>
+    </div>
+    @error('featured_image_id') <p class="admin-error-text">{{ $message }}</p> @enderror
 </div>
+
+<x-admin.media-picker channel="journal-featured" />
 
 {{-- Status + Published At --}}
 <div style="display: grid; grid-template-columns: 200px 1fr; gap: 1rem; margin-bottom: 1.25rem; max-width: 480px;">

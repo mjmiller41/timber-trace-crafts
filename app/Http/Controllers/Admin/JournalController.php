@@ -90,10 +90,9 @@ class JournalController extends Controller
             $validated['published_at'] = now();
         }
 
-        $newImageId = $this->resolveFeaturedImageId($request);
-        if ($newImageId) {
-            $validated['featured_image_id'] = $newImageId;
-        }
+        // Hidden picker input always submits the current id, so a null result
+        // here means the editor explicitly cleared the featured image.
+        $validated['featured_image_id'] = $this->resolveFeaturedImageId($request);
 
         $journal->update($validated);
         $journal->tags()->sync($request->input('tags', []));
