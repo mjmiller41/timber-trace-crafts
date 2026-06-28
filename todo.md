@@ -124,9 +124,9 @@
 
 ## Audit findings — 2026-06-28
 
-- [ ] **[High]** Wishlist add/remove queries non-existent `variant_id` column — `app/Http/Controllers/AccountController.php:63`
+- [x] **[High]** Wishlist add/remove queries non-existent `variant_id` column — `app/Http/Controllers/AccountController.php:63`
       Fix: Use `product_variant_id` in the `firstOrCreate` attributes (line 63-66) and the `where` clause (line 73-74); the `wishlists` table and `Wishlist` model use `product_variant_id`. Both actions currently throw a SQL column-not-found 500. Add an AccountTest case for wishlist add/remove.
-- [ ] **[High]** Order status lookup has no rate limiting (PII exposure / ID enumeration) — `routes/web.php:64`
+- [x] **[High]** Order status lookup has no rate limiting (PII exposure / ID enumeration) — `routes/web.php:64`
       Fix: Add `->middleware('throttle:5,1')` to the `order.status.lookup` route. It returns full order PII (address, items, gift message) gated only by email + sequential integer order ID, while all other sensitive endpoints are throttled.
 - [ ] **[Medium]** New Etsy orders never trigger admin notification (async race) — `app/Http/Controllers/EtsyWebhookController.php:104`
       Fix: For new receipts the controller dispatches `ImportEtsyOrder` async then immediately re-queries the order (still null), skipping `Cache::increment('etsy.new_orders')` and `EtsyNewOrderMail`. Move the cache increment + admin email into the job after the order is persisted, and queue the mail instead of `->send()`.
