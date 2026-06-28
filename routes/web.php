@@ -61,7 +61,7 @@ Route::middleware('throttle:60,1')->group(function () {
 
 // Order status lookup (no login)
 Route::get('/order-status', [OrderStatusController::class, 'index'])->name('order.status');
-Route::post('/order-status', [OrderStatusController::class, 'lookup'])->name('order.status.lookup');
+Route::post('/order-status', [OrderStatusController::class, 'lookup'])->middleware('throttle:5,1')->name('order.status.lookup');
 
 // Restock request
 Route::post('/restock-request', [RestockController::class, 'store'])->middleware('honeypot')->name('restock.store');
@@ -149,6 +149,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
     Route::post('/media/sync', [MediaController::class, 'sync'])->name('media.sync');
+    Route::get('/media/{media}/proxy', [MediaController::class, 'proxy'])->name('media.proxy');
+    Route::patch('/media/{media}', [MediaController::class, 'update'])->name('media.update');
     Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
     Route::get('/media/{media}', [MediaController::class, 'show'])->name('media.show');
 
