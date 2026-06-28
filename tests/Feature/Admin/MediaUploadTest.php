@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\Media\MediaUploader;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -110,6 +111,37 @@ class MediaUploadTest extends TestCase
 
         $response->assertOk()->assertJsonCount(1, 'data');
         $this->assertStringContainsString('walnut', $response->json('data.0.name'));
+    }
+
+    #[Test]
+    public function the_proxy_streams_the_file_when_the_disk_can_read_it(): void
+    {
+        Storage::fake($this->disk());
+        $admin = User::factory()->create(['role' => 'admin']);
+        Storage::disk($this->disk())->put('media/there.webp', 'REAL-BYTES');
+        $media = Media::factory()->create(['mime_type' => 'image/webp', 'path' => 'media/there.webp']);
+
+        $response = $this->actingAs($admin)->get(route('admin.media.proxy', $media));
+
+        $response->assertOk();
+        $this->assertSame('REAL-BYTES', $response->streamedContent());
+        $response->assertHeader('Content-Type', 'image/webp');
+    }
+
+    #[Test]
+    public function the_proxy_falls_back_to_the_public_url_when_the_disk_cannot_stream(): void
+    {
+        Storage::fake($this->disk());
+        Http::fake(['*' => Http::response('FALLBACK-BYTES', 200)]);
+        $admin = User::factory()->create(['role' => 'admin']);
+        // No underlying file on the faked disk → readStream yields null.
+        $media = Media::factory()->create(['mime_type' => 'image/webp', 'path' => 'media/missing.webp']);
+
+        $response = $this->actingAs($admin)->get(route('admin.media.proxy', $media));
+
+        $response->assertOk();
+        $this->assertSame('FALLBACK-BYTES', $response->getContent());
+        Http::assertSentCount(1);
     }
 
     #[Test]

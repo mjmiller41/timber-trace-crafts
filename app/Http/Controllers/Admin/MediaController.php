@@ -8,6 +8,8 @@ use App\Services\Media\MediaUploader;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -128,23 +130,39 @@ class MediaController extends Controller
         return redirect()->route('admin.media.index')->with('success', $label);
     }
 
-    public function proxy(Media $media): StreamedResponse
+    public function proxy(Media $media): Response|StreamedResponse
     {
         $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
         $safe = in_array($media->mime_type, $allowed, true);
         $contentType = $safe ? $media->mime_type : 'application/octet-stream';
         $disposition = ($safe ? 'inline' : 'attachment').'; filename="'.rawurlencode($media->original_name).'"';
-
-        $stream = Storage::disk($media->disk)->readStream($media->path);
-
-        return response()->stream(function () use ($stream) {
-            fpassthru($stream);
-        }, 200, [
+        $headers = [
             'Content-Type' => $contentType,
             'Content-Disposition' => $disposition,
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, max-age=300',
-        ]);
+        ];
+
+        try {
+            $stream = Storage::disk($media->disk)->readStream($media->path);
+        } catch (\Throwable) {
+            $stream = null;
+        }
+
+        // When the backing disk can't stream the object (e.g. R2's S3 read
+        // returns null even though the object is publicly reachable), fall back
+        // to fetching its public URL server-side. This keeps the bytes
+        // same-origin so the image editor's canvas isn't CORS-tainted.
+        if (! is_resource($stream)) {
+            $response = Http::get($media->url());
+            abort_unless($response->successful(), 404);
+
+            return response($response->body(), 200, $headers);
+        }
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+        }, 200, $headers);
     }
 
     public function update(Request $request, Media $media): JsonResponse
