@@ -360,6 +360,56 @@ Alpine.data("orderNotifier", () => ({
     },
 }));
 
+// Light theme for the TUI image editor, tuned to the admin UI (cream/forest).
+// The default TUI theme is dark; these overrides flip the chrome to light.
+const IMAGE_EDITOR_LIGHT_THEME = {
+    "common.backgroundImage": "none",
+    "common.backgroundColor": "#ffffff",
+    "common.border": "0px",
+
+    "header.backgroundImage": "none",
+    "header.backgroundColor": "transparent",
+    "header.border": "0px",
+
+    "menu.normalIcon.color": "#6b7280",
+    "menu.activeIcon.color": "#2C4C3B",
+    "menu.disabledIcon.color": "#d1d5db",
+    "menu.hoverIcon.color": "#2C4C3B",
+    "menu.iconSize.width": "24px",
+    "menu.iconSize.height": "24px",
+
+    "submenu.backgroundColor": "#f6f8f6",
+    "submenu.partition.color": "#e5e7eb",
+    "submenu.normalIcon.color": "#6b7280",
+    "submenu.activeIcon.color": "#2C4C3B",
+    "submenu.iconSize.width": "32px",
+    "submenu.iconSize.height": "32px",
+    "submenu.normalLabel.color": "#6b7280",
+    "submenu.normalLabel.fontWeight": "normal",
+    "submenu.activeLabel.color": "#2C4C3B",
+    "submenu.activeLabel.fontWeight": "600",
+
+    "checkbox.border": "1px solid #d1d5db",
+    "checkbox.backgroundColor": "#fff",
+
+    "range.pointer.color": "#2C4C3B",
+    "range.bar.color": "#d1d5db",
+    "range.subbar.color": "#9ca3af",
+    "range.disabledPointer.color": "#d3d3d3",
+    "range.disabledBar.color": "#e0e0e0",
+    "range.disabledSubbar.color": "#d3d3d3",
+    "range.value.color": "#333",
+    "range.value.fontWeight": "normal",
+    "range.value.fontSize": "11px",
+    "range.value.border": "1px solid #d1d5db",
+    "range.value.backgroundColor": "#fff",
+    "range.title.color": "#333",
+    "range.title.fontWeight": "normal",
+
+    "colorpicker.button.border": "1px solid #d1d5db",
+    "colorpicker.title.color": "#333",
+};
+
 // Media image editor (TUI Image Editor / ZenImages)
 Alpine.data("mediaEditor", () => ({
     open: false,
@@ -395,6 +445,7 @@ Alpine.data("mediaEditor", () => ({
         this.editor = new ImageEditor(this.$refs.editorContainer, {
             includeUI: {
                 loadImage: { path: this.mediaUrl, name: this.mediaName },
+                theme: IMAGE_EDITOR_LIGHT_THEME,
                 menu: ["crop", "flip", "rotate", "draw", "shape", "text", "filter"],
                 initMenu: "",
                 menuBarPosition: "left",

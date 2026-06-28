@@ -380,7 +380,7 @@
 
 	{{-- Image Editor Overlay --}}
 	<div x-data="mediaEditor" x-show="open" x-cloak
-		style="position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: row; background: #1a1a1a;"
+		style="position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: row; background: #f4f1ea;"
 		@keydown.escape.window="close()">
 		{{-- Editor canvas --}}
 		<div style="flex: 1; display: flex; overflow: hidden; min-width: 0;">
@@ -389,31 +389,31 @@
 
 		{{-- Sidebar --}}
 		<div class="sidebar"
-			style="width: 220px; flex-shrink: 0; background: #1E3529; display: flex; flex-direction: column; padding: 1.25rem 1rem; gap: 0.75rem; font-family: 'Montserrat', sans-serif;">
+			style="width: 220px; flex-shrink: 0; background: #ffffff; border-left: 1px solid #e5e7eb; display: flex; flex-direction: column; padding: 1.25rem 1rem; gap: 0.75rem; font-family: 'Montserrat', sans-serif;">
 			<div>
 				<p
-					style="font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); margin: 0 0 0.375rem;">
+					style="font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.08em; color: #9ca3af; margin: 0 0 0.375rem;">
 					File</p>
-				<p style="font-size: 0.75rem; color: rgba(255,255,255,0.85); word-break: break-all; margin: 0;"
+				<p style="font-size: 0.75rem; color: #333; word-break: break-all; margin: 0;"
 					x-text="mediaName"></p>
 			</div>
 
 			<hr
-				style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0.25rem 0;">
+				style="border: none; border-top: 1px solid #e5e7eb; margin: 0.25rem 0;">
 
 			<div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
 				<span x-show="error" x-text="error"
-					style="font-size: 0.75rem; color: #f87171;"></span>
+					style="font-size: 0.75rem; color: #dc2626;"></span>
 				<button type="button" @click="save('new')" :disabled="saving"
-					style="font-size: 0.8125rem; background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 0.625rem 0.75rem; border-radius: 0.25rem; cursor: pointer; text-align: center; width: 100%;"
+					style="font-size: 0.8125rem; background: #fff; color: #333; border: 1px solid #d1d5db; padding: 0.625rem 0.75rem; border-radius: 0.25rem; cursor: pointer; text-align: center; width: 100%;"
 					x-text="saving ? 'Saving…' : 'Save as New Image'">
 				</button>
 				<button type="button" @click="save('overwrite')" :disabled="saving"
-					style="font-size: 0.8125rem; background: #2C4C3B; color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 0.625rem 0.75rem; border-radius: 0.25rem; cursor: pointer; text-align: center; width: 100%;"
+					style="font-size: 0.8125rem; background: #2C4C3B; color: #fff; border: 1px solid #2C4C3B; padding: 0.625rem 0.75rem; border-radius: 0.25rem; cursor: pointer; text-align: center; width: 100%;"
 					x-text="saving ? 'Saving…' : 'Overwrite Original'">
 				</button>
 				<button type="button" @click="close()" :disabled="saving"
-					style="font-size: 0.8125rem; background: none; color: rgba(255,255,255,0.5); border: none; padding: 0.375rem; cursor: pointer; text-align: center; width: 100%;">
+					style="font-size: 0.8125rem; background: none; color: #6b7280; border: none; padding: 0.375rem; cursor: pointer; text-align: center; width: 100%;">
 					Cancel
 				</button>
 			</div>
