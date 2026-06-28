@@ -46,11 +46,16 @@
         uploadUrl: @js(route('admin.media.store')),
         csrf: @js(csrf_token()),
     })"
-    x-show="open"
-    x-cloak
-    @keydown.escape.window="open && close()"
-    style="position: fixed; inset: 0; z-index: 10000; background: rgba(17, 24, 39, 0.55); display: flex; align-items: center; justify-content: center; padding: 1rem;"
 >
+{{-- Teleported to <body> so the fixed overlay centers against the viewport,
+     not a transformed admin-layout ancestor. --}}
+<template x-teleport="body">
+    <div
+        x-show="open"
+        x-cloak
+        @keydown.escape.window="open && close()"
+        style="position: fixed; inset: 0; z-index: 10000; background: rgba(17, 24, 39, 0.55); display: flex; align-items: center; justify-content: center; padding: 1rem;"
+    >
     <div
         @click.outside="close()"
         style="background: #fff; width: min(920px, 94vw); max-height: 88vh; border-radius: 0.5rem; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);"
@@ -154,4 +159,6 @@
             </div>
         </div>
     </div>
+    </div>
+</template>
 </div>

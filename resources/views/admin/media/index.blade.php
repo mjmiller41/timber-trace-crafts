@@ -25,6 +25,23 @@
 			display: none !important;
 		}
 
+		/* Force the editor chrome light — the theme's common.backgroundColor
+		   doesn't cover the menu/controls bars, which default to near-black. */
+		.tui-image-editor-container,
+		.tui-image-editor-container .tui-image-editor-main-container,
+		.tui-image-editor-container .tui-image-editor-controls,
+		.tui-image-editor-container .tui-image-editor-menu {
+			background-color: #ffffff !important;
+		}
+
+		.tui-image-editor-container .tui-image-editor-controls {
+			border-right: 1px solid #e5e7eb;
+		}
+
+		.tui-image-editor-container .tui-image-editor-submenu > div {
+			background-color: #f6f8f6 !important;
+		}
+
 		.tui-image-editor-main {
 			display: flex !important;
 		}
