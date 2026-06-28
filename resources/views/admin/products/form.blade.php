@@ -303,7 +303,7 @@
                     </button>
                 </div>
 
-                <p x-show="media.length === 0" style="font-size: 0.8125rem; color: #9ca3af; margin: 0; padding: 1rem 0; text-align: center;">
+                <p x-show="media.length === 0" x-cloak style="font-size: 0.8125rem; color: #9ca3af; margin: 0; padding: 1rem 0; text-align: center;">
                     No images yet — click <strong>Add images</strong> to upload new files or choose from the library.
                 </p>
 
@@ -403,7 +403,7 @@
                     >+ Add variation</button>
                 </div>
 
-                <div x-show="variationTypes.length === 0" style="text-align: center; color: #9ca3af; padding: 1.5rem; font-size: 0.875rem;">
+                <div x-show="variationTypes.length === 0" x-cloak style="text-align: center; color: #9ca3af; padding: 1.5rem; font-size: 0.875rem;">
                     No variations yet. Click "+ Add variation" to add one.
                 </div>
 
@@ -589,7 +589,7 @@
 
                 {{-- Etsy-specific fields, visible only when sold_on_etsy is checked --}}
                 <div
-                    x-show="soldOnEtsy"
+                    x-show="soldOnEtsy" x-cloak
                     x-cloak
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 -translate-y-1"
@@ -725,7 +725,7 @@
                             </select>
 
                             {{-- Add new section inline --}}
-                            <div x-show="!adding" style="margin-top: 0.375rem;">
+                            <div x-show="!adding" x-cloak style="margin-top: 0.375rem;">
                                 <button type="button" @click="adding = true"
                                     style="font-size: 0.75rem; color: #8C7B6C; background: none; border: none; cursor: pointer; padding: 0; text-decoration: underline;">
                                     ＋ New section

@@ -156,7 +156,7 @@
                                     class="font-body text-xs tracking-wider uppercase text-walnut hover:text-charcoal transition-colors underline underline-offset-2">
                                 Have a coupon?
                             </button>
-                            <div x-show="open || $errors->has('code')" x-transition class="mt-3">
+                            <div x-show="open || $errors->has('code')" x-cloak x-transition class="mt-3">
                                 <form method="POST" action="{{ route('cart.coupon') }}" class="flex gap-0">
                                     @csrf
                                     <input type="text"

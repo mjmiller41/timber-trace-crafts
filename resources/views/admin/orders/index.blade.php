@@ -66,12 +66,12 @@
 
     {{-- Bulk action bar --}}
     <div style="padding: 0.875rem 1.5rem; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 0.75rem;">
-        <span style="font-size: 0.8125rem; color: #6b7280;" x-show="selected.length === 0">
+        <span style="font-size: 0.8125rem; color: #6b7280;" x-show="selected.length === 0" x-cloak>
             {{ $orders->total() }} {{ Str::plural('order', $orders->total()) }}
         </span>
-        <span style="font-size: 0.8125rem; color: #333; font-weight: 600;" x-show="selected.length > 0" x-text="selected.length + ' selected'"></span>
+        <span style="font-size: 0.8125rem; color: #333; font-weight: 600;" x-show="selected.length > 0" x-cloak x-text="selected.length + ' selected'"></span>
 
-        <div x-show="selected.length > 0" style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
+        <div x-show="selected.length > 0" x-cloak style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto;">
             <form method="POST" action="{{ route('admin.orders.index') }}" style="display: flex; gap: 0.5rem; align-items: center;">
                 @csrf
                 @method('PATCH')

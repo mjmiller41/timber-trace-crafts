@@ -73,7 +73,7 @@
                 {{-- ────────────────────────────────────────── --}}
                 {{-- STEP 1: Contact & Shipping Address --}}
                 {{-- ────────────────────────────────────────── --}}
-                <div x-show="step === 1" x-transition>
+                <div x-show="step === 1" x-cloak x-transition>
                     <h2 class="font-heading text-2xl font-light text-charcoal mb-8">Contact & Shipping</h2>
 
                     <div class="space-y-5">
@@ -209,7 +209,7 @@
                 {{-- ────────────────────────────────────────── --}}
                 {{-- STEP 2: Shipping Method --}}
                 {{-- ────────────────────────────────────────── --}}
-                <div x-show="step === 2" x-transition>
+                <div x-show="step === 2" x-cloak x-transition>
                     <h2 class="font-heading text-2xl font-light text-charcoal mb-8">Shipping Method</h2>
 
                     <div class="space-y-3">
@@ -254,7 +254,7 @@
                 {{-- ────────────────────────────────────────── --}}
                 {{-- STEP 3: Payment & Review --}}
                 {{-- ────────────────────────────────────────── --}}
-                <div x-show="step === 3" x-transition>
+                <div x-show="step === 3" x-cloak x-transition>
                     <h2 class="font-heading text-2xl font-light text-charcoal mb-8">Payment</h2>
 
                     {{-- Order Review --}}

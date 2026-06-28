@@ -75,7 +75,7 @@
     <label class="admin-label" for="value">Value <span style="color: #ba1a1a;">*</span></label>
     <div style="position: relative; max-width: 200px;">
         <span
-            x-show="discountType === 'fixed'"
+            x-show="discountType === 'fixed'" x-cloak
             style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 0.875rem; pointer-events: none;"
         >$</span>
         <input
@@ -91,7 +91,7 @@
             required
         >
         <span
-            x-show="discountType === 'percent'"
+            x-show="discountType === 'percent'" x-cloak
             style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 0.875rem; pointer-events: none;"
         >%</span>
     </div>

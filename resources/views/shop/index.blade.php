@@ -42,7 +42,7 @@
         </button>
 
         {{-- Mobile sidebar (collapsed) --}}
-        <div x-show="open" x-transition class="mt-4 border border-walnut/20 p-6 bg-surface">
+        <div x-show="open" x-cloak x-transition class="mt-4 border border-walnut/20 p-6 bg-surface">
             @include('shop._sidebar', ['mobile' => true])
         </div>
     </div>

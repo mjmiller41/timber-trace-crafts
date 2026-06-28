@@ -111,7 +111,7 @@
             @click="$dispatch('media-picker:open:journal-featured')">
             <span x-text="preview ? 'Change image' : 'Choose image'"></span>
         </button>
-        <button type="button" x-show="preview" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;"
+        <button type="button" x-show="preview" x-cloak class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;"
             @click="mediaId = ''; preview = ''">
             Remove
         </button>

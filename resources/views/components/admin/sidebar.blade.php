@@ -8,8 +8,8 @@
     {{-- Logo --}}
     <div class="admin-sidebar-logo">
         <a href="{{ url('/admin') }}" style="color: inherit; text-decoration: none;">
-            <span x-show="!collapsed" style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #F4F1EA;">TTC Admin</span>
-            <span x-show="collapsed" style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #F4F1EA;">TTC</span>
+            <span x-show="!collapsed" x-cloak style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #F4F1EA;">TTC Admin</span>
+            <span x-show="collapsed" x-cloak style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #F4F1EA;">TTC</span>
         </a>
     </div>
 
@@ -44,7 +44,7 @@
 
         {{-- Main --}}
         <div class="admin-sidebar-section">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">Main</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>Main</div>
 
             <a
                 href="{{ url('/admin') }}"
@@ -52,7 +52,7 @@
                 title="Dashboard"
             >
                 <span class="nav-icon">&#x2302;</span>
-                <span x-show="!collapsed">Dashboard</span>
+                <span x-show="!collapsed" x-cloak>Dashboard</span>
             </a>
 
             <a
@@ -64,13 +64,13 @@
                 <span class="nav-icon" style="position: relative; display: inline-block;">
                     &#x1F4E6;
                     <span
-                        x-show="count > 0"
+                        x-show="count > 0" x-cloak
                         x-cloak
                         x-text="count"
                         style="position: absolute; top: -6px; right: -8px; background: #ef4444; color: #fff; font-size: 0.625rem; font-weight: 700; line-height: 1; padding: 2px 4px; border-radius: 9999px; min-width: 14px; text-align: center;"
                     ></span>
                 </span>
-                <span x-show="!collapsed">
+                <span x-show="!collapsed" x-cloak>
                     Orders
                     <span x-show="count > 0" x-cloak x-text="'(' + count + ')'" style="font-size: 0.75rem; color: #fca5a5; margin-left: 0.25rem;"></span>
                 </span>
@@ -79,7 +79,7 @@
 
         {{-- Catalog --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">Catalog</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>Catalog</div>
 
             <a
                 href="{{ url('/admin/products') }}"
@@ -87,7 +87,7 @@
                 title="Products"
             >
                 <span class="nav-icon">&#x2B1C;</span>
-                <span x-show="!collapsed">Products</span>
+                <span x-show="!collapsed" x-cloak>Products</span>
             </a>
 
             <a
@@ -96,7 +96,7 @@
                 title="Categories & Tags"
             >
                 <span class="nav-icon">&#x1F3F7;</span>
-                <span x-show="!collapsed">Categories &amp; Tags</span>
+                <span x-show="!collapsed" x-cloak>Categories &amp; Tags</span>
             </a>
 
             <a
@@ -105,13 +105,13 @@
                 title="Media"
             >
                 <span class="nav-icon">&#x1F4F7;</span>
-                <span x-show="!collapsed">Media</span>
+                <span x-show="!collapsed" x-cloak>Media</span>
             </a>
         </div>
 
         {{-- Commerce --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">Commerce</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>Commerce</div>
 
             <a
                 href="{{ url('/admin/coupons') }}"
@@ -119,7 +119,7 @@
                 title="Coupons"
             >
                 <span class="nav-icon">&#x1F3F7;</span>
-                <span x-show="!collapsed">Coupons</span>
+                <span x-show="!collapsed" x-cloak>Coupons</span>
             </a>
 
             <a
@@ -128,7 +128,7 @@
                 title="Customers"
             >
                 <span class="nav-icon">&#x1F465;</span>
-                <span x-show="!collapsed">Customers</span>
+                <span x-show="!collapsed" x-cloak>Customers</span>
             </a>
 
             <a
@@ -137,13 +137,13 @@
                 title="Reviews"
             >
                 <span class="nav-icon">&#x2605;</span>
-                <span x-show="!collapsed">Reviews</span>
+                <span x-show="!collapsed" x-cloak>Reviews</span>
             </a>
         </div>
 
         {{-- Integrations --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">Integrations</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>Integrations</div>
 
             <a
                 href="{{ route('admin.etsy.index') }}"
@@ -151,13 +151,13 @@
                 title="Etsy"
             >
                 <span class="nav-icon">&#x1F6D2;</span>
-                <span x-show="!collapsed">Etsy</span>
+                <span x-show="!collapsed" x-cloak>Etsy</span>
             </a>
         </div>
 
         {{-- Content --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">Content</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>Content</div>
 
             <a
                 href="{{ url('/admin/journal') }}"
@@ -165,7 +165,7 @@
                 title="Journal"
             >
                 <span class="nav-icon">&#x1F4DD;</span>
-                <span x-show="!collapsed">Journal</span>
+                <span x-show="!collapsed" x-cloak>Journal</span>
             </a>
 
             <a
@@ -174,7 +174,7 @@
                 title="Messages"
             >
                 <span class="nav-icon">&#x2709;</span>
-                <span x-show="!collapsed">Messages</span>
+                <span x-show="!collapsed" x-cloak>Messages</span>
             </a>
 
             <a
@@ -183,7 +183,7 @@
                 title="Inbox"
             >
                 <span class="nav-icon">&#x1F4E5;</span>
-                <span x-show="!collapsed">Inbox</span>
+                <span x-show="!collapsed" x-cloak>Inbox</span>
             </a>
 
             <a
@@ -192,13 +192,13 @@
                 title="Pages"
             >
                 <span class="nav-icon">&#x1F4C4;</span>
-                <span x-show="!collapsed">Pages</span>
+                <span x-show="!collapsed" x-cloak>Pages</span>
             </a>
         </div>
 
         {{-- System --}}
         <div class="admin-sidebar-section" style="margin-top: 0.5rem;">
-            <div class="admin-sidebar-section-label" x-show="!collapsed">System</div>
+            <div class="admin-sidebar-section-label" x-show="!collapsed" x-cloak>System</div>
 
             <a
                 href="{{ url('/admin/reports') }}"
@@ -206,7 +206,7 @@
                 title="Reports"
             >
                 <span class="nav-icon">&#x1F4CA;</span>
-                <span x-show="!collapsed">Reports</span>
+                <span x-show="!collapsed" x-cloak>Reports</span>
             </a>
 
             <a
@@ -215,7 +215,7 @@
                 title="Settings"
             >
                 <span class="nav-icon">&#x2699;</span>
-                <span x-show="!collapsed">Settings</span>
+                <span x-show="!collapsed" x-cloak>Settings</span>
             </a>
         </div>
 
@@ -232,7 +232,7 @@
                 title="Log out"
             >
                 <span class="nav-icon">&#x2192;</span>
-                <span x-show="!collapsed" style="font-size: 0.8125rem; font-weight: 500;">Log out</span>
+                <span x-show="!collapsed" x-cloak style="font-size: 0.8125rem; font-weight: 500;">Log out</span>
             </button>
         </form>
     </div>

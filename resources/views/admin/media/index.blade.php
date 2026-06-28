@@ -139,9 +139,9 @@
 		<div style="margin-top: 0.75rem; text-align: right;">
 			<button type="button" class="admin-btn" style="background: #2C4C3B; color: #fff;"
 				:disabled="uploading || queue.length === 0" @click="startUpload()">
-				<span x-show="!uploading">&#x2B06; Upload <span x-show="queue.length > 0"
+				<span x-show="!uploading" x-cloak>&#x2B06; Upload <span x-show="queue.length > 0" x-cloak
 						x-text="'(' + queue.length + ')'"></span></span>
-				<span x-show="uploading">Uploading…</span>
+				<span x-show="uploading" x-cloak>Uploading…</span>
 			</button>
 		</div>
 
@@ -156,14 +156,14 @@
 																							item.status === 'error'   ? 'color:#dc2626' :
 																							item.status === 'loading' ? 'color:#2563eb' : 'color:#9ca3af'"
 							style="width:1rem;text-align:center;flex-shrink:0;">
-							<span x-show="item.status === 'done'">&#x2713;</span>
-							<span x-show="item.status === 'error'">&#x2717;</span>
-							<span x-show="item.status === 'loading'">&#x29D7;</span>
-							<span x-show="item.status === 'pending'">&#x25CB;</span>
+							<span x-show="item.status === 'done'" x-cloak>&#x2713;</span>
+							<span x-show="item.status === 'error'" x-cloak>&#x2717;</span>
+							<span x-show="item.status === 'loading'" x-cloak>&#x29D7;</span>
+							<span x-show="item.status === 'pending'" x-cloak>&#x25CB;</span>
 						</span>
 						<span x-text="item.name"
 							style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-						<span x-show="item.status === 'error'" x-text="item.error"
+						<span x-show="item.status === 'error'" x-cloak x-text="item.error"
 							style="color:#dc2626;font-size:0.75rem;"></span>
 					</li>
 				</template>
@@ -344,7 +344,7 @@
 					</div>
 
 					{{-- Details Overlay --}}
-					<div x-show="showDetails" @click.stop class="media-card-details">
+					<div x-show="showDetails" x-cloak @click.stop class="media-card-details">
 						<div>
 							<div
 								style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
@@ -430,7 +430,7 @@
 				style="border: none; border-top: 1px solid #e5e7eb; margin: 0.25rem 0;">
 
 			<div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
-				<span x-show="error" x-text="error"
+				<span x-show="error" x-cloak x-text="error"
 					style="font-size: 0.75rem; color: #dc2626;"></span>
 				<button type="button" @click="save('new')" :disabled="saving"
 					style="font-size: 0.8125rem; background: #fff; color: #333; border: 1px solid #d1d5db; padding: 0.625rem 0.75rem; border-radius: 0.25rem; cursor: pointer; text-align: center; width: 100%;"
