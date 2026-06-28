@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Services\StripeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -150,5 +152,62 @@ class CheckoutIntegrityTest extends TestCase
         $this->postCheckout();
 
         $this->assertEquals(4, $this->variant->fresh()->stock_qty);
+    }
+
+    #[Test]
+    public function checkout_increments_coupon_used_count_exactly_once(): void
+    {
+        // $20 product − $5 coupon + $5 shipping = $20 = 2000 cents.
+        $coupon = Coupon::factory()->fixed(5)->create([
+            'code' => 'SAVE5',
+            'max_uses' => 10,
+            'used_count' => 3,
+        ]);
+        session(['coupon' => 'SAVE5']);
+
+        $this->mockStripe(amountReceived: 2000);
+
+        $this->postCheckout();
+
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('orders', ['coupon_id' => $coupon->id]);
+        $this->assertEquals(4, $coupon->fresh()->used_count);
+    }
+
+    #[Test]
+    public function checkout_honours_order_and_logs_overshoot_when_coupon_exhausted_mid_transaction(): void
+    {
+        Log::spy();
+
+        // Valid at resolve time: used_count (4) < max_uses (5).
+        $coupon = Coupon::factory()->fixed(5)->create([
+            'code' => 'SAVE5',
+            'max_uses' => 5,
+            'used_count' => 4,
+        ]);
+        session(['coupon' => 'SAVE5']);
+
+        // Simulate a concurrent checkout consuming the final use *after* this
+        // request validated the coupon but *before* it locks + re-checks. The
+        // Order::created event fires inside the transaction, ahead of the
+        // coupon-consumption block, so this reproduces the exact race window.
+        Order::created(function () use ($coupon) {
+            Coupon::whereKey($coupon->id)->increment('used_count'); // 4 -> 5 (now at cap)
+        });
+
+        $this->mockStripe(amountReceived: 2000);
+
+        $this->postCheckout();
+
+        // The customer already paid the discounted total, so the order is honoured.
+        $this->assertDatabaseCount('orders', 1);
+
+        // The exhausted cap was detected at the locked re-check and logged.
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn ($message) => str_contains($message, 'Coupon max_uses exceeded'))
+            ->once();
+
+        // 4 (start) + 1 (simulated concurrent use) + 1 (this checkout) = 6.
+        $this->assertEquals(6, $coupon->fresh()->used_count);
     }
 }

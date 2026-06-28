@@ -234,7 +234,27 @@ class CheckoutController extends Controller
                 ]);
 
                 if ($coupon) {
-                    $coupon->increment('used_count');
+                    // Lock the coupon row so concurrent checkouts consume it
+                    // serially and used_count stays exact. The payment is already
+                    // captured at the discounted total, so the order is always
+                    // honoured; if a concurrent checkout exhausted the cap first
+                    // we log the overshoot for reconciliation rather than
+                    // rejecting a customer who has already paid.
+                    $lockedCoupon = Coupon::whereKey($coupon->id)->lockForUpdate()->first();
+
+                    if ($lockedCoupon) {
+                        if ($lockedCoupon->max_uses !== null && $lockedCoupon->used_count >= $lockedCoupon->max_uses) {
+                            Log::warning('Coupon max_uses exceeded under concurrent checkout', [
+                                'coupon_id' => $lockedCoupon->id,
+                                'code' => $lockedCoupon->code,
+                                'used_count' => $lockedCoupon->used_count,
+                                'max_uses' => $lockedCoupon->max_uses,
+                                'payment_intent' => $intent->id,
+                            ]);
+                        }
+
+                        $lockedCoupon->increment('used_count');
+                    }
                 }
 
                 return $order;
