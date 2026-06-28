@@ -4,6 +4,39 @@
 
 ---
 
+## Image & Media System
+
+### Shared media picker
+
+- [ ] **[High]** Build reusable `<x-admin.media-picker>` modal wrapping the existing (currently unused) `mediaPicker` Alpine component — tabbed UI to **upload new** OR **browse/search the existing library**; emits selected media (id + url). Reused by product form and journal featured-image field.
+
+### Product media (replaces the Phase 2 placeholder)
+
+- [ ] **[High]** Product form media section — `resources/views/admin/products/form.blade.php:878`. Pick/upload images, set primary, reorder (wire up the unused `mediaOrderer`), per-image alt text. Remove the "coming in Phase 2" placeholder card.
+- [ ] **[High]** Per-variant image assignment using `product_media.variant_id` — assign specific images to specific variants in the product form.
+- [ ] **[High]** Persist product media in `ProductController@store/@update` — attach/detach `product_media` rows with `sort_order`, `is_primary`, `variant_id`; add validation.
+
+### Storage pipeline (R2 + WebP)
+
+- [x] **[High]** Push uploads to the `r2` disk on store (MediaController + JournalController upload paths) instead of the local `public` disk; record the correct `disk` on Media. (Uploads route through `MediaUploader` to the configured `FILESYSTEM_DISK`, which is `r2` in prod.)
+- [x] **[High]** Generate WebP variants on upload; ensure `Media::url()` + the `primary_image_url`/`<picture>` webp derivation are consistent end-to-end. (`MediaUploader` writes a `.webp` sibling at the path the frontend `<picture>` derives.)
+
+### Journal featured image
+
+- [ ] **[Medium]** Swap the journal featured-image direct-upload field for the shared media picker (upload OR choose from library), keeping `featured_image_id` wiring — `resources/views/admin/journal/form.blade.php:98`.
+
+### Editor responsiveness
+
+- [ ] **[Medium]** Make ZenComposer fluid — replace the hardcoded `480px` height (`components/admin/zencomposer.blade.php:45`) with a flex layout that fills available space (sensible min/max), no hardcoded px.
+- [ ] **[Low]** Harden the TUI image-editor overlay across breakpoints (sidebar/canvas behavior on small screens) — `admin/media/index.blade.php:360`.
+
+### Cohesion & tests
+
+- [ ] **[Medium]** Verify product cards, product page, wishlist, and journal all render the new media via the `primary_image_url` + `<picture>` webp pattern consistently.
+- [ ] **[Medium]** Feature tests — product media attach/detach/reorder/primary, per-variant assignment, journal picker, R2 upload + WebP variant generation.
+
+---
+
 ## Blog Content (plan: `.claude/plans/blog_content_strategy.md`)
 
 ### FLOW 90-Day Calendar (gift-intent first)

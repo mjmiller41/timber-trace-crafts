@@ -8,10 +8,15 @@ use App\Observers\ProductObserver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\ImageManager;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(ImageManager::class, fn () => new ImageManager(GdDriver::class));
+    }
 
     public function boot(): void
     {

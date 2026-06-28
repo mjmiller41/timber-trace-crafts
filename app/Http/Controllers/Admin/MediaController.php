@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Media;
+use App\Services\Media\MediaUploader;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,9 +12,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use League\Flysystem\FileAttributes;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaController extends Controller
 {
+    public function __construct(private MediaUploader $uploader) {}
+
     public function index(Request $request): View
     {
         $query = Media::query();
@@ -45,37 +49,13 @@ class MediaController extends Controller
             'alt_text' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $extMap = [
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            'image/webp' => 'webp',
-            'application/pdf' => 'pdf',
-        ];
-
-        $file = $request->file('file');
-        $original = $file->getClientOriginalName();
-        $extension = $extMap[$file->getMimeType()] ?? null;
-
-        if (! $extension) {
-            return response()->json(['error' => 'Unsupported file type.'], 422);
+        try {
+            $media = $this->uploader->store($request->file('file'), $request->input('alt_text'));
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
         }
 
-        $filename = Str::slug(pathinfo($original, PATHINFO_FILENAME)).'-'.uniqid().'.'.$extension;
-        $path = $file->storeAs('media', $filename, config('filesystems.default'));
-
-        $media = Media::create([
-            'filename' => $filename,
-            'original_name' => $original,
-            'path' => $path,
-            'disk' => config('filesystems.default'),
-            'mime_type' => $file->getMimeType(),
-            'size_bytes' => $file->getSize(),
-            'alt_text' => $request->input('alt_text'),
-            'uploaded_by' => auth()->id(),
-        ]);
-
-        return response()->json(['id' => $media->id, 'url' => $media->url(), 'name' => $original]);
+        return response()->json(['id' => $media->id, 'url' => $media->url(), 'name' => $media->original_name]);
     }
 
     public function sync(): RedirectResponse
@@ -131,6 +111,74 @@ class MediaController extends Controller
         return redirect()->route('admin.media.index')->with('success', $label);
     }
 
+    public function proxy(Media $media): StreamedResponse
+    {
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
+        $safe = in_array($media->mime_type, $allowed, true);
+        $contentType = $safe ? $media->mime_type : 'application/octet-stream';
+        $disposition = ($safe ? 'inline' : 'attachment').'; filename="'.rawurlencode($media->original_name).'"';
+
+        $stream = Storage::disk($media->disk)->readStream($media->path);
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+        }, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => $disposition,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, max-age=300',
+        ]);
+    }
+
+    public function update(Request $request, Media $media): JsonResponse
+    {
+        $request->validate([
+            'image' => ['required', 'file', 'mimes:jpg,jpeg,png,gif,webp', 'max:20480'],
+            'mode' => ['required', 'in:new,overwrite'],
+        ]);
+
+        $file = $request->file('image');
+        $disk = config('filesystems.default');
+
+        $extMap = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+        ];
+        $ext = $extMap[$file->getMimeType()] ?? pathinfo($media->filename, PATHINFO_EXTENSION);
+
+        if ($request->input('mode') === 'overwrite') {
+            Storage::disk($disk)->delete($media->path);
+            $file->storeAs('media', $media->filename, $disk);
+            $this->uploader->generateWebpVariant($disk, $media->path, file_get_contents($file->getRealPath()));
+
+            $media->update([
+                'size_bytes' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+            ]);
+
+            return response()->json(['id' => $media->id, 'url' => $media->url()]);
+        }
+
+        $filename = Str::slug(pathinfo($media->filename, PATHINFO_FILENAME)).'-edited-'.uniqid().'.'.$ext;
+        $file->storeAs('media', $filename, $disk);
+        $this->uploader->generateWebpVariant($disk, 'media/'.$filename, file_get_contents($file->getRealPath()));
+
+        $newMedia = Media::create([
+            'filename' => $filename,
+            'original_name' => $filename,
+            'path' => 'media/'.$filename,
+            'disk' => $disk,
+            'mime_type' => $file->getMimeType(),
+            'size_bytes' => $file->getSize(),
+            'alt_text' => null,
+            'uploaded_by' => auth()->id(),
+        ]);
+
+        return response()->json(['id' => $newMedia->id, 'url' => $newMedia->url()]);
+    }
+
     public function show(Media $media): View
     {
         return view('admin.media.show', compact('media'));
@@ -138,7 +186,7 @@ class MediaController extends Controller
 
     public function destroy(Media $media): RedirectResponse
     {
-        Storage::disk($media->disk)->delete($media->path);
+        $this->uploader->deleteWithVariants($media);
         $media->delete();
 
         return redirect()->route('admin.media.index')->with('success', 'Media deleted.');
