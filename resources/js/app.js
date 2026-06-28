@@ -14,13 +14,28 @@ Alpine.data('gallery', (allMedia = []) => ({
 }))
 
 // Variant selector for product pages
-Alpine.data('variantSelector', (variants = []) => ({
+Alpine.data('variantSelector', (variants = [], pricing = {}) => ({
     variants,
+    pricing,
     selectedId: variants.find(v => v.stock_qty > 0)?.id ?? variants[0]?.id ?? null,
     get selected() { return this.variants.find(v => v.id === this.selectedId) ?? null },
     get selectedLabel() { return this.selected?.label ?? '' },
     get inStock() { return (this.selected?.stock_qty ?? 0) > 0 },
     get lowStock() { return this.inStock && (this.selected?.stock_qty ?? 0) <= (this.selected?.low_stock_threshold ?? 5) },
+    // A variant price is an absolute override; otherwise fall back to the
+    // product's current (sale-aware) price.
+    get displayPrice() {
+        const override = this.selected?.price
+        return override != null ? override : this.pricing.currentPrice
+    },
+    // Only the product-level sale shows the struck-through compare-at price;
+    // an explicit variant override has no sale framing.
+    get onSale() {
+        if (this.selected?.price != null) { return false }
+        return this.pricing.salePrice != null && this.pricing.salePrice < this.pricing.price
+    },
+    get compareAtPrice() { return this.onSale ? this.pricing.price : null },
+    formatPrice(value) { return value == null ? '' : '$' + Number(value).toFixed(2) },
     selectVariant(variant) { this.selectedId = variant.id }
 }))
 

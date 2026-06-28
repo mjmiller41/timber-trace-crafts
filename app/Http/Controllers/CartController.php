@@ -50,7 +50,9 @@ class CartController extends Controller
             'variant_label' => $variant->label ?? '',
             'personalization_text' => $personalizationText,
             'personalization_price' => $personalizationPrice,
-            'price' => (float) $product->currentPrice(),
+            // A variant price is an absolute per-variant override; fall back to
+            // the product's current (sale-aware) price when it isn't set.
+            'price' => (float) ($variant->price ?? $product->currentPrice()),
             'qty' => (int) $validated['qty'],
             'image_url' => $product->primary_image_url ?? null,
         ];

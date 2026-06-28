@@ -131,7 +131,8 @@
 - [x] **[Medium]** New Etsy orders never trigger admin notification (async race) — `app/Http/Controllers/EtsyWebhookController.php:104`
       Also fixed: webhook signature verification rejected real Etsy/Svix `v1,`-prefixed signatures (401). Now strips the scheme prefix before comparing.
       Fix: For new receipts the controller dispatches `ImportEtsyOrder` async then immediately re-queries the order (still null), skipping `Cache::increment('etsy.new_orders')` and `EtsyNewOrderMail`. Move the cache increment + admin email into the job after the order is persisted, and queue the mail instead of `->send()`.
-- [ ] **[Medium]** Variant-level price ignored when adding to cart — `app/Http/Controllers/CartController.php:53`
+- [x] **[Medium]** Variant-level price ignored when adding to cart — `app/Http/Controllers/CartController.php:53`
+      Also added: the product page price now updates reactively to the selected variant (`variantSelector` + reactive price block).
       Fix: Cart stores `$product->currentPrice()` and never consults `$variant->price`, so per-variant price overrides are not charged. Use `$variant->price ?? $product->currentPrice()`. (Confirm variant pricing is intended to override.)
 - [ ] **[Medium]** Coupon `max_uses` can be exceeded under concurrent checkouts — `app/Models/Coupon.php:61`, `app/Http/Controllers/CheckoutController.php:236`
       Fix: `isValid()` reads `used_count` without a lock; the increment happens later in the order transaction. Lock the coupon row (`lockForUpdate`) and re-check `used_count < max_uses` inside the same `DB::transaction` before incrementing.

@@ -33,7 +33,15 @@
         'label'               => $v->label,
         'stock_qty'           => $v->stock_qty,
         'low_stock_threshold' => $v->low_stock_threshold,
+        // Absolute per-variant price override, or null to use the product price.
+        'price'               => $v->price !== null ? (float) $v->price : null,
     ])->toJson();
+
+    $pricingJson = json_encode([
+        'price'        => (float) $product->price,
+        'salePrice'    => $product->sale_price !== null ? (float) $product->sale_price : null,
+        'currentPrice' => (float) $product->currentPrice(),
+    ]);
 
     $avgRating = $product->reviews->where('status', 'approved')->avg('rating');
     $reviewCount = $product->reviews->where('status', 'approved')->count();
@@ -194,7 +202,7 @@
         {{-- ====================================================== --}}
         {{-- RIGHT: PRODUCT DETAILS --}}
         {{-- ====================================================== --}}
-        <div x-data="variantSelector({{ $variantsJson }})">
+        <div x-data="variantSelector({{ $variantsJson }}, {{ $pricingJson }})">
 
             {{-- Category label --}}
             @if($product->category)
@@ -220,21 +228,20 @@
                 </div>
             @endif
 
-            {{-- Price --}}
+            {{-- Price (reactive to the selected variant) --}}
             <div class="flex items-baseline gap-3 mb-6">
-                @if($product->sale_price && $product->sale_price < $product->price)
-                    <span class="font-body text-2xl font-600 text-mahogany">
-                        ${{ number_format($product->currentPrice(), 2) }}
-                    </span>
-                    <span class="font-body text-lg text-walnut line-through">
-                        ${{ number_format($product->price, 2) }}
-                    </span>
+                <template x-if="onSale">
+                    <span class="font-body text-2xl font-600 text-mahogany" x-text="formatPrice(displayPrice)"></span>
+                </template>
+                <template x-if="onSale">
+                    <span class="font-body text-lg text-walnut line-through" x-text="formatPrice(compareAtPrice)"></span>
+                </template>
+                <template x-if="onSale">
                     <span class="section-label bg-mahogany text-white px-2 py-0.5" style="font-size:0.625rem;">Sale</span>
-                @else
-                    <span class="font-body text-2xl font-500 text-charcoal">
-                        ${{ number_format($product->currentPrice(), 2) }}
-                    </span>
-                @endif
+                </template>
+                <template x-if="!onSale">
+                    <span class="font-body text-2xl font-500 text-charcoal" x-text="formatPrice(displayPrice)"></span>
+                </template>
             </div>
 
             {{-- Short description --}}
