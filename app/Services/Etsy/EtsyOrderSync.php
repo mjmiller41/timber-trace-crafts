@@ -71,17 +71,19 @@ class EtsyOrderSync
         return $result;
     }
 
-    public function importFromResourceUrl(string $resourceUrl): void
+    public function importFromResourceUrl(string $resourceUrl): ?Order
     {
         $path = preg_replace('#^https://api\.etsy\.com/v3#', '', $resourceUrl);
         $receipt = $this->client->get($path);
 
         if ($receipt) {
-            $this->importReceipt($receipt);
+            return $this->importReceipt($receipt);
         }
+
+        return null;
     }
 
-    public function importReceipt(array $receipt): void
+    public function importReceipt(array $receipt): Order
     {
         [$firstName, $lastName] = $this->splitName($receipt['name'] ?? '');
 
@@ -125,6 +127,8 @@ class EtsyOrderSync
                 'subtotal' => $price * ($transaction['quantity'] ?? 1),
             ]);
         }
+
+        return $order;
     }
 
     private function toDollars(array $money): float

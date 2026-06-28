@@ -79,8 +79,14 @@ class EtsyWebhookController extends Controller
         $signedContent = "{$webhookId}.{$webhookTimestamp}.{$rawBody}";
         $expectedSig = base64_encode(hash_hmac('sha256', $signedContent, $secretBytes, true));
 
-        // webhook-signature header may contain multiple comma-separated signatures
-        foreach (explode(' ', $webhookSignature) as $sig) {
+        // The header is a space-separated list of versioned signatures, each
+        // formatted "v1,<base64sig>" (Svix/Etsy). Strip the scheme prefix and
+        // compare the signature portion against our expected value.
+        foreach (explode(' ', $webhookSignature) as $versionedSignature) {
+            $sig = str_contains($versionedSignature, ',')
+                ? explode(',', $versionedSignature, 2)[1]
+                : $versionedSignature;
+
             if (hash_equals($expectedSig, $sig)) {
                 return true;
             }
@@ -99,19 +105,21 @@ class EtsyWebhookController extends Controller
 
         $order = Order::where('etsy_receipt_id', $receiptId)->first();
 
-        if ($order) {
-            $order->update(['etsy_is_paid' => true, 'status' => 'processing']);
-        } else {
-            // New order — dispatch async import job (avoids blocking the webhook response)
+        if (! $order) {
+            // New order — import asynchronously to avoid blocking the webhook
+            // response. The job persists the order, then increments the counter
+            // and notifies the admin (the order does not exist yet here).
             ImportEtsyOrder::dispatch($resourceUrl);
-            $order = Order::where('etsy_receipt_id', $receiptId)->first();
+
+            return;
         }
 
-        if ($order) {
-            Cache::increment('etsy.new_orders');
-            $adminEmail = config('mail.from.address');
-            Mail::to($adminEmail)->send(new EtsyNewOrderMail($order->load('items')));
-        }
+        $order->update(['etsy_is_paid' => true, 'status' => 'processing']);
+
+        Cache::increment('etsy.new_orders');
+
+        Mail::to(config('mail.from.address'))
+            ->queue(new EtsyNewOrderMail($order->load('items')));
     }
 
     private function handleOrderCanceled(string $resourceUrl): void

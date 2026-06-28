@@ -2,12 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Services\Etsy\EtsyClient;
-use App\Services\Etsy\EtsyOAuthService;
+use App\Mail\EtsyNewOrderMail;
 use App\Services\Etsy\EtsyOrderSync;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ImportEtsyOrder implements ShouldQueue
 {
@@ -21,8 +22,20 @@ class ImportEtsyOrder implements ShouldQueue
 
     public function handle(): void
     {
-        $sync = new EtsyOrderSync(new EtsyClient(app(EtsyOAuthService::class)));
-        $sync->importFromResourceUrl($this->resourceUrl);
+        $order = app(EtsyOrderSync::class)->importFromResourceUrl($this->resourceUrl);
+
+        if (! $order) {
+            return;
+        }
+
+        // This job only runs for order.paid webhooks, so mark the freshly
+        // imported order as paid and notify the admin once it's persisted.
+        $order->update(['etsy_is_paid' => true]);
+
+        Cache::increment('etsy.new_orders');
+
+        Mail::to(config('mail.from.address'))
+            ->queue(new EtsyNewOrderMail($order->load('items')));
     }
 
     public function failed(\Throwable $e): void

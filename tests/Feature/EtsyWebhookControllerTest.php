@@ -45,7 +45,8 @@ class EtsyWebhookControllerTest extends TestCase
             'headers' => [
                 'webhook-id' => $webhookId,
                 'webhook-timestamp' => $timestamp,
-                'webhook-signature' => $sig,
+                // Etsy/Svix send each signature with a "v1," scheme prefix.
+                'webhook-signature' => 'v1,'.$sig,
             ],
         ];
     }
@@ -115,6 +116,32 @@ class EtsyWebhookControllerTest extends TestCase
     }
 
     #[Test]
+    public function it_accepts_a_space_separated_list_of_versioned_signatures(): void
+    {
+        // Svix may send several signatures (e.g. during secret rotation),
+        // space-separated and each "v1,"-prefixed. One valid entry is enough.
+        $body = json_encode(['event_type' => 'order.delivered', 'resource_url' => '']);
+        $webhookId = 'msg_'.bin2hex(random_bytes(8));
+        $timestamp = (string) time();
+        $validSig = base64_encode(hash_hmac('sha256', "{$webhookId}.{$timestamp}.{$body}", $this->rawSecret, true));
+
+        $response = $this->call(
+            'POST',
+            '/webhooks/etsy',
+            [], [], [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_WEBHOOK_ID' => $webhookId,
+                'HTTP_WEBHOOK_TIMESTAMP' => $timestamp,
+                'HTTP_WEBHOOK_SIGNATURE' => 'v1,aW52YWxpZHNpZ25hdHVyZXZhbHVlMDAwMDAwMDAwMDA= v1,'.$validSig,
+            ],
+            $body
+        );
+
+        $response->assertOk()->assertJson(['ok' => true]);
+    }
+
+    #[Test]
     public function it_handles_unknown_event_types_without_error(): void
     {
         $response = $this->postWebhook(['event_type' => 'some.future.event', 'resource_url' => '']);
@@ -138,7 +165,7 @@ class EtsyWebhookControllerTest extends TestCase
             'resource_url' => 'https://api.etsy.com/v3/application/shops/1/receipts/12345',
         ]);
 
-        Mail::assertSent(EtsyNewOrderMail::class, fn ($mail) => $mail->order->id === $order->id);
+        Mail::assertQueued(EtsyNewOrderMail::class, fn ($mail) => $mail->order->id === $order->id);
 
         $order->refresh();
         $this->assertEquals('processing', $order->status);
