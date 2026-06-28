@@ -119,3 +119,22 @@
 - [ ] Write Spoke 3.3: "Are wood earrings hypoallergenic?"
 - [ ] Run `/blog analyze` on all published posts; update any scoring below 70
 - [ ] Review AI citation tracking results; adjust content angle based on what's being extracted
+
+---
+
+## Audit findings — 2026-06-28
+
+- [ ] **[High]** Wishlist add/remove queries non-existent `variant_id` column — `app/Http/Controllers/AccountController.php:63`
+      Fix: Use `product_variant_id` in the `firstOrCreate` attributes (line 63-66) and the `where` clause (line 73-74); the `wishlists` table and `Wishlist` model use `product_variant_id`. Both actions currently throw a SQL column-not-found 500. Add an AccountTest case for wishlist add/remove.
+- [ ] **[High]** Order status lookup has no rate limiting (PII exposure / ID enumeration) — `routes/web.php:64`
+      Fix: Add `->middleware('throttle:5,1')` to the `order.status.lookup` route. It returns full order PII (address, items, gift message) gated only by email + sequential integer order ID, while all other sensitive endpoints are throttled.
+- [ ] **[Medium]** New Etsy orders never trigger admin notification (async race) — `app/Http/Controllers/EtsyWebhookController.php:104`
+      Fix: For new receipts the controller dispatches `ImportEtsyOrder` async then immediately re-queries the order (still null), skipping `Cache::increment('etsy.new_orders')` and `EtsyNewOrderMail`. Move the cache increment + admin email into the job after the order is persisted, and queue the mail instead of `->send()`.
+- [ ] **[Medium]** Variant-level price ignored when adding to cart — `app/Http/Controllers/CartController.php:53`
+      Fix: Cart stores `$product->currentPrice()` and never consults `$variant->price`, so per-variant price overrides are not charged. Use `$variant->price ?? $product->currentPrice()`. (Confirm variant pricing is intended to override.)
+- [ ] **[Medium]** Coupon `max_uses` can be exceeded under concurrent checkouts — `app/Models/Coupon.php:61`, `app/Http/Controllers/CheckoutController.php:236`
+      Fix: `isValid()` reads `used_count` without a lock; the increment happens later in the order transaction. Lock the coupon row (`lockForUpdate`) and re-check `used_count < max_uses` inside the same `DB::transaction` before incrementing.
+- [ ] **[Low]** Guest email leaked in confirmation URL query string — `app/Http/Controllers/CheckoutController.php:254`
+      Fix: Redirect passes `?email=` (lands in access logs, history, Referer). Stash email/authorization in session or sign the confirmation URL instead.
+- [ ] **[Low]** First registered user silently promoted to admin — `app/Http/Controllers/AuthController.php:56`
+      Fix: `register()` grants `role = 'admin'` when `User::count() === 0`. If `/register` is reachable before an admin is seeded, an outsider can claim admin. Seed the admin explicitly and remove auto-promotion, or gate behind a one-time setup token.

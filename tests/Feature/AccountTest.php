@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\User;
+use App\Models\Wishlist;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -48,5 +51,43 @@ class AccountTest extends TestCase
         ]);
 
         $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
+    #[Test]
+    public function wishlist_add_persists_the_variant(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $variant = ProductVariant::factory()->create(['product_id' => $product->id]);
+
+        $this->actingAs($user)->post(route('account.wishlist.add'), [
+            'variant_id' => $variant->id,
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('wishlists', [
+            'user_id' => $user->id,
+            'product_variant_id' => $variant->id,
+        ]);
+    }
+
+    #[Test]
+    public function wishlist_remove_deletes_the_variant(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $variant = ProductVariant::factory()->create(['product_id' => $product->id]);
+
+        Wishlist::create([
+            'user_id' => $user->id,
+            'product_variant_id' => $variant->id,
+        ]);
+
+        $this->actingAs($user)->delete(route('account.wishlist.remove', $variant->id))
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('wishlists', [
+            'user_id' => $user->id,
+            'product_variant_id' => $variant->id,
+        ]);
     }
 }

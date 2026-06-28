@@ -47,7 +47,7 @@ class AccountController extends Controller
 
     public function wishlist(): View
     {
-        $items = Wishlist::with('variant.product')
+        $items = Wishlist::with('variant.product.media.media')
             ->where('user_id', auth()->id())
             ->get();
 
@@ -62,7 +62,7 @@ class AccountController extends Controller
 
         Wishlist::firstOrCreate([
             'user_id' => auth()->id(),
-            'variant_id' => $validated['variant_id'],
+            'product_variant_id' => $validated['variant_id'],
         ]);
 
         return redirect()->back()->with('success', 'Added to wishlist.');
@@ -71,7 +71,7 @@ class AccountController extends Controller
     public function wishlistRemove(ProductVariant $variant): RedirectResponse
     {
         Wishlist::where('user_id', auth()->id())
-            ->where('variant_id', $variant->id)
+            ->where('product_variant_id', $variant->id)
             ->delete();
 
         return redirect()->back()->with('success', 'Removed from wishlist.');

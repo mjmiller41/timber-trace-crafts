@@ -32,7 +32,8 @@
                         @php
                             $variant  = $item->variant;
                             $product  = $variant?->product;
-                            $image    = $product?->primaryImage?->url ?? null;
+                            $image    = $product?->primary_image_url ?? null;
+                            $imageWebp = $image ? preg_replace('/\.(png|jpe?g)$/i', '.webp', $image) : null;
                             $name     = $product?->name ?? 'Product';
                             $slug     = $product?->slug ?? '#';
                             $price    = $variant?->price ?? $product?->price ?? null;
@@ -43,12 +44,17 @@
                             <div class="relative overflow-hidden bg-surface aspect-square mb-3">
                                 <a href="{{ url('/product/' . $slug) }}" aria-label="{{ $name }}">
                                     @if($image)
-                                        <img
-                                            src="{{ $image }}"
-                                            alt="{{ $name }}"
-                                            class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
-                                            loading="lazy"
-                                        >
+                                        <picture>
+                                            @if($imageWebp)
+                                                <source srcset="{{ $imageWebp }}" type="image/webp">
+                                            @endif
+                                            <img
+                                                src="{{ $image }}"
+                                                alt="{{ $name }}"
+                                                class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+                                                loading="lazy"
+                                            >
+                                        </picture>
                                     @else
                                         <div class="w-full h-full flex items-center justify-center" style="background-color: #EDE8DF;">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12" style="color: #C4B9AA;">
@@ -61,7 +67,7 @@
                                 {{-- Remove button overlay --}}
                                 <form
                                     method="POST"
-                                    action="{{ route('account.wishlist.remove', $item->variant_id) }}"
+                                    action="{{ route('account.wishlist.remove', $item->product_variant_id) }}"
                                     class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                                     onsubmit="return confirm('Remove from wishlist?')"
                                 >
@@ -99,7 +105,7 @@
                                 {{-- Remove link (visible always on mobile) --}}
                                 <form
                                     method="POST"
-                                    action="{{ route('account.wishlist.remove', $item->variant_id) }}"
+                                    action="{{ route('account.wishlist.remove', $item->product_variant_id) }}"
                                     class="mt-2 lg:hidden"
                                 >
                                     @csrf
