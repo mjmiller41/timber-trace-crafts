@@ -3,7 +3,7 @@
 @section('title', $post->title)
 @section('meta_description', $post->excerpt ? Str::limit(strip_tags($post->excerpt), 155) : Str::limit(strip_tags($post->body), 155))
 @section('og_type', 'article')
-@section('og_image', $post->featured_image ? $post->featuredImage?->url() : asset('images/og-default.jpg'))
+@section('og_image', $post->featured_image_id && $post->featuredImage ? $post->featuredImage->url() : asset('images/og-default.jpg'))
 
 @section('content')
 
@@ -47,11 +47,14 @@
         </header>
 
         {{-- Featured image --}}
-        @if($post->featured_image)
+        @if($post->featured_image_id && $post->featuredImage)
             <div class="mb-12 -mx-4 sm:mx-0">
-                <img src="{{ $post->featuredImage?->url() }}"
-                     alt="{{ $post->title }}"
-                     class="w-full aspect-video object-cover">
+                <picture>
+                    <source srcset="{{ preg_replace('/\.(png|jpe?g)$/i', '.webp', $post->featuredImage->url()) }}" type="image/webp">
+                    <img src="{{ $post->featuredImage->url() }}"
+                         alt="{{ $post->title }}"
+                         class="w-full aspect-video object-cover">
+                </picture>
             </div>
         @endif
 
@@ -91,9 +94,12 @@
                     <article>
                         <a href="{{ route('journal.show', $related->slug) }}" class="block mb-3">
                             @if($related->featured_image_id && $related->featuredImage)
-                                <img src="{{ $related->featuredImage->url() }}"
-                                     alt="{{ $related->title }}"
-                                     class="w-full aspect-video object-cover">
+                                <picture>
+                                    <source srcset="{{ preg_replace('/\.(png|jpe?g)$/i', '.webp', $related->featuredImage->url()) }}" type="image/webp">
+                                    <img src="{{ $related->featuredImage->url() }}"
+                                         alt="{{ $related->title }}"
+                                         class="w-full aspect-video object-cover">
+                                </picture>
                             @else
                                 <div class="w-full aspect-video bg-walnut/10"></div>
                             @endif

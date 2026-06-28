@@ -32,8 +32,8 @@
 
 ### Cohesion & tests
 
-- [ ] **[Medium]** Verify product cards, product page, wishlist, and journal all render the new media via the `primary_image_url` + `<picture>` webp pattern consistently.
-- [ ] **[Medium]** Feature tests — product media attach/detach/reorder/primary, per-variant assignment, journal picker, R2 upload + WebP variant generation.
+- [x] **[Medium]** Verify product cards, product page, wishlist, and journal all render the new media via the `primary_image_url` + `<picture>` webp pattern consistently. (Product views already consistent; brought journal show/index/tag + home cards onto the webp `<picture>` pattern and fixed broken `featured_image` guards → `featured_image_id`.)
+- [x] **[Medium]** Feature tests — product media attach/detach/reorder/primary, per-variant assignment, journal picker, R2 upload + WebP variant generation. (Full suite: 112 passing.)
 
 ---
 

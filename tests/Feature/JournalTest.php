@@ -67,6 +67,29 @@ class JournalTest extends TestCase
         $this->get(route('journal.show', 'nonexistent-slug'))->assertNotFound();
     }
 
+    public function test_journal_show_renders_featured_image_as_webp_picture(): void
+    {
+        $media = Media::factory()->create(['disk' => 'public', 'path' => 'media/feature.png', 'mime_type' => 'image/png']);
+        $post = JournalPost::factory()->published()->create(['featured_image_id' => $media->id]);
+
+        $response = $this->get(route('journal.show', $post->slug));
+
+        $response->assertOk();
+        $response->assertSee('type="image/webp"', false);
+        $response->assertSee('media/feature.webp', false);
+    }
+
+    public function test_journal_index_renders_featured_image_as_webp_picture(): void
+    {
+        $media = Media::factory()->create(['disk' => 'public', 'path' => 'media/list.png', 'mime_type' => 'image/png']);
+        JournalPost::factory()->published()->create(['featured_image_id' => $media->id]);
+
+        $response = $this->get(route('journal.index'));
+
+        $response->assertOk();
+        $response->assertSee('media/list.webp', false);
+    }
+
     // ── Public: RSS feed ────────────────────────────────────────────────────
 
     public function test_rss_feed_returns_xml_with_published_posts(): void

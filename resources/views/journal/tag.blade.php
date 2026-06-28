@@ -40,9 +40,12 @@
             <article>
                 <a href="{{ route('journal.show', $post->slug) }}" class="block mb-5">
                     @if($post->featured_image_id && $post->featuredImage)
-                        <img src="{{ $post->featuredImage->url() }}"
-                             alt="{{ $post->title }}"
-                             class="w-full aspect-video object-cover">
+                        <picture>
+                            <source srcset="{{ preg_replace('/\.(png|jpe?g)$/i', '.webp', $post->featuredImage->url()) }}" type="image/webp">
+                            <img src="{{ $post->featuredImage->url() }}"
+                                 alt="{{ $post->title }}"
+                                 class="w-full aspect-video object-cover">
+                        </picture>
                     @else
                         <div class="w-full aspect-video bg-walnut/10 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.75" stroke="currentColor" class="w-10 h-10 text-walnut/30">

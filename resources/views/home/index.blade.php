@@ -5,7 +5,7 @@
 
 @push('preload')
 <link rel="preload" as="image" fetchpriority="high"
-      href="{{ Storage::disk('r2')->url('products/lifestyle-1.webp') }}"
+      href="{{ Storage::disk('r2')->url('media/lifestyle-1.webp') }}"
       type="image/webp">
 @endpush
 
@@ -43,9 +43,9 @@
             <div class="relative">
                 <div class="aspect-square overflow-hidden">
                     <picture>
-                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.webp') }}"
+                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/lifestyle-1.webp') }}"
                                 type="image/webp">
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/lifestyle-1.jpg') }}"
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/lifestyle-1.jpg') }}"
                              alt="Handcrafted wooden box at a craft market"
                              fetchpriority="high"
                              width="800" height="800"
@@ -150,8 +150,8 @@
             <div class="relative">
                 <div class="aspect-square overflow-hidden">
                     <picture>
-                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.webp') }}" type="image/webp">
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('products/BOX-HRT-BBPLY3-01-IMG16.jpg') }}"
+                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/BOX-HRT-BBPLY3-01-IMG16.webp') }}" type="image/webp">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/BOX-HRT-BBPLY3-01-IMG16.jpg') }}"
                              alt="Handcrafted laser-cut heart box with floral design"
                              class="w-full h-full object-cover">
                     </picture>
@@ -198,10 +198,13 @@
                     <article>
                         {{-- Image --}}
                         <a href="{{ route('journal.show', $post->slug) }}" class="block mb-5">
-                            @if(isset($post->featured_image) && $post->featured_image)
-                                <img src="{{ $post->featuredImage?->url() }}"
-                                     alt="{{ $post->title }}"
-                                     class="w-full aspect-video object-cover">
+                            @if($post->featured_image_id && $post->featuredImage)
+                                <picture>
+                                    <source srcset="{{ preg_replace('/\.(png|jpe?g)$/i', '.webp', $post->featuredImage?->url()) }}" type="image/webp">
+                                    <img src="{{ $post->featuredImage?->url() }}"
+                                         alt="{{ $post->title }}"
+                                         class="w-full aspect-video object-cover">
+                                </picture>
                             @else
                                 <div class="w-full aspect-video bg-walnut/10 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="0.75" stroke="currentColor" class="w-10 h-10 text-walnut/30">
