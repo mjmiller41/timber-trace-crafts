@@ -12,6 +12,32 @@
 
     Pass multiple=true to allow selecting more than one file.
 --}}
+@once
+    @push('head')
+        <style>
+            .mp-tab {
+                appearance: none;
+                border: none;
+                background: none;
+                padding: 0.75rem 1.1rem;
+                margin-bottom: -1px;
+                font-family: inherit;
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: #6b7280;
+                cursor: pointer;
+                border-bottom: 3px solid transparent;
+                transition: color 0.15s, border-color 0.15s, background 0.15s;
+            }
+            .mp-tab:hover { color: #2C4C3B; background: #f9fafb; }
+            .mp-tab.is-active {
+                color: #2C4C3B;
+                border-bottom-color: #2C4C3B;
+                background: #f6f8f6;
+            }
+        </style>
+    @endpush
+@endonce
 <div
     x-data="mediaPickerModal({
         channel: @js($channel),
@@ -30,25 +56,21 @@
         style="background: #fff; width: min(920px, 94vw); max-height: 88vh; border-radius: 0.5rem; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);"
     >
         {{-- Header + tabs --}}
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid #e5e7eb; flex-shrink: 0;">
-            <div style="display: flex; gap: 0.5rem;">
-                <button type="button" @click="tab = 'library'"
-                    :style="tab === 'library' ? 'background:#2C4C3B;color:#fff' : 'background:#f3f4f6;color:#374151'"
-                    style="border: none; padding: 0.4rem 0.9rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.8125rem; font-weight: 600;">
-                    Library
+        <div style="display: flex; align-items: stretch; justify-content: space-between; padding: 0 1.25rem; border-bottom: 1px solid #e5e7eb; flex-shrink: 0;">
+            <div style="display: flex; gap: 0.25rem;" role="tablist">
+                <button type="button" role="tab" @click="tab = 'library'" class="mp-tab" :class="{ 'is-active': tab === 'library' }">
+                    &#x1F5BC;&#xFE0F; Library
                 </button>
-                <button type="button" @click="tab = 'upload'"
-                    :style="tab === 'upload' ? 'background:#2C4C3B;color:#fff' : 'background:#f3f4f6;color:#374151'"
-                    style="border: none; padding: 0.4rem 0.9rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.8125rem; font-weight: 600;">
-                    Upload
+                <button type="button" role="tab" @click="tab = 'upload'" class="mp-tab" :class="{ 'is-active': tab === 'upload' }">
+                    &#x2B06;&#xFE0F; Upload
                 </button>
             </div>
             <button type="button" @click="close()" title="Close"
-                style="background: none; border: none; font-size: 1.5rem; line-height: 1; color: #6b7280; cursor: pointer;">&times;</button>
+                style="align-self: center; background: none; border: none; font-size: 1.5rem; line-height: 1; color: #6b7280; cursor: pointer;">&times;</button>
         </div>
 
         {{-- Body --}}
-        <div style="flex: 1; overflow-y: auto; padding: 1.25rem;">
+        <div style="flex: 1; overflow-y: auto; padding: 1.25rem;" @scroll="onScroll($event)">
 
             {{-- Library tab --}}
             <div x-show="tab === 'library'">
@@ -76,13 +98,8 @@
                 <p x-show="!loading && items.length === 0" style="text-align: center; color: #9ca3af; padding: 2rem 0; font-size: 0.875rem;">
                     No media found.
                 </p>
+                {{-- Infinite scroll: more pages load automatically as you scroll. --}}
                 <p x-show="loading" style="text-align: center; color: #6b7280; padding: 1rem 0; font-size: 0.8125rem;">Loading…</p>
-
-                <div x-show="page < lastPage" style="text-align: center; margin-top: 1rem;">
-                    <button type="button" @click="loadMore()" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;">
-                        Load more
-                    </button>
-                </div>
             </div>
 
             {{-- Upload tab --}}

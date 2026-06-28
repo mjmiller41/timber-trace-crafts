@@ -110,6 +110,15 @@ Alpine.data("mediaPickerModal", (config = {}) => ({
         this.fetchLibrary(false);
     },
 
+    // Infinite scroll — load the next page as the list nears the bottom.
+    onScroll(event) {
+        if (this.tab !== "library") return;
+        const el = event.target;
+        if (el.scrollHeight - el.scrollTop - el.clientHeight < 250) {
+            this.loadMore();
+        }
+    },
+
     toggle(item) {
         const idx = this.selected.findIndex((m) => m.id === item.id);
         if (idx > -1) {
