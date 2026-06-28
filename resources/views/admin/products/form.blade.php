@@ -275,6 +275,81 @@
                 </div>
             </div>
 
+            {{-- Media --}}
+            @php
+                $initialProductMedia = $isEditing
+                    ? $product->media->map(fn ($pm) => [
+                        'media_id'   => $pm->media_id,
+                        'url'        => $pm->media?->url(),
+                        'name'       => $pm->media?->original_name,
+                        'alt_text'   => $pm->alt_text,
+                        'is_primary' => (bool) $pm->is_primary,
+                        'variant_id' => $pm->variant_id ?? '',
+                    ])->values()->toArray()
+                    : [];
+                $productVariantOptions = $isEditing
+                    ? $product->variationTypes->flatMap(fn ($t) => $t->variants->map(fn ($v) => [
+                        'id'    => $v->id,
+                        'label' => trim(($t->name ? $t->name . ': ' : '') . $v->label),
+                    ]))->values()->toArray()
+                    : [];
+            @endphp
+
+            <div class="admin-card" x-data="productMediaManager({ initial: {{ Js::from($initialProductMedia) }}, variants: {{ Js::from($productVariantOptions) }} })">
+                <div class="admin-card-header">
+                    <span class="admin-card-title">Media</span>
+                    <button type="button" class="admin-btn admin-btn-outline" style="font-size: 0.8125rem;" @click="openPicker()">
+                        &#x2B; Add images
+                    </button>
+                </div>
+
+                <p x-show="media.length === 0" style="font-size: 0.8125rem; color: #9ca3af; margin: 0; padding: 1rem 0; text-align: center;">
+                    No images yet — click <strong>Add images</strong> to upload new files or choose from the library.
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 0.625rem;">
+                    <template x-for="(m, i) in media" :key="m.media_id + '-' + (m.variant_id || '0')">
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start; border: 1px solid #e5e7eb; border-radius: 0.375rem; padding: 0.625rem;"
+                            :style="m.is_primary ? 'border-color:#2C4C3B; background:#f6f8f6' : ''">
+                            <img :src="m.url" :alt="m.alt_text || m.name"
+                                style="width: 64px; height: 64px; object-fit: cover; border-radius: 0.25rem; flex-shrink: 0;">
+
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.375rem; min-width: 0;">
+                                <input type="text" class="admin-input" :name="'media[' + i + '][alt_text]'" x-model="m.alt_text"
+                                    placeholder="Alt text (describe the image)" maxlength="255" style="margin: 0; font-size: 0.8125rem;">
+
+                                <div style="display: flex; gap: 0.625rem; align-items: center; flex-wrap: wrap;">
+                                    <template x-if="variants.length">
+                                        <select class="admin-input" :name="'media[' + i + '][variant_id]'" x-model="m.variant_id"
+                                            style="margin: 0; max-width: 220px; font-size: 0.8125rem;">
+                                            <option value="">All variants (product-level)</option>
+                                            <template x-for="v in variants" :key="v.id">
+                                                <option :value="v.id" x-text="v.label"></option>
+                                            </template>
+                                        </select>
+                                    </template>
+                                    <label style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.8125rem; cursor: pointer;">
+                                        <input type="radio" :checked="m.is_primary" @change="makePrimary(i)"> Primary
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; flex-shrink: 0;">
+                                <button type="button" @click="moveUp(i)" :disabled="i === 0" title="Move up"
+                                    class="admin-btn admin-btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.75rem;">&#x2191;</button>
+                                <button type="button" @click="moveDown(i)" :disabled="i === media.length - 1" title="Move down"
+                                    class="admin-btn admin-btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.75rem;">&#x2193;</button>
+                                <button type="button" @click="remove(i)" title="Remove"
+                                    class="admin-btn admin-btn-danger" style="padding: 0.2rem 0.45rem; font-size: 0.75rem;">&times;</button>
+                            </div>
+
+                            <input type="hidden" :name="'media[' + i + '][media_id]'" :value="m.media_id">
+                            <input type="hidden" :name="'media[' + i + '][is_primary]'" :value="m.is_primary ? 1 : 0">
+                        </div>
+                    </template>
+                </div>
+            </div>
+
             {{-- Variations --}}
             @php
                 $variationTypeData = [];
@@ -875,18 +950,6 @@
                 </select>
             </div>
 
-            {{-- Media Note --}}
-            <div class="admin-card" style="background: #f9fafb; border-style: dashed;">
-                <div style="font-size: 0.8125rem; color: #6b7280; line-height: 1.6;">
-                    <div style="font-weight: 600; color: #333; margin-bottom: 0.375rem;">&#x1F4F7; Media</div>
-                    Media management coming in Phase 2 — upload images via the Media Library and attach to products.
-                    @if($isEditing)
-                        <br><br>
-                        <a href="{{ route('admin.media.index') }}" style="color: #2C4C3B; font-weight: 600;">Go to Media Library →</a>
-                    @endif
-                </div>
-            </div>
-
             {{-- Submit Actions --}}
             <div class="admin-card">
                 <div style="display: flex; flex-direction: column; gap: 0.625rem;">
@@ -918,6 +981,8 @@
         {{-- end right column --}}
 
     </div>
+
+    <x-admin.media-picker channel="product-media" :multiple="true" />
 </form>
 
 @if($isEditing)

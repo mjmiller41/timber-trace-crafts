@@ -103,11 +103,17 @@ class ProductController extends Controller
             'variation_types.*.name' => ['nullable', 'string', 'max:50'],
             'variation_types.*.options' => ['nullable', 'array'],
             'variation_types.*.options.*.price' => ['nullable', 'numeric', 'min:0'],
+            'media' => ['nullable', 'array'],
+            'media.*.media_id' => ['required', 'integer', 'exists:media,id'],
+            'media.*.variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
+            'media.*.alt_text' => ['nullable', 'string', 'max:255'],
+            'media.*.is_primary' => ['nullable', 'boolean'],
         ]);
 
         $tags = $validated['tags'] ?? [];
         $variationTypes = $request->input('variation_types', []);
-        unset($validated['tags'], $validated['variation_types']);
+        $mediaRows = $request->input('media', []);
+        unset($validated['tags'], $validated['variation_types'], $validated['media']);
 
         $validated = $this->processEtsyFields($validated);
 
@@ -115,6 +121,7 @@ class ProductController extends Controller
         $product->saveQuietly();
         $product->tags()->sync($tags);
         $this->syncVariationTypes($product, $variationTypes);
+        $this->syncProductMedia($product, $mediaRows);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product created.');
 
@@ -133,7 +140,12 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['variationTypes.variants', 'variants', 'tags', 'media']);
+        $product->load([
+            'variationTypes.variants',
+            'variants',
+            'tags',
+            'media' => fn ($q) => $q->orderBy('sort_order')->with('media'),
+        ]);
         $categories = Category::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
         $categoryTaxonomyMap = $categories->pluck('etsy_taxonomy_id', 'id')->filter()->toArray();
@@ -202,11 +214,17 @@ class ProductController extends Controller
             'variation_types.*.name' => ['nullable', 'string', 'max:50'],
             'variation_types.*.options' => ['nullable', 'array'],
             'variation_types.*.options.*.price' => ['nullable', 'numeric', 'min:0'],
+            'media' => ['nullable', 'array'],
+            'media.*.media_id' => ['required', 'integer', 'exists:media,id'],
+            'media.*.variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
+            'media.*.alt_text' => ['nullable', 'string', 'max:255'],
+            'media.*.is_primary' => ['nullable', 'boolean'],
         ]);
 
         $tags = $validated['tags'] ?? [];
         $variationTypes = $request->input('variation_types', []);
-        unset($validated['tags'], $validated['variation_types']);
+        $mediaRows = $request->input('media', []);
+        unset($validated['tags'], $validated['variation_types'], $validated['media']);
 
         $validated = $this->processEtsyFields($validated);
 
@@ -214,6 +232,7 @@ class ProductController extends Controller
         $product->fill($validated)->saveQuietly();
         $product->tags()->sync($tags);
         $this->syncVariationTypes($product, $variationTypes);
+        $this->syncProductMedia($product, $mediaRows);
 
         $redirect = redirect()->route('admin.products.edit', $product)->with('success', 'Product updated.');
 
@@ -305,6 +324,57 @@ class ProductController extends Controller
         // Delete types and variants not present in the submission
         $product->variationTypes()->whereNotIn('id', $submittedTypeIds)->delete();
         $product->variants()->whereNotIn('id', $submittedVariantIds)->delete();
+    }
+
+    /**
+     * Reconcile a product's media rows from the submitted form data. Rows are
+     * persisted in submission order (sort_order), keyed by media + variant so
+     * the same image can be attached product-level and/or per-variant. Exactly
+     * one row is flagged primary; any existing rows not resubmitted are removed.
+     *
+     * @param  array<int, array<string, mixed>>  $mediaRows
+     */
+    private function syncProductMedia(Product $product, array $mediaRows): void
+    {
+        $keepIds = [];
+        $primaryAssigned = false;
+        $validVariantIds = $product->variants()->pluck('id')->flip();
+
+        foreach (array_values($mediaRows) as $sortOrder => $row) {
+            $mediaId = (int) ($row['media_id'] ?? 0);
+            if ($mediaId === 0) {
+                continue;
+            }
+
+            // Fall back to product-level if the variant was removed in this same save.
+            $variantId = ! empty($row['variant_id']) ? (int) $row['variant_id'] : null;
+            if ($variantId !== null && ! $validVariantIds->has($variantId)) {
+                $variantId = null;
+            }
+            $isPrimary = ! $primaryAssigned && (bool) ($row['is_primary'] ?? false);
+
+            $productMedia = $product->media()->updateOrCreate(
+                ['media_id' => $mediaId, 'variant_id' => $variantId],
+                [
+                    'sort_order' => $sortOrder,
+                    'is_primary' => $isPrimary,
+                    'alt_text' => $row['alt_text'] ?? null,
+                ],
+            );
+
+            if ($isPrimary) {
+                $primaryAssigned = true;
+            }
+
+            $keepIds[] = $productMedia->id;
+        }
+
+        $product->media()->whereNotIn('id', $keepIds)->delete();
+
+        // Guarantee a primary exists when the product has any media.
+        if (! $primaryAssigned && $product->media()->exists()) {
+            $product->media()->orderBy('sort_order')->first()?->update(['is_primary' => true]);
+        }
     }
 
     private function fetchEtsySections(): array

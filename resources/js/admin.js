@@ -196,24 +196,74 @@ Alpine.data("mediaPickerModal", (config = {}) => ({
     },
 }));
 
-// Image reorder for product media (drag hint only — actual DnD is a server round-trip)
-Alpine.data("mediaOrderer", (items = []) => ({
-    items,
+// Product media manager — attach images via the shared picker, set a primary,
+// reorder, assign per-variant, edit alt text. Submits as media[i][...] fields.
+Alpine.data("productMediaManager", (config = {}) => ({
+    media: config.initial ?? [],
+    variants: config.variants ?? [],
+
+    init() {
+        window.addEventListener("media-picker:picked:product-media", (e) => {
+            e.detail.items.forEach((item) => {
+                if (!item.is_image) return;
+                this.media.push({
+                    media_id: item.id,
+                    url: item.url,
+                    name: item.name,
+                    alt_text: item.alt ?? "",
+                    is_primary: false,
+                    variant_id: "",
+                });
+            });
+            this.ensurePrimary();
+        });
+        this.ensurePrimary();
+    },
+
+    openPicker() {
+        window.dispatchEvent(new CustomEvent("media-picker:open:product-media"));
+    },
+
+    makePrimary(index) {
+        this.media.forEach((m, i) => {
+            m.is_primary = i === index;
+        });
+    },
+
+    remove(index) {
+        const wasPrimary = this.media[index].is_primary;
+        this.media.splice(index, 1);
+        if (wasPrimary) this.ensurePrimary();
+    },
+
     moveUp(index) {
         if (index > 0) {
-            [this.items[index - 1], this.items[index]] = [
-                this.items[index],
-                this.items[index - 1],
+            [this.media[index - 1], this.media[index]] = [
+                this.media[index],
+                this.media[index - 1],
             ];
         }
     },
+
     moveDown(index) {
-        if (index < this.items.length - 1) {
-            [this.items[index], this.items[index + 1]] = [
-                this.items[index + 1],
-                this.items[index],
+        if (index < this.media.length - 1) {
+            [this.media[index], this.media[index + 1]] = [
+                this.media[index + 1],
+                this.media[index],
             ];
         }
+    },
+
+    // Guarantee exactly one primary whenever rows exist.
+    ensurePrimary() {
+        if (this.media.length && !this.media.some((m) => m.is_primary)) {
+            this.media[0].is_primary = true;
+        }
+    },
+
+    variantLabel(id) {
+        const v = this.variants.find((x) => String(x.id) === String(id));
+        return v ? v.label : "";
     },
 }));
 

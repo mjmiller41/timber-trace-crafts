@@ -12,9 +12,9 @@
 
 ### Product media (replaces the Phase 2 placeholder)
 
-- [ ] **[High]** Product form media section — `resources/views/admin/products/form.blade.php:878`. Pick/upload images, set primary, reorder (wire up the unused `mediaOrderer`), per-image alt text. Remove the "coming in Phase 2" placeholder card.
-- [ ] **[High]** Per-variant image assignment using `product_media.variant_id` — assign specific images to specific variants in the product form.
-- [ ] **[High]** Persist product media in `ProductController@store/@update` — attach/detach `product_media` rows with `sort_order`, `is_primary`, `variant_id`; add validation.
+- [x] **[High]** Product form media section — `resources/views/admin/products/form.blade.php`. Pick/upload images, set primary, reorder (via `productMediaManager`), per-image alt text. Removed the "coming in Phase 2" placeholder card.
+- [x] **[High]** Per-variant image assignment using `product_media.variant_id` — assign specific images to specific variants in the product form.
+- [x] **[High]** Persist product media in `ProductController@store/@update` — attach/detach `product_media` rows with `sort_order`, `is_primary`, `variant_id`, `alt_text`; validated, with one primary enforced.
 
 ### Storage pipeline (R2 + WebP)
 
