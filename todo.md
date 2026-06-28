@@ -140,5 +140,6 @@
 - [x] **[Low]** Guest email leaked in confirmation URL query string — `app/Http/Controllers/CheckoutController.php:254`
       Fixed: guest confirmation access is now authorised via `session('confirmed_orders')`; the `?email=` param is gone. (Note: order emails still link to `/order-status?...&email=` — separate pre-existing leak, see below.)
       Fix: Redirect passes `?email=` (lands in access logs, history, Referer). Stash email/authorization in session or sign the confirmation URL instead.
-- [ ] **[Low]** First registered user silently promoted to admin — `app/Http/Controllers/AuthController.php:56`
+- [x] **[Low]** First registered user silently promoted to admin — `app/Http/Controllers/AuthController.php:56`
+      Fixed: registration always creates a `customer`; admins are promoted explicitly via the new `php artisan app:make-admin {email}` command.
       Fix: `register()` grants `role = 'admin'` when `User::count() === 0`. If `/register` is reachable before an admin is seeded, an outsider can claim admin. Seed the admin explicitly and remove auto-promotion, or gate behind a one-time setup token.

@@ -53,13 +53,13 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()],
         ]);
 
-        $isFirstUser = User::count() === 0;
-
+        // Always register as a customer. Admins are created explicitly via the
+        // `app:make-admin` command — never by being first to hit /register.
         $user = User::create([
             'name' => $validated['name'],
             'email' => strtolower($validated['email']),
             'password' => Hash::make($validated['password']),
-            'role' => $isFirstUser ? 'admin' : 'customer',
+            'role' => 'customer',
         ]);
 
         event(new Registered($user));

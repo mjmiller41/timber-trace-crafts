@@ -11,13 +11,10 @@ class AdminSeeder extends Seeder
      *
      * NOTE: Do NOT seed admin credentials here.
      *
-     * The FIRST user to register on the site is automatically elevated to the
-     * "admin" role (see AGENTS.md). To create your admin account, simply
-     * register through the normal sign-up flow. No seed data is needed.
-     *
-     * If you need to manually promote an existing user to admin, run:
-     *   php artisan tinker
-     *   >>> \App\Models\User::find(1)->update(['role' => 'admin']);
+     * Registration always creates a "customer"; there is no automatic
+     * first-user elevation. To create your admin account, register through the
+     * normal sign-up flow, then explicitly promote that user:
+     *   php artisan app:make-admin you@example.com
      */
     public function run(): void
     {

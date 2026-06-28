@@ -7,7 +7,7 @@ These guidelines document project-specific requirements, database behaviors, and
 ## 🔑 Database Credentials & Environment Setup
 - **Accessing Environment Variables:** Always use `getenv()` instead of the `$_ENV` superglobal in PHP files. By default, the PHP CLI has `variables_order` set to ignore `$_ENV` mapping, which breaks local environment configuration.
 - **Local Credentials:** Local development is configured for the MySQL user `admin` with password `admin` on the database `timber_trace_crafts`.
-- **First Admin Auto-elevation:** Do not pre-seed admin credentials. The codebase automatically elevates the first registered user to `admin` role ([AuthController.php](file:///app/Controllers/AuthController.php#L69-L74)).
+- **Creating an Admin:** Registration always creates a `customer`; there is no automatic first-user elevation. Register normally, then promote explicitly with `php artisan app:make-admin you@example.com`.
 
 ---
 
