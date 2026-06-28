@@ -9,7 +9,19 @@
 @push('head')
 <link rel="stylesheet" href="{{ asset('vendor/zen-composer.min.css') }}">
 <style>
-    .toastui-editor-defaultUI { font-family: 'Montserrat', sans-serif; }
+    /* Fluid editor shell: fills the viewport between sensible min/max bounds —
+       no hardcoded pixel height. The editor itself is told height: 100%. */
+    .zencomposer-shell {
+        display: flex;
+        flex-direction: column;
+        min-height: 22rem;
+        height: clamp(22rem, 60vh, 48rem);
+    }
+    .zencomposer-shell .toastui-editor-defaultUI {
+        flex: 1;
+        min-height: 0;
+        font-family: 'Montserrat', sans-serif;
+    }
     .toastui-editor-toolbar { border-bottom: 1px solid #e5e7eb; }
 </style>
 @endpush
@@ -33,7 +45,11 @@
         // x-ignore keeps Alpine's mutation observer out of the editor subtree
         var container = document.createElement('div');
         container.id = targetId + '-zencomposer';
+        container.className = 'zencomposer-shell';
         container.setAttribute('x-ignore', '');
+        @isset($height)
+            container.style.height = {{ Js::from($height) }};
+        @endisset
         textarea.parentNode.insertBefore(container, textarea);
         textarea.style.display = 'none';
 
@@ -42,7 +58,7 @@
         var editor = window.FableEditor.init({
             el: container,
             initialValue: '',          // start blank, then inject HTML below
-            height: '{{ $height ?? "480px" }}',
+            height: '100%',            // fill the fluid .zencomposer-shell
         });
 
         // Inject existing HTML content into WYSIWYG mode

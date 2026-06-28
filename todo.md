@@ -27,8 +27,8 @@
 
 ### Editor responsiveness
 
-- [ ] **[Medium]** Make ZenComposer fluid — replace the hardcoded `480px` height (`components/admin/zencomposer.blade.php:45`) with a flex layout that fills available space (sensible min/max), no hardcoded px.
-- [ ] **[Low]** Harden the TUI image-editor overlay across breakpoints (sidebar/canvas behavior on small screens) — `admin/media/index.blade.php:360`.
+- [x] **[Medium]** Make ZenComposer fluid — replaced the hardcoded `480px` height with a `.zencomposer-shell` flex container (`clamp(22rem, 60vh, 48rem)`, min 22rem) and `height: '100%'` on the editor.
+- [x] **[Low]** Harden the TUI image-editor overlay across breakpoints — added a `max-width: 640px` rule that stacks the canvas above a full-width control bar — `admin/media/index.blade.php`.
 
 ### Cohesion & tests
 
