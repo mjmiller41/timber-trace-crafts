@@ -4,39 +4,6 @@
 
 ---
 
-## Image & Media System
-
-### Shared media picker
-
-- [x] **[High]** Build reusable `<x-admin.media-picker>` modal wrapping the `mediaPickerModal` Alpine component — tabbed UI to **upload new** OR **browse/search the existing library**; emits selected media via the `media-picker:picked:{channel}` event. Reused by product form and journal featured-image field. Backed by a JSON branch on `admin.media.index`.
-
-### Product media (replaces the Phase 2 placeholder)
-
-- [x] **[High]** Product form media section — `resources/views/admin/products/form.blade.php`. Pick/upload images, set primary, reorder (via `productMediaManager`), per-image alt text. Removed the "coming in Phase 2" placeholder card.
-- [x] **[High]** Per-variant image assignment using `product_media.variant_id` — assign specific images to specific variants in the product form.
-- [x] **[High]** Persist product media in `ProductController@store/@update` — attach/detach `product_media` rows with `sort_order`, `is_primary`, `variant_id`, `alt_text`; validated, with one primary enforced.
-
-### Storage pipeline (R2 + WebP)
-
-- [x] **[High]** Push uploads to the `r2` disk on store (MediaController + JournalController upload paths) instead of the local `public` disk; record the correct `disk` on Media. (Uploads route through `MediaUploader` to the configured `FILESYSTEM_DISK`, which is `r2` in prod.)
-- [x] **[High]** Generate WebP variants on upload; ensure `Media::url()` + the `primary_image_url`/`<picture>` webp derivation are consistent end-to-end. (`MediaUploader` writes a `.webp` sibling at the path the frontend `<picture>` derives.)
-
-### Journal featured image
-
-- [x] **[Medium]** Swap the journal featured-image direct-upload field for the shared media picker (upload OR choose from library), keeping `featured_image_id` wiring — `resources/views/admin/journal/form.blade.php`.
-
-### Editor responsiveness
-
-- [x] **[Medium]** Make ZenComposer fluid — replaced the hardcoded `480px` height with a `.zencomposer-shell` flex container (`clamp(22rem, 60vh, 48rem)`, min 22rem) and `height: '100%'` on the editor.
-- [x] **[Low]** Harden the TUI image-editor overlay across breakpoints — added a `max-width: 640px` rule that stacks the canvas above a full-width control bar — `admin/media/index.blade.php`.
-
-### Cohesion & tests
-
-- [x] **[Medium]** Verify product cards, product page, wishlist, and journal all render the new media via the `primary_image_url` + `<picture>` webp pattern consistently. (Product views already consistent; brought journal show/index/tag + home cards onto the webp `<picture>` pattern and fixed broken `featured_image` guards → `featured_image_id`.)
-- [x] **[Medium]** Feature tests — product media attach/detach/reorder/primary, per-variant assignment, journal picker, R2 upload + WebP variant generation. (Full suite: 112 passing.)
-
----
-
 ## Blog Content (plan: `.claude/plans/blog_content_strategy.md`)
 
 ### FLOW 90-Day Calendar (gift-intent first)
@@ -115,6 +82,24 @@
 ---
 
 ## Archived
+
+### UI / Frontend Polish — completed 2026-06-28
+
+- [x] **[Medium]** Fix page-load FOUC — added `x-cloak` to initially-hidden conditional `x-show` elements (admin sidebar nav labels, cart/checkout/shop toggles, order-selection bar, coupon/journal/product/media form panels) so they no longer flash visible before Alpine boots. The `[x-cloak]` CSS rule was already present but had not been applied to these elements; skipped any already guarded by `x-cloak` or inline `display:none`.
+
+### Image & Media System — completed 2026-06-28
+
+- [x] **[High]** Build reusable `<x-admin.media-picker>` modal wrapping the `mediaPickerModal` Alpine component — tabbed UI to **upload new** OR **browse/search the existing library**; emits selected media via the `media-picker:picked:{channel}` event. Reused by product form and journal featured-image field. Backed by a JSON branch on `admin.media.index`.
+- [x] **[High]** Product form media section — `resources/views/admin/products/form.blade.php`. Pick/upload images, set primary, reorder (via `productMediaManager`), per-image alt text. Removed the "coming in Phase 2" placeholder card.
+- [x] **[High]** Per-variant image assignment using `product_media.variant_id` — assign specific images to specific variants in the product form.
+- [x] **[High]** Persist product media in `ProductController@store/@update` — attach/detach `product_media` rows with `sort_order`, `is_primary`, `variant_id`, `alt_text`; validated, with one primary enforced.
+- [x] **[High]** Push uploads to the `r2` disk on store (MediaController + JournalController upload paths) instead of the local `public` disk; record the correct `disk` on Media. (Uploads route through `MediaUploader` to the configured `FILESYSTEM_DISK`, which is `r2` in prod.)
+- [x] **[High]** Generate WebP variants on upload; ensure `Media::url()` + the `primary_image_url`/`<picture>` webp derivation are consistent end-to-end. (`MediaUploader` writes a `.webp` sibling at the path the frontend `<picture>` derives.)
+- [x] **[Medium]** Swap the journal featured-image direct-upload field for the shared media picker (upload OR choose from library), keeping `featured_image_id` wiring — `resources/views/admin/journal/form.blade.php`.
+- [x] **[Medium]** Make ZenComposer fluid — replaced the hardcoded `480px` height with a `.zencomposer-shell` flex container (`clamp(22rem, 60vh, 48rem)`, min 22rem) and `height: '100%'` on the editor.
+- [x] **[Low]** Harden the TUI image-editor overlay across breakpoints — added a `max-width: 640px` rule that stacks the canvas above a full-width control bar — `admin/media/index.blade.php`.
+- [x] **[Medium]** Verify product cards, product page, wishlist, and journal all render the new media via the `primary_image_url` + `<picture>` webp pattern consistently. (Product views already consistent; brought journal show/index/tag + home cards onto the webp `<picture>` pattern and fixed broken `featured_image` guards → `featured_image_id`.)
+- [x] **[Medium]** Feature tests — product media attach/detach/reorder/primary, per-variant assignment, journal picker, R2 upload + WebP variant generation. (Full suite: 112 passing.)
 
 ### Security — completed 2026-06-28
 
