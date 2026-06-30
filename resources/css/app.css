@@ -332,7 +332,7 @@
        ornament, thresholded to a clean alpha silhouette. */
     .fretwork-divider {
         width: 100%;
-        aspect-ratio: 1200 / 144;
+        height: clamp(48px, 7vw, 96px);
         background-color: currentColor;
         -webkit-mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
         mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
