@@ -10,6 +10,24 @@
 - **Cloudflare R2** object storage (`r2` disk, S3 driver) for product images; `FILESYSTEM_DISK` selects the default disk.
 - IMAP inbox for incoming mail.
 
+## Commands
+
+- **Tests**: `php artisan test --compact` (all) · `php artisan test --compact tests/Feature/Admin/OrderTest.php` (one file) · `php artisan test --compact --filter=testName` (one test). `composer test` clears config first. Suites are `Unit` and `Feature` (incl. `Feature/Admin`); they run on sqlite `:memory:` with the `sync` queue and `array` cache/session/mail — no external services needed.
+- **Format**: `vendor/bin/pint --dirty --format agent` before finalizing any PHP change (never `--test`).
+- **Frontend**: `npm run build` (prod) · `npm run dev` (watch) · `composer run dev` (full local stack: serve + queue + pail + vite). First-time bootstrap: `composer setup`.
+- **Project artisan commands** (not in the Boost block):
+  - `app:make-admin {email}` — promote an existing user to admin.
+  - `etsy:sync-products` · `etsy:sync-orders` · `etsy:sync-inventory` · `etsy:diff` · `etsy:export` · `etsy:link` — Etsy sync surface (needs a connected shop + a running queue worker).
+  - `media:backfill-webp` · `media:migrate-products` · `media:sync` · `media:upload-to-r2` — image/media maintenance.
+  - `db:export-hostinger` · `db:import-hostinger` — move the local SQLite DB to/from the Hostinger MySQL host.
+
+## Architecture at a glance
+
+- **Three request surfaces, one `routes/web.php`**: the public **storefront** (home, `/shop`, `/product/{slug}`, cart, the `throttle:60,1` checkout group, `/journal` blog, `/contact`, plus a catch-all `/{slug}` resolving CMS `Page`s); the **`account/`** area (`auth`) for orders, wishlist, addresses, profile; and the **`admin/`** back-office (`auth`+`admin`) covering orders, products, media, customers, coupons, reviews, the IMAP inbox/messages, settings, shipping, and reports.
+- **Middleware** (`bootstrap/app.php`): global `SecurityHeaders`; web-group `RotateCsrfOnRoleEscalation`; aliases `admin` (`AdminMiddleware`) and `honeypot` (`HoneypotCheck`, on public form POSTs); CSRF is excluded for `webhooks/etsy`; proxies are trusted wildcard only in `local`.
+- **Services layer** (`app/Services`): `CartService` (session-backed cart), `StripeService`, `ShippingService`, `TaxService`, `ImapService` (mail → admin inbox), `BlogDraftParser` (journal), `Media/MediaUploader`, and the `Etsy/*` suite (`EtsyClient`, `EtsyOAuthService`, per-domain `*Sync` services returning `SyncResult`). Etsy work flows through the console commands above **plus** the `SyncProductToEtsy` / `ImportEtsyOrder` queue jobs; `ProductObserver` pushes product edits to Etsy — so a **queue worker is required** for that path.
+- **Global view data**: `AppServiceProvider`'s `view()->composer('*')` injects store name/tagline/logo/socials (from the `Setting` key-value store, cached forever via `Cache::rememberForever`) and `cartCount` into every view. `Setting::get(key, default)` is the config accessor — bust the matching `setting.*` cache key when a setting changes. Intervention `ImageManager` (GD driver) is bound as a singleton.
+
 ## Images (common footgun)
 
 - Get a product's image URL via the **`$product->primary_image_url`** accessor (`getPrimaryImageUrlAttribute`) — never reach for `primaryImage->url`, which does not exist.

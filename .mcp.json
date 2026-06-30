@@ -1,9 +1,8 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "wsl.exe",
+            "command": "/usr/bin/php",
             "args": [
-                "/usr/bin/php8.3",
                 "/home/michael/Code/Projects/timber-trace-crafts/artisan",
                 "boost:mcp"
             ]
