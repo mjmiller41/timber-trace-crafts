@@ -323,21 +323,6 @@
         color: rgba(244, 241, 234, 0.7);
     }
 
-    /* ---- Signature: laser-cut fretwork ---------------------------------- */
-    /* A single centered botanical-filigree flourish rendered via CSS mask so it
-       tints to currentColor — set the tone with a text-color class (cream on the
-       green bands, forest-green on cream). The mask lives in resources/images and
-       is bundled by Vite, so its url() resolves correctly under both the dev
-       server and the production build. Source render: an AI-generated laser-cut
-       ornament, thresholded to a clean alpha silhouette. */
-    .fretwork-divider {
-        width: 100%;
-        height: clamp(48px, 7vw, 96px);
-        background-color: currentColor;
-        -webkit-mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
-        mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
-    }
-
     /* ---- Signature: product-card laser-kerf edge ------------------------ */
     /* Four faint corner ticks evoking laser registration/kerf marks, replacing
        the generic hairline. They sharpen on hover alongside the engrave sweep. */

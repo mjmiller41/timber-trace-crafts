@@ -20,7 +20,7 @@
 
 ### Priority 3 — Signature element (the core differentiator)
 
-- [x] **[Medium]** Create a laser-cut fretwork SVG — `public/images/fretwork-tile.svg`, rendered via CSS mask (`.fretwork-divider`) so it tints to currentColor; used 3× framing the forest-green bands (hero bottom + top/bottom of the Brand Story band)
+- [x] **[Medium]** ~~Create a laser-cut fretwork SVG section divider~~ — **Dropped 2026-06-30.** Iterated through a geometric SVG mask and an AI-generated (Gemini/banana) botanical flourish (full-width, recoloring `currentColor` mask), but the user didn't want a divider — removed entirely. No fretwork divider in the design; the product cards' laser-kerf edge (below) is the remaining signature device.
 - [x] **[Medium]** Give product cards a subtle laser-kerf edge treatment — `.kerf-frame` corner registration ticks that sharpen on hover, replacing the plain hairline
 - [x] **[Low]** Lead the hero image with a product shot — replaced the market-tent scene with the cherry-wood laser-cut butterfly earrings (`media/EAR-BFLY-CHY3-02-IMG10`) in the home hero `<picture>` + LCP preload
 - [x] **[Low]** Rewrite template-generic section headlines — "Crafted with Precision" → "Pieces Worth Keeping", "Fresh from the Studio" → "Just Off the Laser Bed", journal "Journal" → "From the Workshop"

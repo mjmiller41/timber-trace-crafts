@@ -57,9 +57,6 @@
             </div>
 
         </div>
-
-        {{-- Laser-cut fretwork accent (signature device) --}}
-        <div class="fretwork-divider text-white/15 mt-16 md:mt-24"></div>
     </div>
 </section>
 
@@ -141,11 +138,6 @@
     </div>
 </section>
 
-{{-- Fretwork frame: top of the forest-green band (signature device) --}}
-<div class="page-container">
-    <div class="fretwork-divider text-forest-green/25"></div>
-</div>
-
 {{-- ============================================================ --}}
 {{-- BRAND STORY CALLOUT --}}
 {{-- ============================================================ --}}
@@ -182,11 +174,6 @@
         </div>
     </div>
 </section>
-
-{{-- Fretwork frame: bottom of the forest-green band (signature device) --}}
-<div class="page-container">
-    <div class="fretwork-divider text-forest-green/25"></div>
-</div>
 
 {{-- ============================================================ --}}
 {{-- JOURNAL PREVIEW --}}
