@@ -5,6 +5,36 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* Self-hosted variable fonts (see public/fonts) — replaces the Playfair + Montserrat CDN pairing. */
+@font-face {
+    font-family: 'Fraunces';
+    src: url('/fonts/fraunces.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Fraunces';
+    src: url('/fonts/fraunces-italic.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter Tight';
+    src: url('/fonts/inter-tight.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Inter Tight';
+    src: url('/fonts/inter-tight-italic.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
 @theme {
     --color-oak-sand: #F4F1EA;
     --color-charcoal: #333333;
@@ -15,8 +45,8 @@
     --color-surface: #fff8f4;
     --color-error: #ba1a1a;
 
-    --font-heading: 'Playfair Display', serif;
-    --font-body: 'Montserrat', sans-serif;
+    --font-heading: 'Fraunces', serif;
+    --font-body: 'Inter Tight', sans-serif;
 
     --default-bg-color: var(--color-oak-sand);
     --default-text-color: var(--color-charcoal);
@@ -33,9 +63,23 @@
 
     h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-heading);
-        font-weight: 300;
+        font-weight: 400;
         line-height: 1.2;
+        /* Text optical size + clean letterforms for smaller headings. */
+        font-variation-settings: 'opsz' 40, 'SOFT' 0, 'WONK' 0;
     }
+
+    /* Large display headings: high optical size, the "wonky" axis on, tighter tracking —
+       this is where Fraunces earns its keep and hierarchy stops being size-only. */
+    h1, h2 {
+        font-weight: 380;
+        letter-spacing: -0.015em;
+        font-variation-settings: 'opsz' 144, 'SOFT' 0, 'WONK' 1;
+    }
+
+    /* Smaller headings carry weight instead of size so labels read as deliberate. */
+    h3 { font-weight: 500; }
+    h4, h5, h6 { font-weight: 560; }
 
     a {
         color: inherit;
@@ -277,5 +321,80 @@
 
     .footer-legal-link:hover {
         color: rgba(244, 241, 234, 0.7);
+    }
+
+    /* ---- Signature: laser-cut fretwork ---------------------------------- */
+    /* A pierced wooden band rendered via CSS mask so it tints to currentColor.
+       Used to frame the forest-green bands. Set the tone with a text-color class. */
+    .fretwork-divider {
+        height: 26px;
+        width: 100%;
+        background-color: currentColor;
+        -webkit-mask: url('/images/fretwork-tile.svg') repeat-x center / auto 26px;
+        mask: url('/images/fretwork-tile.svg') repeat-x center / auto 26px;
+    }
+
+    /* ---- Signature: product-card laser-kerf edge ------------------------ */
+    /* Four faint corner ticks evoking laser registration/kerf marks, replacing
+       the generic hairline. They sharpen on hover alongside the engrave sweep. */
+    .kerf-frame {
+        position: relative;
+    }
+    .kerf-frame::before,
+    .kerf-frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .kerf-frame::before {
+        top: 6px; left: 6px; right: 6px; bottom: 6px;
+        border: 1px solid rgb(140 123 108 / 0);
+        transition: border-color 0.3s ease;
+    }
+    /* Corner ticks drawn with a repeating conic-free approach: short L-marks via gradients. */
+    .kerf-frame::after {
+        background:
+            linear-gradient(var(--color-walnut), var(--color-walnut)) top left / 12px 1px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) top left / 1px 12px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) top right / 12px 1px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) top right / 1px 12px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) bottom left / 12px 1px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) bottom left / 1px 12px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) bottom right / 12px 1px no-repeat,
+            linear-gradient(var(--color-walnut), var(--color-walnut)) bottom right / 1px 12px no-repeat;
+        opacity: 0.35;
+        transition: opacity 0.3s ease;
+    }
+    .group:hover .kerf-frame::after {
+        opacity: 0.9;
+    }
+
+    /* ---- Signature motion: engrave reveal ------------------------------- */
+    /* A narrow light pass sweeps across the image on hover — a laser tracing the
+       surface — instead of a flat opacity fade. */
+    .engrave-reveal {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        background: linear-gradient(
+            105deg,
+            transparent 42%,
+            rgb(255 255 255 / 0.28) 50%,
+            transparent 58%
+        );
+        transform: translateX(-130%);
+        transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .group:hover .engrave-reveal {
+        transform: translateX(130%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .engrave-reveal {
+            transition: none;
+        }
     }
 }

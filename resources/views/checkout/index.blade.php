@@ -387,7 +387,7 @@
         const card = elements.create('card', {
             style: {
                 base: {
-                    fontFamily: "'Montserrat', sans-serif",
+                    fontFamily: "'Inter Tight', system-ui, -apple-system, sans-serif",
                     fontSize: '15px',
                     color: '#333333',
                     '::placeholder': { color: '#a1a1aa' },

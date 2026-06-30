@@ -96,7 +96,7 @@
                                         {{ $name }}
                                     </h3>
                                     @if($price !== null)
-                                        <p style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: 'Montserrat', sans-serif;">
+                                        <p style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: var(--font-body);">
                                             ${{ number_format($price, 2) }}
                                         </p>
                                     @endif

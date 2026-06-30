@@ -42,15 +42,9 @@
     {{-- Page-specific LCP preload --}}
     @stack('preload')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style"
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500&display=swap"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@400;500&display=swap">
-    </noscript>
+    {{-- Self-hosted variable fonts — preload the two romans to avoid FOIT --}}
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-tight.woff2" crossorigin>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php

@@ -11,7 +11,7 @@
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="flex-shrink-0 flex items-center gap-2.5">
             <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="200" height="40" class="h-10 w-auto">
-            <span style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.375rem; letter-spacing: 0.01em; color: #333333;">{{ $siteName }}</span>
+            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.375rem; letter-spacing: 0.01em; color: #333333;">{{ $siteName }}</span>
         </a>
 
         {{-- Center nav links --}}
@@ -56,7 +56,7 @@
                 @if(session('cart_count', 0) > 0)
                     <span
                         class="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 rounded-full text-white"
-                        style="background-color: #2C4C3B; font-size: 0.625rem; font-weight: 700; font-family: 'Montserrat', sans-serif;"
+                        style="background-color: #2C4C3B; font-size: 0.625rem; font-weight: 700; font-family: var(--font-body);"
                     >{{ session('cart_count', 0) }}</span>
                 @endif
             </a>
@@ -83,7 +83,7 @@
         {{-- Brand --}}
         <a href="{{ url('/') }}" class="flex items-center gap-2">
             <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="160" height="32" class="h-8 w-auto">
-            <span style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
+            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
         </a>
 
         {{-- Cart --}}
@@ -130,7 +130,7 @@
             {{-- Drawer header --}}
             <div class="flex items-center justify-between px-5 h-14 border-b" style="border-color: rgb(140 123 108 / 0.2);">
                 <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="160" height="32" class="h-8 w-auto">
-                <span style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
+                <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
                 <button
                     type="button"
                     class="text-charcoal"

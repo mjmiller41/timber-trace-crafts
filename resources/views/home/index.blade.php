@@ -5,7 +5,7 @@
 
 @push('preload')
 <link rel="preload" as="image" fetchpriority="high"
-      href="{{ Storage::disk('r2')->url('media/lifestyle-1.webp') }}"
+      href="{{ Storage::disk('r2')->url('media/EAR-BFLY-CHY3-02-IMG10.webp') }}"
       type="image/webp">
 @endpush
 
@@ -20,7 +20,7 @@
 
             {{-- Copy --}}
             <div>
-                <p class="section-label text-white/60 mb-6">Timber Trace Crafts</p>
+                <p class="section-label text-white/60 mb-6">Cut to 0.1&nbsp;mm · Finished by hand</p>
                 <h1 class="font-heading text-5xl md:text-6xl lg:text-7xl font-light leading-tight mb-6">
                     Handcrafted<br>in Hardwood.<br>Worn with Pride.
                 </h1>
@@ -43,10 +43,10 @@
             <div class="relative">
                 <div class="aspect-square overflow-hidden">
                     <picture>
-                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/lifestyle-1.webp') }}"
+                        <source srcset="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/EAR-BFLY-CHY3-02-IMG10.webp') }}"
                                 type="image/webp">
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/lifestyle-1.jpg') }}"
-                             alt="Handcrafted wooden box at a craft market"
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('r2')->url('media/EAR-BFLY-CHY3-02-IMG10.jpg') }}"
+                             alt="Cherry wood laser-cut butterfly earrings"
                              fetchpriority="high"
                              width="800" height="800"
                              class="w-full h-full object-cover">
@@ -57,6 +57,9 @@
             </div>
 
         </div>
+
+        {{-- Laser-cut fretwork accent (signature device) --}}
+        <div class="fretwork-divider text-white/15 mt-16 md:mt-24"></div>
     </div>
 </section>
 
@@ -66,8 +69,7 @@
 <section class="py-20 md:py-28">
     <div class="page-container">
         <div class="mb-12">
-            <p class="section-label mb-3">Featured Collection</p>
-            <h2 class="font-heading text-4xl md:text-5xl font-light text-charcoal">Crafted with Precision</h2>
+            <h2 class="font-heading text-4xl md:text-5xl text-charcoal">Pieces Worth Keeping</h2>
         </div>
 
         @if($featuredProducts->isNotEmpty())
@@ -122,7 +124,7 @@
         <div class="flex items-end justify-between mb-12">
             <div>
                 <p class="section-label mb-3">New Arrivals</p>
-                <h2 class="font-heading text-4xl md:text-5xl font-light text-charcoal">Fresh from the Studio</h2>
+                <h2 class="font-heading text-4xl md:text-5xl text-charcoal">Just Off the Laser Bed</h2>
             </div>
             <a href="{{ route('shop') }}?sort=newest" class="hidden md:inline font-body text-xs tracking-widest uppercase border-b border-charcoal pb-0.5 hover:text-forest-green hover:border-forest-green transition-colors">
                 See All New →
@@ -138,6 +140,11 @@
         @endif
     </div>
 </section>
+
+{{-- Fretwork frame: top of the forest-green band (signature device) --}}
+<div class="page-container">
+    <div class="fretwork-divider text-forest-green/25"></div>
+</div>
 
 {{-- ============================================================ --}}
 {{-- BRAND STORY CALLOUT --}}
@@ -161,7 +168,6 @@
 
             {{-- Copy --}}
             <div>
-                <p class="section-label text-white/50 mb-8">Our Philosophy</p>
                 <blockquote class="font-heading text-3xl md:text-5xl font-light text-white leading-tight mb-10">
                     "Every piece tells the story of the wood it came from."
                 </blockquote>
@@ -177,6 +183,11 @@
     </div>
 </section>
 
+{{-- Fretwork frame: bottom of the forest-green band (signature device) --}}
+<div class="page-container">
+    <div class="fretwork-divider text-forest-green/25"></div>
+</div>
+
 {{-- ============================================================ --}}
 {{-- JOURNAL PREVIEW --}}
 {{-- ============================================================ --}}
@@ -184,8 +195,7 @@
     <div class="page-container">
         <div class="flex items-end justify-between mb-12">
             <div>
-                <p class="section-label mb-3">From the Workshop</p>
-                <h2 class="font-heading text-4xl md:text-5xl font-light text-charcoal">Journal</h2>
+                <h2 class="font-heading text-4xl md:text-5xl text-charcoal">From the Workshop</h2>
             </div>
             <a href="{{ route('journal.index') }}" class="hidden md:inline font-body text-xs tracking-widest uppercase border-b border-charcoal pb-0.5 hover:text-forest-green hover:border-forest-green transition-colors">
                 All Posts →
@@ -241,35 +251,6 @@
                 @endforeach
             </div>
         @endif
-    </div>
-</section>
-
-{{-- ============================================================ --}}
-{{-- NEWSLETTER CTA --}}
-{{-- ============================================================ --}}
-<section class="py-20 md:py-24 bg-surface border-t border-walnut/20">
-    <div class="page-container">
-        <div class="max-w-lg mx-auto text-center">
-            <p class="section-label mb-4">Stay Connected</p>
-            <h2 class="font-heading text-3xl md:text-4xl font-light text-charcoal mb-4">Join Our Community</h2>
-            <p class="font-body text-sm text-walnut leading-relaxed mb-8">
-                New collections, behind-the-scenes stories from the studio, and occasional offers — straight to your inbox. Unsubscribe any time.
-            </p>
-            <form action="{{ route('newsletter.store') }}" method="POST" class="flex flex-col sm:flex-row gap-0">
-                @csrf
-                <input type="email"
-                       name="email"
-                       placeholder="your@email.com"
-                       required
-                       class="form-field flex-1 text-sm py-4 px-5 border-r-0 sm:border-r-0">
-                <button type="submit" class="btn-forest px-8 py-4 whitespace-nowrap">
-                    Subscribe
-                </button>
-            </form>
-            <p class="font-body text-xs text-walnut/70 mt-4">
-                No spam. Unsubscribe any time.
-            </p>
-        </div>
     </div>
 </section>
 

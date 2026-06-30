@@ -22,7 +22,7 @@
     <a href="{{ $productUrl }}" class="block" aria-label="{{ $name }}">
 
         {{-- Image container --}}
-        <div class="relative overflow-hidden bg-surface aspect-square mb-3">
+        <div class="kerf-frame relative overflow-hidden bg-surface aspect-square mb-3">
             @if($image)
                 <picture>
                     @if($imageWebp)
@@ -31,10 +31,12 @@
                     <img
                         src="{{ $image }}"
                         alt="{{ $name }}"
-                        class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90"
+                        class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                         loading="lazy"
                     >
                 </picture>
+                {{-- Engrave-reveal: a laser-trace light pass on hover --}}
+                <span class="engrave-reveal" aria-hidden="true"></span>
             @else
                 {{-- Placeholder when no image --}}
                 <div class="w-full h-full flex items-center justify-center" style="background-color: #EDE8DF;">
@@ -48,14 +50,14 @@
             @if($outOfStock)
                 <div
                     class="absolute top-2.5 left-2.5"
-                    style="background-color: rgba(51,51,51,0.85); color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: 'Montserrat', sans-serif;"
+                    style="background-color: rgba(51,51,51,0.85); color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: var(--font-body);"
                 >
                     Out of Stock
                 </div>
             @elseif($onSale)
                 <div
                     class="absolute top-2.5 left-2.5"
-                    style="background-color: #4A2C11; color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: 'Montserrat', sans-serif;"
+                    style="background-color: #4A2C11; color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: var(--font-body);"
                 >
                     Sale
                 </div>
@@ -71,7 +73,7 @@
 
             {{-- Name --}}
             <h3
-                class="font-heading font-light leading-snug mb-1.5 transition-colors duration-200 group-hover:text-forest-green"
+                class="font-heading leading-snug mb-1.5 transition-colors duration-200 group-hover:text-forest-green"
                 style="font-size: 1rem;"
             >{{ $name }}</h3>
 
@@ -79,20 +81,20 @@
             <div class="flex items-center gap-2">
                 @if($onSale)
                     <span
-                        style="font-size: 0.9375rem; font-weight: 600; color: #4A2C11; font-family: 'Montserrat', sans-serif;"
+                        style="font-size: 0.9375rem; font-weight: 600; color: #4A2C11; font-family: var(--font-body);"
                     >${{ number_format($salePrice, 2) }}</span>
                     <span
-                        style="font-size: 0.8125rem; color: #8C7B6C; text-decoration: line-through; font-family: 'Montserrat', sans-serif;"
+                        style="font-size: 0.8125rem; color: #8C7B6C; text-decoration: line-through; font-family: var(--font-body);"
                     >${{ number_format($price, 2) }}</span>
                 @elseif($price !== null)
                     <span
-                        style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: 'Montserrat', sans-serif;"
+                        style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: var(--font-body);"
                     >${{ number_format($price, 2) }}</span>
                 @endif
 
                 @if($outOfStock)
                     <span
-                        style="font-size: 0.6875rem; font-weight: 600; color: #8C7B6C; font-family: 'Montserrat', sans-serif;"
+                        style="font-size: 0.6875rem; font-weight: 600; color: #8C7B6C; font-family: var(--font-body);"
                     >— Sold Out</span>
                 @endif
             </div>

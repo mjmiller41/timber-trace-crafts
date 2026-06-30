@@ -7,7 +7,7 @@
 
             {{-- Col 1: Brand --}}
             <div>
-                <p style="font-family: 'Playfair Display', serif; font-weight: 300; font-size: 1.375rem; letter-spacing: 0.01em; color: #F4F1EA; margin-bottom: 0.75rem;">
+                <p style="font-family: var(--font-heading); font-weight: 400; font-size: 1.375rem; letter-spacing: 0.01em; color: #F4F1EA; margin-bottom: 0.75rem;">
                     {{ $siteName }}
                 </p>
                 <p style="font-size: 0.8125rem; line-height: 1.7; color: rgba(244, 241, 234, 0.65); max-width: 32ch;">
@@ -77,11 +77,11 @@
                         placeholder="your@email.com"
 												autocomplete="email"
                         required
-                        style="flex: 1; min-width: 0; padding: 0.5rem 0.75rem; font-size: 0.8125rem; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(244,241,234,0.25); color: #F4F1EA; outline: none; font-family: 'Montserrat', sans-serif;"
+                        style="flex: 1; min-width: 0; padding: 0.5rem 0.75rem; font-size: 0.8125rem; background-color: rgba(255,255,255,0.1); border: 1px solid rgba(244,241,234,0.25); color: #F4F1EA; outline: none; font-family: var(--font-body);"
                     >
                     <button
                         type="submit"
-                        style="padding: 0.5rem 1rem; background-color: #F4F1EA; color: #2C4C3B; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; white-space: nowrap; font-family: 'Montserrat', sans-serif; flex-shrink: 0;"
+                        style="padding: 0.5rem 1rem; background-color: #F4F1EA; color: #2C4C3B; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; white-space: nowrap; font-family: var(--font-body); flex-shrink: 0;"
                     >Join</button>
                 </form>
 

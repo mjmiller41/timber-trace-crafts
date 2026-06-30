@@ -8,26 +8,26 @@
 
 ### Priority 1 — Subtraction (de-template, quick wins)
 
-- [ ] **[High]** Remove the hero's redundant "TIMBER TRACE CRAFTS" eyebrow (repeats the logo)
-- [ ] **[High]** Delete one of the two stacked newsletter signups ("Join Our Community" block vs. footer "NEWSLETTER" block)
-- [ ] **[High]** Demote all-caps tracked eyebrows — keep on only the 2–3 sections that actually classify content; drop from the rest (FEATURED COLLECTION, NEW ARRIVALS, EXPLORE ×3, STAY CONNECTED, FROM THE WORKSHOP, etc.)
-- [~] **[High]** Fix broken featured image on "The Best Handmade Gifts for Women" journal post — root cause: missing `.webp` sibling in R2, so `<picture>` breaks. Built `media:backfill-webp` command (+tests) that backfills the 3 gapped images. **Blocked:** local R2 token is read/write-denied via S3 API (`put()` returns false, Get/Head 403); run `php artisan media:backfill-webp` in an environment with valid R2 write creds (prod/deploy) to apply.
+- [x] **[High]** Remove the hero's redundant "TIMBER TRACE CRAFTS" eyebrow — replaced with the precision claim "Cut to 0.1 mm · Finished by hand"
+- [x] **[High]** Delete one of the two stacked newsletter signups — removed the homepage "Join Our Community" block; the footer "NEWSLETTER" signup is retained site-wide
+- [x] **[High]** Demote all-caps tracked eyebrows — kept on the two classifying sections (Browse by Category, New Arrivals); dropped from Featured Collection, Our Philosophy, From the Workshop, and the removed newsletter
+- [x] **[High]** Fix broken featured image on "The Best Handmade Gifts for Women" journal post — **RESOLVED 2026-06-30.** The 3 missing WebP siblings were generated locally (this machine has GD+WebP) and uploaded to R2 `media/`; all return HTTP 200 `image/webp`, so the journal `<picture>` now resolves. Root cause was the prod R2 token being read-only — backfill's `put()` was silently denied (`'throw' => false` on the `r2` disk swallowed the AccessDenied). Tracked as a follow-up under Infrastructure / Ops.
 
 ### Priority 2 — Typography (highest-leverage de-slop)
 
-- [ ] **[High]** Replace Playfair Display + Montserrat default pairing — try Fraunces or Cormorant (headline) + a humanist sans (Inter Tight / Public Sans / Söhne) for body; update `--font-heading`/`--font-body` in `resources/css/app.css` and the Google Fonts link in `layouts/app.blade.php`
-- [ ] **[Medium]** Increase weight/size variation in type scale so hierarchy isn't carried by size alone (headings currently all `font-weight: 300`)
+- [x] **[High]** Replace Playfair Display + Montserrat default pairing — now **Fraunces** (headline, with the `opsz`/`WONK` axes on for display) + **Inter Tight** (body), self-hosted variable woff2 in `public/fonts`. Updated `--font-heading`/`--font-body` and `@font-face` in `resources/css/app.css`, swapped the Google Fonts CDN for self-hosted preloads in `layouts/app.blade.php`, and replaced hardcoded inline `Playfair`/`Montserrat` refs across public views with the token vars. (Admin keeps its own fonts via `admin.css`.)
+- [x] **[Medium]** Increase weight/size variation in type scale — display headings (h1/h2) at ~380 with display optical size; h3 at 500; h4–h6 at 560, so hierarchy no longer rides on size alone
 
 ### Priority 3 — Signature element (the core differentiator)
 
-- [ ] **[Medium]** Create a laser-cut fretwork SVG from a real product pattern and use it as a section divider / corner inlay on the forest-green bands (2–3 uses)
-- [ ] **[Medium]** Give product cards a subtle laser-kerf edge treatment instead of a plain hairline rule
-- [ ] **[Low]** Lead the hero image with a product shot instead of the market-tent scene (box is currently lost)
-- [ ] **[Low]** Rewrite template-generic section headlines ("Fresh from the Studio", "Crafted with Precision") with the specificity of the "Our Philosophy" pull quote
+- [x] **[Medium]** Create a laser-cut fretwork SVG — `public/images/fretwork-tile.svg`, rendered via CSS mask (`.fretwork-divider`) so it tints to currentColor; used 3× framing the forest-green bands (hero bottom + top/bottom of the Brand Story band)
+- [x] **[Medium]** Give product cards a subtle laser-kerf edge treatment — `.kerf-frame` corner registration ticks that sharpen on hover, replacing the plain hairline
+- [x] **[Low]** Lead the hero image with a product shot — replaced the market-tent scene with the cherry-wood laser-cut butterfly earrings (`media/EAR-BFLY-CHY3-02-IMG10`) in the home hero `<picture>` + LCP preload
+- [x] **[Low]** Rewrite template-generic section headlines — "Crafted with Precision" → "Pieces Worth Keeping", "Fresh from the Studio" → "Just Off the Laser Bed", journal "Journal" → "From the Workshop"
 
 ### Priority 4 — Motion (on-brand interaction)
 
-- [ ] **[Low]** Add one signature "engrave reveal" hover interaction on product card images (mask wipe) instead of generic opacity fade
+- [x] **[Low]** Add one signature "engrave reveal" hover interaction — `.engrave-reveal` light-pass sweep + subtle scale on product-card images (replaces the opacity fade), with `prefers-reduced-motion` respected
 
 ---
 
@@ -105,6 +105,12 @@
 - [ ] **[Medium]** Add YouTube and LinkedIn URLs to Organization `sameAs` array in `layouts/app.blade.php`
 - [ ] **[Medium]** Add `jobTitle` and `description` to Person entity for Michael J. Miller in global schema
 - [ ] **[Medium]** Add `SiteLinksSearchBox` schema (SearchAction) once traffic justifies it
+
+---
+
+## Infrastructure / Ops
+
+- [ ] **[Medium]** Investigate the prod R2 `put()` failure seen during `media:backfill-webp` (logged "Storage write failed for media/…webp"). Per the operator the R2 token **is** Read+Write, so it is *not* a permission-scope issue — the `r2` disk's `'throw' => false` masked the real S3 error. To surface it, temporarily set `'throw' => true` on the `r2` disk (or wrap the `put()` in a try/catch that logs `$e->getMessage()`) and retry one write in prod; the likely culprit is an S3-SDK/R2 incompatibility (endpoint/region or a checksum/ACL header). Confirm that admin product/journal uploads actually persist to R2. The 3 broken journal WebPs were fixed via a dashboard upload in the meantime.
 
 ---
 
