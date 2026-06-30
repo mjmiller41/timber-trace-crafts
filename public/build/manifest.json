@@ -26,13 +26,20 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BWH7ZKlA.css",
+    "file": "assets/app-1iKW3ndb.css",
     "name": "app",
     "names": [
       "app.css"
     ],
     "src": "resources/css/app.css",
-    "isEntry": true
+    "isEntry": true,
+    "assets": [
+      "assets/fretwork-divider-Cpz_LHSL.png"
+    ]
+  },
+  "resources/images/fretwork-divider.png": {
+    "file": "assets/fretwork-divider-Cpz_LHSL.png",
+    "src": "resources/images/fretwork-divider.png"
   },
   "resources/js/admin.js": {
     "file": "assets/admin-Fk2yrW5V.js",

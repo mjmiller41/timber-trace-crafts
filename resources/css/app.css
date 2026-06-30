@@ -324,18 +324,18 @@
     }
 
     /* ---- Signature: laser-cut fretwork ---------------------------------- */
-    /* A pierced wooden band rendered via CSS mask so it tints to currentColor.
-       Used to frame the forest-green bands. Set the tone with a text-color class.
-       The mask is an inline data-URI (not an external file) so it resolves
-       identically under the Vite dev server and the production build — an
-       absolute /images/... url() resolves against the stylesheet origin, which
-       is :5173 in dev and 404s. The readable source is public/images/fretwork-tile.svg. */
+    /* A single centered botanical-filigree flourish rendered via CSS mask so it
+       tints to currentColor — set the tone with a text-color class (cream on the
+       green bands, forest-green on cream). The mask lives in resources/images and
+       is bundled by Vite, so its url() resolves correctly under both the dev
+       server and the production build. Source render: an AI-generated laser-cut
+       ornament, thresholded to a clean alpha silhouette. */
     .fretwork-divider {
-        height: 26px;
         width: 100%;
+        aspect-ratio: 1200 / 144;
         background-color: currentColor;
-        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 32' preserveAspectRatio='xMidYMid meet'%3E %3Cpath fill='%23000' fill-rule='evenodd' d=' M0 0 H96 V32 H0 Z M48 4 C 58 12, 58 20, 48 28 C 38 20, 38 12, 48 4 Z M19 16 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 Z M67 16 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 Z M0 16 L 8 9 L 8 23 Z M96 16 L 88 9 L 88 23 Z '/%3E %3C/svg%3E") repeat-x center / auto 26px;
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 32' preserveAspectRatio='xMidYMid meet'%3E %3Cpath fill='%23000' fill-rule='evenodd' d=' M0 0 H96 V32 H0 Z M48 4 C 58 12, 58 20, 48 28 C 38 20, 38 12, 48 4 Z M19 16 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 Z M67 16 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0 Z M0 16 L 8 9 L 8 23 Z M96 16 L 88 9 L 88 23 Z '/%3E %3C/svg%3E") repeat-x center / auto 26px;
+        -webkit-mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
+        mask: url(../images/fretwork-divider.png) no-repeat center / 100% 100%;
     }
 
     /* ---- Signature: product-card laser-kerf edge ------------------------ */
