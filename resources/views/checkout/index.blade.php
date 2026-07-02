@@ -62,6 +62,7 @@
 
     <form method="POST" action="{{ route('checkout.process') }}" id="checkout-form">
         @csrf
+        @include('components.honeypot')
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
 
@@ -286,6 +287,7 @@
                     </div>
 
                     <input type="hidden" name="payment_intent_id" id="payment-intent-id">
+                    <input type="hidden" name="g-recaptcha-response" id="recaptcha-token">
 
                     {{-- Terms --}}
                     <p class="font-body text-xs text-walnut mb-8 leading-relaxed">
@@ -412,6 +414,10 @@
             const shippingMethodId = document.querySelector('[name=shipping_method_id]:checked')?.value;
             const shippingState    = document.getElementById('shipping_state')?.value ?? '';
             const csrfToken        = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+            if (window.recaptchaToken) {
+                document.getElementById('recaptcha-token').value = await window.recaptchaToken('checkout');
+            }
 
             // Step 1: create PaymentIntent server-side
             let clientSecret;

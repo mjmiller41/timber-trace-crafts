@@ -76,7 +76,7 @@ class MediaUploader
             $encoded = (string) $this->imageManager->decode($contents)->encode(new WebpEncoder(quality: 80));
 
             if (Storage::disk($disk)->put($webpPath, $encoded) === false) {
-                throw new \RuntimeException("Storage write failed for {$webpPath}");
+                throw new \RuntimeException("Storage write failed for {$webpPath}: {$this->diagnoseWriteFailure($disk, $webpPath, $encoded)}");
             }
 
             return $webpPath;
@@ -119,5 +119,24 @@ class MediaUploader
     private function disk(): string
     {
         return config('filesystems.default');
+    }
+
+    /**
+     * The configured disk (e.g. R2) has `'throw' => false`, so a failed put()
+     * returns a silent `false` instead of surfacing the underlying S3 error.
+     * Retry once through a throwing instance of the same disk purely to
+     * capture a diagnostic message for the log — production behaviour for
+     * callers is unchanged, since the outer catch still returns null either way.
+     */
+    private function diagnoseWriteFailure(string $disk, string $path, string $contents): string
+    {
+        try {
+            Storage::build(array_merge(config("filesystems.disks.{$disk}", []), ['throw' => true]))
+                ->put($path, $contents);
+
+            return 'no exception on throwing retry — transient failure?';
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
     }
 }

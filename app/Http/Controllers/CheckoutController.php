@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Services\CartService;
+use App\Services\RecaptchaService;
 use App\Services\ShippingService;
 use App\Services\StripeService;
 use App\Services\TaxService;
@@ -27,6 +28,7 @@ class CheckoutController extends Controller
         private readonly ShippingService $shippingService,
         private readonly TaxService $taxService,
         private readonly StripeService $stripeService,
+        private readonly RecaptchaService $recaptchaService,
     ) {}
 
     public function index(): View|RedirectResponse
@@ -93,6 +95,12 @@ class CheckoutController extends Controller
 
     public function process(Request $request): View|RedirectResponse
     {
+        if (! $this->recaptchaService->verify($request->input('g-recaptcha-response'), 'checkout', $request->ip())) {
+            return back()->withErrors([
+                'payment' => 'We could not verify you\'re human. Please try again.',
+            ])->withInput();
+        }
+
         $validated = $request->validate([
             'guest_email' => [Rule::requiredIf(! auth()->check()), 'nullable', 'email', 'max:255'],
             'shipping_first_name' => ['required', 'string', 'max:100'],
