@@ -56,6 +56,12 @@ every deploy instead of it drifting out of sync (this is what caused the
 - **The encryption key** lives only in a password manager and, on the server, in
   `~/.secrets/ttc-env-key` (outside `public_html`, outside git, `chmod 600`).
   Never write it into any file under the repo.
+- **Gotcha (hit 2026-07-02):** `env:encrypt`'s printed key includes a literal
+  `base64:` prefix, e.g. `base64:Dh2DVgt...qo=` — that prefix is part of the
+  key, not a label. Store the FULL string, prefix included, in both the
+  password manager and `~/.secrets/ttc-env-key`. Stripping it produces a raw
+  string of the wrong byte length and `env:decrypt` fails with "Unsupported
+  cipher or incorrect key length".
 - **On the server**, `deploy.sh` runs
   `php artisan env:decrypt --env=production --key="$(cat ~/.secrets/ttc-env-key)" --filename=.env --force`
   before migrations/caching, regenerating `.env` from the encrypted file every deploy.
