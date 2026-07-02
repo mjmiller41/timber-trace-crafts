@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\RecaptchaService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -21,8 +22,14 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request, RecaptchaService $recaptcha): RedirectResponse
     {
+        if (! $recaptcha->verify($request->input('g-recaptcha-response'), 'login', $request->ip())) {
+            return back()->withErrors([
+                'email' => 'We could not verify you\'re human. Please try again.',
+            ])->onlyInput('email');
+        }
+
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],

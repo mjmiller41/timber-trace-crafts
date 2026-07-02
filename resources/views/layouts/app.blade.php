@@ -103,6 +103,47 @@
 
     @include('components.cookie-consent')
 
+    @if(config('services.recaptcha.site_key'))
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+        <script>
+            window.recaptchaSiteKey = @json(config('services.recaptcha.site_key'));
+
+            // Resolves a fresh reCAPTCHA v3 token for the given action. Used directly
+            // by pages with custom submit flows (e.g. checkout); auto-wired below for
+            // plain form posts via [data-recaptcha-action].
+            window.recaptchaToken = function (action) {
+                return new Promise((resolve) => {
+                    grecaptcha.ready(() => {
+                        grecaptcha.execute(window.recaptchaSiteKey, { action }).then(resolve);
+                    });
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('form[data-recaptcha-action]').forEach((form) => {
+                    form.addEventListener('submit', (e) => {
+                        if (form.dataset.recaptchaVerified === 'true') {
+                            return;
+                        }
+                        e.preventDefault();
+                        window.recaptchaToken(form.dataset.recaptchaAction).then((token) => {
+                            let input = form.querySelector('input[name="g-recaptcha-response"]');
+                            if (!input) {
+                                input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'g-recaptcha-response';
+                                form.appendChild(input);
+                            }
+                            input.value = token;
+                            form.dataset.recaptchaVerified = 'true';
+                            form.requestSubmit ? form.requestSubmit() : form.submit();
+                        });
+                    });
+                });
+            });
+        </script>
+    @endif
+
     @stack('scripts')
 
 </body>

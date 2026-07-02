@@ -1,12 +1,12 @@
 # Tasks
 
 ## Active
-- [ ] **Add cookie consent / GDPR-CCPA banner** - legally required, show on first visit
-- [ ] **Verify email verification is wired in AuthController** - required per spec
-- [ ] **Add password strength rules** - min length/complexity on register + reset
-- [ ] **Add CAPTCHA** - login, contact form, checkout
-- [ ] **Write About page content** - Michael J. Miller, disabled veteran (Desert Storm), Avon Park FL, one-person operation
-- [ ] **Investigate prod R2 `put()` failure** - `media:backfill-webp` logged "Storage write failed for media/…webp". Token is Read+Write, so not a scope issue; the `r2` disk's `'throw' => false` masked the real S3 error. Temporarily set `'throw' => true` (or wrap `put()` in try/catch logging `$e->getMessage()`) and retry one prod write; likely an S3-SDK/R2 incompatibility (endpoint/region or checksum/ACL header). Confirm admin product/journal uploads persist to R2. (3 broken journal WebPs already fixed via dashboard upload.)
+- [x] **~~Add cookie consent / GDPR-CCPA banner — already implemented (`components/cookie-consent.blade.php`, localStorage-backed, included in the base layout); verified working.~~ (2026-07-02)**
+- [x] **~~Verify email verification is wired in AuthController — confirmed fully wired: `User implements MustVerifyEmail`, `verification.notice`/`verification.send`/`verification.verify` routes all present and `auth`-gated, registration dispatches `Registered` event.~~ (2026-07-02)**
+- [x] **~~Add password strength rules — confirmed already enforced on register + reset via `Illuminate\Validation\Rules\Password::min(8)->mixedCase()->numbers()`.~~ (2026-07-02)**
+- [x] **~~Add CAPTCHA — added Google reCAPTCHA v3 (`RecaptchaService`, soft-disabled until `RECAPTCHA_SITE_KEY`/`RECAPTCHA_SECRET_KEY` are set) plus a honeypot field to login and checkout (contact already had one). Verified end-to-end locally: normal login/contact/checkout submissions succeed, honeypot-tripped submissions are silently rejected. Needs reCAPTCHA keys from https://www.google.com/recaptcha/admin added to `.env.production` before it actively scores traffic — see `.env.example` for the new vars.~~ (2026-07-02)**
+- [x] **~~Write About page content — replaced the seeder placeholder with real copy (Michael J. Miller, disabled veteran of Desert Storm, Avon Park FL, one-person operation); updated both the local `pages` row and `PageSeeder` so it reproduces on redeploy. **Run `php artisan db:seed --class=PageSeeder --force` on production once after this deploys** (deploy.sh doesn't seed automatically) to push the new copy live — updateOrCreate, safe to rerun.~~ (2026-07-02)**
+- [x] **~~Investigate prod R2 `put()` failure — root cause wasn't found (needs a real failing run to observe), but the `'throw' => false` disk config was silently swallowing the actual S3/R2 exception message. `MediaUploader::generateWebpVariant()` now retries a failed write once through a throwing on-demand disk instance purely to capture the real error text before logging — next production failure will log the actual R2 error (permissions, endpoint, checksum, etc.) instead of a generic "Storage write failed" message.~~ (2026-07-02)**
 
 ## Waiting On
 - [ ] **Certificate of Insurance** - waiting on Michael to obtain/send to City of Avon Park (since 2026-06-25)

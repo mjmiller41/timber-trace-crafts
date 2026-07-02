@@ -35,7 +35,7 @@
                 </div>
             @endif
 
-            <form id="contact-form" method="POST" action="{{ route('contact.submit') }}" class="space-y-6">
+            <form id="contact-form" method="POST" action="{{ route('contact.submit') }}" data-recaptcha-action="contact" class="space-y-6">
                 @csrf
                 @include('components.honeypot')
 

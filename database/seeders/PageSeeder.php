@@ -16,9 +16,9 @@ class PageSeeder extends Seeder
             [
                 'slug' => 'about-us',
                 'title' => 'About Us',
-                'body' => '<h1>About Timber Trace Crafts</h1><p>We are a small-batch maker of laser-cut wooden jewelry, keepsake boxes, and home décor. Every piece is designed and cut in our studio with care and precision.</p><p>Update this page with your story.</p>',
+                'body' => "<p>Timber Trace Crafts is a one-person workshop in Avon Park, Florida, run by Michael J. Miller — a disabled veteran of Desert Storm who traded a uniform for a laser cutter and a workbench.</p>\n\n<h2>From Service to the Workshop</h2>\n<p>After years in the military, I wanted to build something with my hands again — something precise, something that outlasts a single use. Laser-cut woodworking gave me that: the same discipline and attention to detail I learned in service, now channeled into earrings, keepsake boxes, and engraved gifts instead.</p>\n\n<h2>Handmade, Start to Finish</h2>\n<p>Every design begins as a digital file and ends as something you can hold. I choose the wood, cut and engrave each piece myself, sand and finish it by hand, and pack every order for shipping — no factory, no warehouse, no assembly line. Small imperfections are part of the process; they're what make a handmade piece different from a mass-produced one.</p>\n\n<h2>A Veteran-Owned Small Business</h2>\n<p>Timber Trace Crafts is a sole proprietorship — just me, working out of Avon Park. When you order from this shop, you're supporting one veteran directly, not a company. I read every order, answer every message, and stand behind everything I make.</p>\n\n<p>Have a question about a piece, or want something custom? <a href=\"/contact\">Reach out</a> — I'd love to hear from you.</p>",
                 'meta_title' => 'About Us | Timber Trace Crafts',
-                'meta_description' => 'Learn about Timber Trace Crafts, a small-batch maker of laser-cut wooden jewelry and gifts.',
+                'meta_description' => 'Meet Michael J. Miller, the disabled veteran and one-person maker behind Timber Trace Crafts, hand-crafting laser-cut wooden jewelry and gifts in Avon Park, FL.',
             ],
             [
                 'slug' => 'contact',

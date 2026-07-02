@@ -24,8 +24,9 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" novalidate>
+            <form method="POST" action="{{ route('login') }}" data-recaptcha-action="login" novalidate>
                 @csrf
+                @include('components.honeypot')
 
                 <div class="space-y-5">
 

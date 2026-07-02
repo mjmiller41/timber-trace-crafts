@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactSubmission;
 use App\Models\Page;
 use App\Models\Setting;
+use App\Services\RecaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -20,8 +21,14 @@ class ContactController extends Controller
         return view('contact.index', compact('page'));
     }
 
-    public function submit(Request $request): RedirectResponse
+    public function submit(Request $request, RecaptchaService $recaptcha): RedirectResponse
     {
+        if (! $recaptcha->verify($request->input('g-recaptcha-response'), 'contact', $request->ip())) {
+            return back()->withErrors([
+                'message' => 'We could not verify you\'re human. Please try again.',
+            ])->withInput();
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255'],

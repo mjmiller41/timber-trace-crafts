@@ -54,7 +54,7 @@ Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('ca
 // Checkout
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->middleware('honeypot')->name('checkout.process');
     Route::post('/checkout/payment-intent', [CheckoutController::class, 'createPaymentIntent'])->name('checkout.payment-intent');
     Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
 });
@@ -88,7 +88,7 @@ Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
 // Auth
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('/login', [AuthController::class, 'login'])->middleware(['honeypot', 'throttle:5,1']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware(['honeypot', 'throttle:5,1']);
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
