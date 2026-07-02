@@ -65,7 +65,7 @@ class ImapService
             'subject' => $this->decodeMime($o->subject ?? '(no subject)'),
             'from' => $this->decodeMime($o->from ?? ''),
             'from_email' => $o->sender_email ?? $this->extractEmail($o->from ?? ''),
-            'date' => Carbon::parse($o->date ?? 'now'),
+            'date' => $this->safeParseDate($o->date ?? null),
             'seen' => (bool) $o->seen,
             'answered' => (bool) ($o->answered ?? false),
         ]);
@@ -92,7 +92,7 @@ class ImapService
             'from' => $this->decodeMime($overview->from ?? ''),
             'from_email' => $this->extractEmail($overview->from ?? ''),
             'to' => $this->decodeMime($overview->to ?? ''),
-            'date' => Carbon::parse($overview->date ?? 'now'),
+            'date' => $this->safeParseDate($overview->date ?? null),
             'seen' => true,
             'body_html' => $html,
             'body_text' => $plain,
@@ -128,7 +128,7 @@ class ImapService
             $charset = $this->charset($structure);
 
             if ($charset && strtoupper($charset) !== 'UTF-8') {
-                $body = mb_convert_encoding($body, 'UTF-8', $charset);
+                $body = $this->safeConvertToUtf8($body, $charset);
             }
 
             if ($structure->type === TYPETEXT && $subtype === 'HTML') {
@@ -139,6 +139,34 @@ class ImapService
         }
 
         return [$html, $plain];
+    }
+
+    /**
+     * A garbage sender-controlled Date: header must not throw and blank the
+     * whole inbox listing — fall back to "now" for that one message instead.
+     */
+    private function safeParseDate(?string $date): Carbon
+    {
+        try {
+            return Carbon::parse($date ?? 'now');
+        } catch (\Throwable) {
+            return Carbon::now();
+        }
+    }
+
+    /**
+     * A sender-controlled charset can be unknown to mbstring — fall back to
+     * the raw body rather than throwing and blanking the whole listing.
+     */
+    private function safeConvertToUtf8(string $body, string $charset): string
+    {
+        try {
+            $converted = @mb_convert_encoding($body, 'UTF-8', $charset);
+
+            return $converted !== false ? $converted : $body;
+        } catch (\Throwable) {
+            return $body;
+        }
     }
 
     private function decode(string $body, int $encoding): string

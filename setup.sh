@@ -37,15 +37,10 @@ fi
 echo ">>> Running database migrations..."
 php artisan migrate --force
 
-# Build frontend assets
-if command -v npm &> /dev/null; then
-    echo ">>> Building frontend assets..."
-    npm ci --omit=dev
-    npm run build
-else
-    echo ">>> npm not found — skipping frontend build."
-    echo "    Build assets locally with 'npm run build' and commit public/build/."
-fi
+# Frontend assets are built locally and committed to public/build/ by the
+# pre-push git hook — Node isn't available on the server, and even where it is,
+# `npm ci --omit=dev` strips vite/tailwind since they're devDependencies.
+echo ">>> Frontend assets ship via public/build/ (committed by the pre-push hook) — nothing to build here."
 
 # Cache for production
 echo ">>> Caching config, routes, views..."

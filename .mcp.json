@@ -3,7 +3,7 @@
         "laravel-boost": {
             "command": "/usr/bin/php",
             "args": [
-                "/home/michael/Code/Projects/timber-trace-crafts/artisan",
+                "/home/michael/CommandCenter/timber-trace-crafts/artisan",
                 "boost:mcp"
             ]
         }

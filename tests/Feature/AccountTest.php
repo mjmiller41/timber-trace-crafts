@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -31,10 +32,46 @@ class AccountTest extends TestCase
         $this->actingAs($user)->put(route('account.profile.update'), [
             'name' => $user->name,
             'email' => 'new@example.com',
+            'current_password' => 'Password1!',
         ]);
 
         $this->assertNull($user->fresh()->email_verified_at);
         Notification::assertSentTo($user->fresh(), VerifyEmail::class);
+    }
+
+    #[Test]
+    public function email_change_without_current_password_is_rejected(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'old@example.com',
+            'password' => Hash::make('Password1!'),
+        ]);
+
+        $response = $this->actingAs($user)->put(route('account.profile.update'), [
+            'name' => $user->name,
+            'email' => 'new@example.com',
+        ]);
+
+        $response->assertSessionHasErrors('current_password');
+        $this->assertEquals('old@example.com', $user->fresh()->email);
+    }
+
+    #[Test]
+    public function email_change_with_wrong_current_password_is_rejected(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'old@example.com',
+            'password' => Hash::make('Password1!'),
+        ]);
+
+        $response = $this->actingAs($user)->put(route('account.profile.update'), [
+            'name' => $user->name,
+            'email' => 'new@example.com',
+            'current_password' => 'WrongPassword1!',
+        ]);
+
+        $response->assertSessionHasErrors('current_password');
+        $this->assertEquals('old@example.com', $user->fresh()->email);
     }
 
     #[Test]
@@ -51,6 +88,41 @@ class AccountTest extends TestCase
         ]);
 
         $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
+    #[Test]
+    public function a_user_cannot_view_another_users_order(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($other)
+            ->get(route('account.orders.show', $order))
+            ->assertForbidden();
+    }
+
+    #[Test]
+    public function a_user_can_view_their_own_order(): void
+    {
+        $owner = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($owner)
+            ->get(route('account.orders.show', $order))
+            ->assertOk();
+    }
+
+    #[Test]
+    public function a_user_cannot_view_another_users_order_invoice(): void
+    {
+        $owner = User::factory()->create();
+        $other = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $owner->id]);
+
+        $this->actingAs($other)
+            ->get(route('account.orders.invoice', $order))
+            ->assertForbidden();
     }
 
     #[Test]

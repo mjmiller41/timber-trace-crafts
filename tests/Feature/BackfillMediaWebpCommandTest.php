@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Media;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Encoders\PngEncoder;
@@ -83,6 +85,41 @@ class BackfillMediaWebpCommandTest extends TestCase
             ->assertExitCode(0);
 
         $disk->assertMissing('media/doc.webp');
+    }
+
+    #[Test]
+    public function a_dead_url_for_one_media_does_not_abort_the_backfill_for_others(): void
+    {
+        $disk = $this->fakeDisk();
+        // Only "good" is actually written to disk — "bad" has a Media record
+        // but no file, so the disk read returns null and it falls through to
+        // an HTTP fetch of a URL that simulates a network failure.
+        $disk->put('media/good.png', $this->pngBytes());
+
+        $bad = Media::factory()->create([
+            'path' => 'media/bad.png',
+            'disk' => config('filesystems.default'),
+            'mime_type' => 'image/png',
+        ]);
+        $good = Media::factory()->create([
+            'path' => 'media/good.png',
+            'disk' => config('filesystems.default'),
+            'mime_type' => 'image/png',
+        ]);
+
+        Http::fake([
+            $bad->url() => function () {
+                throw new ConnectionException('Could not resolve host.');
+            },
+            $good->url() => Http::response($this->pngBytes(), 200),
+        ]);
+
+        $this->artisan('media:backfill-webp')
+            ->expectsOutputToContain('failed: 1')
+            ->assertExitCode(0);
+
+        $disk->assertMissing('media/bad.webp');
+        $disk->assertExists('media/good.webp');
     }
 
     #[Test]

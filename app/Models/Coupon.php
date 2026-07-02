@@ -94,11 +94,13 @@ class Coupon extends Model
             default => $items->sum(fn ($i) => ($i['price'] + ($i['personalization_price'] ?? 0)) * $i['qty']),
         };
 
-        return match ($this->type) {
+        $discount = match ($this->type) {
             'percent' => round($eligibleSubtotal * ((float) $this->value / 100), 2),
-            'fixed' => min((float) $this->value, $eligibleSubtotal),
+            'fixed' => (float) $this->value,
             default => 0.0,
         };
+
+        return min($discount, $eligibleSubtotal);
     }
 
     private function eligibleProductIds(Collection $items): Collection
