@@ -1,0 +1,128 @@
+# Tasks
+
+## Active
+- [ ] **Add cookie consent / GDPR-CCPA banner** - legally required, show on first visit
+- [ ] **Verify email verification is wired in AuthController** - required per spec
+- [ ] **Add password strength rules** - min length/complexity on register + reset
+- [ ] **Add CAPTCHA** - login, contact form, checkout
+- [ ] **Write About page content** - Michael J. Miller, disabled veteran (Desert Storm), Avon Park FL, one-person operation
+- [ ] **Investigate prod R2 `put()` failure** - `media:backfill-webp` logged "Storage write failed for media/…webp". Token is Read+Write, so not a scope issue; the `r2` disk's `'throw' => false` masked the real S3 error. Temporarily set `'throw' => true` (or wrap `put()` in try/catch logging `$e->getMessage()`) and retry one prod write; likely an S3-SDK/R2 incompatibility (endpoint/region or checksum/ACL header). Confirm admin product/journal uploads persist to R2. (3 broken journal WebPs already fixed via dashboard upload.)
+
+## Waiting On
+- [ ] **Certificate of Insurance** - waiting on Michael to obtain/send to City of Avon Park (since 2026-06-25)
+
+## Someday
+- [ ] **Stripe refund via API** - admin can mark "refunded" but no real Stripe call yet
+- [ ] **Invoice/receipt download** - My Account → order detail
+- [ ] **Recently viewed products** - Alpine.js + localStorage
+- [ ] **Gift message field at checkout** - verify present
+- [ ] **Product search UI** - backend exists, wire up shop header/sidebar box
+- [ ] **Shop filter by tags**
+- [ ] **Social sharing buttons on product pages** - Facebook, Pinterest, Instagram
+- [ ] **Reorder past items** - from order history
+- [ ] **Custom orders / B2B / bulk quote flow**
+- [ ] **Gallery / portfolio page**
+- [ ] **Materials / sizing / care guide page**
+- [ ] **Dark mode**
+- [ ] **Review photos**
+- [ ] **Customer file upload for custom engraving**
+- [ ] **Gift cards** - post-launch
+- [ ] **Abandoned cart emails** - post-launch
+- [ ] **Admin 2FA** - TOTP via Fortify or custom
+- [ ] **Admin session idle timeout**
+- [ ] **Audit log** - admin actions
+- [ ] **Admin error log viewer**
+- [ ] **Shipping labels (Avery 5126)** - printable from admin order detail
+- [ ] **Umami analytics integration**
+- [ ] **Marketplace sync** - Etsy/eBay/Amazon Handmade, Phase 3
+- [ ] **Bulk Etsy product push** - retest, was 7/7 failing; individual push works
+- [ ] **Etsy image upload on push** - needs uploadListingImage endpoint
+- [ ] **Etsy inventory sync** - untested after recent changes
+- [ ] **Week 1 pillar** - "The Best Handmade Gifts for Women Who Appreciate the Details" (~2,500 words)
+- [ ] **Week 2** - "Valentine's Day Jewelry Gift Guide" (listicle, publish by Jan 10)
+- [ ] **Week 3** - "How Wood Earrings Are Made: A Look Inside the Workshop" (how-to)
+- [ ] **Week 4** - "Personalized Jewelry Box Ideas: How to Make a Gift She'll Keep Forever" (listicle)
+- [ ] **Week 6** - "What to Get a Woman Who Has Everything: 7 Handmade Ideas" (listicle)
+- [ ] **Week 7** - "Why We Started Timber Trace Crafts" (brand story)
+- [ ] **Week 8** - "Mother's Day Gifts from a Small Maker" (listicle, publish by Apr 1)
+- [ ] **Week 10** - "Handmade Wedding Party Gifts: A Complete Guide for Brides" (pillar)
+- [ ] **Week 12** - "Wood vs. Metal Earrings: Which Is Better for Sensitive Ears?" (comparison)
+- [ ] **After each post** - run `/blog analyze`, score 80+, add internal links to product pages, apply tags
+- [ ] **Pillar 6** - "How Laser Cutting and Engraving Works" (~3,000 words)
+- [ ] **Spoke 3.2** - "Can you wear wood earrings in the shower?" (FAQ, ~500 words)
+- [ ] **Spoke 5.2** - "Are engraved tumblers dishwasher safe?" (FAQ, ~500 words)
+- [ ] **Pillar 1** - "Ultimate Guide to Personalized Laser-Engraved Gifts" (~3,500 words)
+- [ ] **Spoke 1.1** - "How laser engraving personalization works"
+- [ ] **Spoke 1.2** - "What can and can't be laser engraved"
+- [ ] **Spoke 1.7** - "Laser engraving vs. laser cutting: what's the difference?"
+- [ ] **Pillar 2** - gift guide hub + first 2 seasonal spokes (next upcoming holiday)
+- [ ] **Pillar 3** - "The Complete Guide to Wood Earrings" (~3,000 words)
+- [ ] **Spoke 3.3** - "Are wood earrings hypoallergenic?"
+- [ ] **Publish Month 1 batch** - three posts with featured images, tags, SEO meta
+- [ ] **Set up Pinterest scheduling** - pin every post with image + excerpt on publish day
+- [ ] **Monthly AI citation tracking** - 10 target queries in ChatGPT + Perplexity; review and adjust content angle
+- [ ] **Submit site to Bing IndexNow** - accelerate Bing Copilot indexation
+- [ ] **Publish journal posts with answer-first structure** - 1st (40-60 word factual opener per H2), 2nd (include a data table/comparison), 3rd (question-based H2s throughout)
+- [ ] **"How laser-cut wood earrings are made" pillar post** - 1,500+ words, step-by-step
+- [ ] **Create YouTube channel** - "Timber Trace Crafts"; post first studio process video, then a hand-finishing/inlay video
+- [ ] **Create LinkedIn company page**
+- [ ] **Participate in r/woodworking** - genuine behind-the-scenes post (not a link drop)
+- [ ] **Participate in r/crafts** - answer a laser-cutting/wood-finishing question
+- [ ] **Add YouTube + LinkedIn URLs to `social.*` admin settings**
+- [ ] **Add YouTube + LinkedIn to Organization `sameAs` array** - `layouts/app.blade.php`
+- [ ] **Add `jobTitle` + `description` to Person entity** - Michael J. Miller, global schema
+- [ ] **Add `SiteLinksSearchBox` schema (SearchAction)** - once traffic justifies it
+- [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
+
+## Done
+- [x] **~~Design/visual audit — subtraction pass: removed redundant hero eyebrow ("Cut to 0.1 mm · Finished by hand"), deleted duplicate homepage newsletter block, demoted all-caps tracked eyebrows~~ (2026-06-30)**
+- [x] **~~Typography overhaul — replaced Playfair+Montserrat with self-hosted Fraunces + Inter Tight; widened weight/size variation in the type scale~~ (2026-06-30)**
+- [x] **~~Signature device — product-card `.kerf-frame` laser-kerf edge, `.engrave-reveal` hover interaction, hero leads with product shot (cherry butterfly earrings), rewritten section headlines~~ (2026-06-30)**
+- [x] **~~Fretwork section divider — explored geometric SVG + botanical flourish, then dropped entirely per operator~~ (2026-06-30)**
+- [x] **~~Fix broken featured image on "Best Handmade Gifts for Women" journal post — regenerated 3 missing WebP siblings locally, uploaded to R2~~ (2026-06-30)**
+- [x] **~~GEO on-page — FAQ page (10-15 Q&A), factual 40-60 word product-description openers, question-based H2s + "What is laser-cut woodworking?" definition block + wood materials comparison table on about-us~~ (2026-06-28)**
+- [x] **~~Week 1 blog featured image created~~ (2026-06-28)**
+- [x] **~~Image & media system — reusable `<x-admin.media-picker>`, product + per-variant image management, R2 uploads via MediaUploader, WebP variant generation, journal picker; product + journal views on `primary_image_url` `<picture>` pattern; 112 tests passing~~ (2026-06-28)**
+- [x] **~~Page-load FOUC fix — `x-cloak` on initially-hidden `x-show` elements~~ (2026-06-28)**
+- [x] **~~Admin JS bundle 712 kB → 6 kB — dynamic-import `tui-image-editor` into its own chunk~~ (2026-06-28)**
+- [x] **~~Security M2 — CSRF token rotation on privilege escalation~~ (2026-06-28)**
+- [x] **~~Admin dashboard link on account page, visible only to admins~~ (2026-06-28)**
+- [x] **~~Etsy integration — webhook secret/URL, OAuth connect flow, product + shipment push observers, prod queue worker (supervisor), review/order sync, new-order email~~ (2026-06-28)**
+- [x] **~~SEO refresh — WebP hero, canonical + noindex on private pages, XML sitemap + hardened robots.txt, OG/Twitter meta, JSON-LD, security headers, llms.txt, R2 cache headers~~ (2026-06-28)**
+- [x] **~~Audit fixes — wishlist `product_variant_id` column bug, order-status lookup rate limit, Etsy new-order notification race, variant-level cart pricing, coupon `max_uses` concurrency lock, guest-email URL leaks, removed first-user admin auto-promotion (`app:make-admin`)~~ (2026-06-28)**
+- [x] **~~SEO refresh: 19 fixes (title/canonical/robots/OG/JSON-LD), 111 images optimized 145.8MB→39.1MB, 51 tests passing~~ (2026-06-25)**
+- [x] **~~Blog Phase 3: tag archives, related posts, reading time, ZenComposer~~ (2026-06-25)**
+- [ ] **Set up Stripe account + wire keys/webhook** - blocks launch; switched from Square, account doesn't exist yet
+
+## Audit findings — 2026-07-01
+- [ ] **2. **[High]** Cart accepts a variant from a different product → price manipulation — `app/Http/Controllers/CartController.php:27-55`. `product_id`/`variant_id` validated independently; forged POST ships product A at product B's variant price and decrements B's stock.**
+- [ ] **3. **[High]** Etsy order import not transactional, job retry not idempotent — `app/Services/Etsy/EtsyOrderSync.php:90-129`, `app/Jobs/ImportEtsyOrder.php:25`. Mid-loop failure leaves an itemless order; retry hits the `etsy_receipt_id` unique index and fails all tries; scheduled sync then skips the receipt forever.**
+- [ ] **4. **[High]** Sync watermark advances on failure → orders silently never imported — `app/Services/Etsy/EtsyOrderSync.php:69`. `orders_last_synced_at` set to `now()` even when the receipts fetch failed, so the failed window is skipped on every future run.**
+- [ ] **5. **[High]** Unlocked OAuth token refresh race can brick the Etsy connection — `app/Services/Etsy/EtsyOAuthService.php:80-116`. Etsy rotates refresh tokens; scheduler + queue worker + admin requests refresh concurrently with no lock → `invalid_grant` / stale token stored → manual reconnect required.**
+- [ ] **6. **[Medium]** Missing rate limits on abuse-prone public POSTs — `routes/web.php:51` (`/cart/coupon` code brute force), `:95,97` (`/forgot-password`, `/reset-password` mail-bombing + enumeration + token guessing), `:82` (`/contact` synchronous SMTP per request); `/register`, `/newsletter`, `/restock-request` honeypot-only.**
+- [ ] **7. **[Medium]** Inactive shipping method id → free shipping — `app/Http/Controllers/CheckoutController.php:62-65,120-123`. Bare `exists:` validation, but active-filtered lookup returns null → `$shippingAmount = 0.0` on both legs, so the amount check passes.**
+- [ ] **8. **[Medium]** Guest email validation inert — `app/Http/Controllers/CheckoutController.php:89,134`. `required_if:user,null` references a nonexistent request input, so it never fires: empty guest email → order with no buyer contact; omitted key → undefined-array-key 500 after payment capture.**
+- [ ] **9. **[Medium]** Cart prices snapshotted at add-to-cart, never revalidated — `app/Http/Controllers/CartController.php:55`, `CheckoutController.php:126`. A parked cart charges pre-price-change/sale-end prices; `price_snapshot` then legitimizes the stale figure.**
+- [ ] **10. **[Medium]** Draft/archived products and disabled variants purchasable by direct POST — `app/Http/Controllers/CartController.php:27-35`; `variant.is_enabled` checked nowhere in the purchase path, `product.status` only on storefront listings.**
+- [ ] **11. **[Medium]** Etsy sync jobs: observer echo + no uniqueness guard — `app/Services/Etsy/EtsyProductSync.php:31-44` uses non-quiet `save()`/`update()` so every listing create re-triggers `ProductObserver` (`app/Observers/ProductObserver.php:22`) and queues a redundant sync (2-3× API traffic); `app/Jobs/SyncProductToEtsy.php` lacks `ShouldBeUnique` → concurrent runs can create duplicate Etsy listings.**
+- [ ] **12. **[Medium]** EtsyClient has no 429/5xx retry; scheduled syncs can overlap; jobs lack timeouts — `app/Services/Etsy/EtsyClient.php:45-57`, `routes/console.php:11-13`. One 429 fails a product sync / burns a webhook-import try / aborts order pagination; overlapping runs double-read the watermark.**
+- [ ] **13. **[Medium]** Webhook status events swallowed with 200 → lost forever — `app/Http/Controllers/EtsyWebhookController.php:39-47,125-159`. `order.canceled/shipped/delivered` run synchronous DB updates inside a catch-all that always ACKs, so Etsy never redelivers after a transient failure (`order.paid` is safely queued).**
+- [ ] **14. **[Medium]** `ImportEtsyOrder` silently succeeds on empty receipt payload — `app/Services/Etsy/EtsyOrderSync.php:74-84`. A 2xx-with-empty-body fetch returns null → job completes "successfully", order never imported, nothing logged.**
+- [ ] **15. **[Medium]** One malformed email bricks the admin inbox — `app/Services/ImapService.php:63-71,168-171`. `Carbon::parse` on a garbage `Date:` header or `mb_convert_encoding` with an unknown sender-controlled charset throws during listing; the error page renders zero messages and the bad mail can't be deleted via the UI it broke.**
+- [ ] **16. **[Medium]** Media write-path failures invisible — merged into Active item "Investigate prod R2 `put()` failure" (detail there).**
+- [ ] **17. **[Medium]** `db:import-hostinger` truncates local tables with no backup/transaction and imports the remote `jobs` table into the live queue — `app/Console/Commands/ImportFromHostinger.php:47,126-133`.**
+- [ ] **18. **[Medium]** Production DB host/name/user committed to VCS — `app/Console/Commands/ExportToHostinger.php:14-17`, `ImportFromHostinger.php:12-15` (CLI defaults), plus SSH endpoint in `memory/project_infra.md:11-12`. Remote-accepting MySQL host means only the password protects prod data if the repo leaks.**
+- [ ] **19. **[Medium]** Server build step in deploy/setup scripts cannot work — `deploy.sh:19-20`, `setup.sh:43-44`. `npm ci --omit=dev` strips vite/tailwind (all devDependencies), so `npm run build` exits 127 and `set -e` aborts mid-deploy (assets only ship via the pre-push hook committing `public/build/`).**
+- [ ] **20. **[Medium]** Production session cookie missing the `Secure` flag — `config/session.php:172`; `SESSION_SECURE_COOKIE` set nowhere (defaults false).**
+- [ ] **21. **[Medium]** No tests locking in account-order ownership checks — `app/Http/Controllers/AccountController.php:32-42` guards are correct but `tests/Feature/AccountTest.php` never exercises them; admin `updateStatus`/`addShipment` also untested.**
+- [ ] **22. **[Low]** Percent coupons accept values >100 → negative total bricks checkout with that coupon — `app/Http/Controllers/Admin/CouponController.php:30,52`. Fix: `max:100` for percent type + clamp discount to subtotal in checkout.**
+- [ ] **23. **[Low]** Coupon casing mismatch — `app/Http/Controllers/CartController.php:89` uppercases input; admin saves as typed → lowercase codes never match on SQLite. Fix: uppercase on save.**
+- [ ] **24. **[Low]** Email change without password re-confirmation — `app/Http/Controllers/AccountController.php:153-175`; hijacked session can swap email then reset password. Fix: require `current_password` when email changes.**
+- [ ] **25. **[Low]** Session not regenerated on registration — `app/Http/Controllers/AuthController.php:67` (login does at `:32`). Fix: `$request->session()->regenerate()` after `Auth::login()`.**
+- [ ] **26. **[Low]** Order-tracking signed links never expire — `resources/views/emails/order-confirmation.blade.php:95` (+ shipped/status emails). Fix: `URL::temporarySignedRoute(..., now()->addDays(90))`.**
+- [ ] **27. **[Low]** No Content-Security-Policy header — `app/Http/Middleware/SecurityHeaders.php:15-22`. Fix: add CSP (even report-only) allowing `js.stripe.com` + the R2 host.**
+- [ ] **28. **[Low]** Checkout lock-ordering deadlock possible — `app/Http/Controllers/CheckoutController.php:165-179` locks variants in session-insertion order; deadlock → 500 after capture (feeds #1). Fix: sort cart lines by `variant_id` before locking.**
+- [ ] **29. **[Low]** Tax config footguns — `app/Services/TaxService.php:12-26`: `rate_percent` column actually stores a fraction (`0.0600`) inviting a future 100× bug; configured state list not uppercased (`'fl'` silently disables tax). Fix: rename/document the column semantics; normalize case on both sides.**
+- [ ] **30. **[Low]** Imported Etsy order items missing `etsy_transaction_id` — `app/Services/Etsy/EtsyOrderSync.php:121-128`; the unique dedup index on that column is dead code. Fix: populate from `$transaction['transaction_id']`.**
+- [ ] **31. **[Low]** Media console commands: assorted failure-handling gaps — `media:sync` creates duplicate records for `.webp` variants (`app/Console/Commands/SyncMediaFromStorage.php:24`); `media:migrate-products` deletes source before updating the DB; `media:backfill-webp` HTTP fallbacks can abort the whole run on one dead URL.**
+- [ ] **32. **[Low]** Repo/config hygiene — `.agents/skills/` is a byte-identical copy of `.claude/skills/` (drift risk; keep one, symlink); `laravel/sanctum` unused; `.mcp.json` points at nonexistent `/home/michael/Code/Projects/timber-trace-crafts/artisan` so the Boost MCP server can't start; on-disk `.env.production` stale (`LOG_LEVEL=debug`, `FILESYSTEM_DISK=local`, old `AWS_*` keys, missing `ETSY_*`/`IMAP_*`/`STRIPE_WEBHOOK_SECRET`).**
