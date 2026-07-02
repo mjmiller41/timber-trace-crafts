@@ -11,7 +11,14 @@ metadata:
 - Server IP: 5.183.10.138
 - SSH: `ssh -p 65002 u903552178@5.183.10.138`
 - Deploy path: `~/domains/timbertracecrafts.com/public_html`
-- Git integration: hPanel → Advanced → Git → auto-deploys `main` → `public_html`
+- Git integration: hPanel → Advanced → Git → auto-deploys `main` → `public_html`.
+  Confirmed 2026-07-02: this only clones, runs `composer install`, then
+  "publishes" (syncs into live `public_html`, preserving `.env`/`vendor` rather
+  than overwriting them). No hook exists to run a custom command afterward, and
+  composer.json script hooks aren't reliable here either — they'd fire in the
+  throwaway clone/build step before "publish", not against the live directory.
+  `deploy.sh` (migrations, cache rebuild, env decrypt) must be run manually over
+  SSH after every push — see the pre-push reminder note below.
 - Root `.htaccess` redirects all traffic into `public/` and blocks `.env` access
 - Node.js unavailable on server — `public/build/` is committed to git and built locally via pre-push hook
 - `exec()` disabled — `php artisan storage:link` fails; use `ln -s` directly in terminal instead
@@ -57,7 +64,9 @@ every deploy instead of it drifting out of sync (this is what caused the
 - **If the key ever leaks** (accidental commit, exposed log), rotate everything in
   the file, not just the key — it's symmetric encryption (Stripe keys, Etsy OAuth
   secret, IMAP password, `APP_KEY`, etc.).
-- **Open question:** unconfirmed whether Hostinger's hPanel Git auto-deploy runs
-  `deploy.sh` after its `git pull`, or only pulls code. If there's no post-deploy
-  hook configured in hPanel, `deploy.sh` (and thus the env decrypt) must still be
-  run manually over SSH after each push.
+- **Confirmed:** Hostinger's auto-deploy does NOT run `deploy.sh` (see hosting
+  section above) — it must be run manually over SSH after each push:
+  `ssh -p 65002 u903552178@5.183.10.138` then
+  `cd ~/domains/timbertracecrafts.com/public_html && bash deploy.sh`.
+  A local (untracked, machine-only) `.git/hooks/pre-push` prints this reminder
+  automatically on every `git push` from this machine.
