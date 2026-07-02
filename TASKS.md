@@ -92,6 +92,7 @@
 - [x] **~~Audit fixes — wishlist `product_variant_id` column bug, order-status lookup rate limit, Etsy new-order notification race, variant-level cart pricing, coupon `max_uses` concurrency lock, guest-email URL leaks, removed first-user admin auto-promotion (`app:make-admin`)~~ (2026-06-28)**
 - [x] **~~SEO refresh: 19 fixes (title/canonical/robots/OG/JSON-LD), 111 images optimized 145.8MB→39.1MB, 51 tests passing~~ (2026-06-25)**
 - [x] **~~Blog Phase 3: tag archives, related posts, reading time, ZenComposer~~ (2026-06-25)**
+- [x] **~~Two pre-existing bugs found during post-audit visual verification — admin coupon create/edit pages 500'd on a missing `$categories`/`$products` variable in `CouponController@create`/`@edit`; raw PHP (`$errors->has('code')`) inside an Alpine `x-show` attribute on the cart page broke the coupon-error auto-expand~~ (2026-07-02)**
 - [ ] **Set up Stripe account + wire keys/webhook** - blocks launch; switched from Square, account doesn't exist yet
 
 ## Audit findings — 2026-07-01
