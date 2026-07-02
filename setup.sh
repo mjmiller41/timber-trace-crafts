@@ -14,13 +14,22 @@ echo ">>> Installing PHP dependencies..."
 composer install --no-dev --optimize-autoloader --no-interaction
 
 # Set up .env
+ENV_KEY_FILE="$HOME/.secrets/ttc-env-key"
 if [ ! -f "$DEPLOY_DIR/.env" ]; then
-    cp "$DEPLOY_DIR/.env.example" "$DEPLOY_DIR/.env"
-    echo ""
-    echo ">>> .env file created. Fill in your production values now."
-    echo "    Press Enter to open nano, save with Ctrl+X then Y."
-    read -r
-    nano "$DEPLOY_DIR/.env"
+    if [ -f "$ENV_KEY_FILE" ] && [ -f "$DEPLOY_DIR/.env.production.encrypted" ]; then
+        echo ">>> Decrypting .env.production.encrypted with $ENV_KEY_FILE..."
+        php artisan env:decrypt --env=production --key="$(cat "$ENV_KEY_FILE")" --filename=.env --force
+    else
+        echo ">>> No $ENV_KEY_FILE found — falling back to manual .env entry."
+        echo "    (Run 'php artisan env:encrypt --env=production' locally and store the"
+        echo "    printed key at $ENV_KEY_FILE on this server to skip this next time.)"
+        cp "$DEPLOY_DIR/.env.example" "$DEPLOY_DIR/.env"
+        echo ""
+        echo ">>> .env file created. Fill in your production values now."
+        echo "    Press Enter to open nano, save with Ctrl+X then Y."
+        read -r
+        nano "$DEPLOY_DIR/.env"
+    fi
 else
     echo ">>> .env already exists, skipping."
 fi

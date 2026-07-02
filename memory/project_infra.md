@@ -33,3 +33,31 @@ metadata:
 
 - `php artisan media:sync` — insert media DB records for any files in storage missing from DB
 - `php artisan media:upload-to-r2` — upload local images to R2 and set disk='r2' on all records
+
+## Production env — encrypted-at-rest workflow (added 2026-07-02)
+
+`.env` and `.env.production` are gitignored and never committed. Instead, an
+encrypted snapshot ships with the code so `deploy.sh` can rebuild `.env` on
+every deploy instead of it drifting out of sync (this is what caused the
+`SESSION_SECURE_COOKIE`/`APP_ENV` config bug found during the 2026-07-01 audit).
+
+- **To update production secrets:** maintain a local `.env.production` (gitignored,
+  real values, never committed), then run:
+  `php artisan env:encrypt --env=production --key=<key>`
+  This produces `.env.production.encrypted` — ciphertext, safe to commit. Commit
+  and push it like any other file.
+- **The encryption key** lives only in a password manager and, on the server, in
+  `~/.secrets/ttc-env-key` (outside `public_html`, outside git, `chmod 600`).
+  Never write it into any file under the repo.
+- **On the server**, `deploy.sh` runs
+  `php artisan env:decrypt --env=production --key="$(cat ~/.secrets/ttc-env-key)" --filename=.env --force`
+  before migrations/caching, regenerating `.env` from the encrypted file every deploy.
+- `setup.sh` does the same on first-time provisioning if `~/.secrets/ttc-env-key`
+  already exists; otherwise it falls back to the old manual `nano .env` flow.
+- **If the key ever leaks** (accidental commit, exposed log), rotate everything in
+  the file, not just the key — it's symmetric encryption (Stripe keys, Etsy OAuth
+  secret, IMAP password, `APP_KEY`, etc.).
+- **Open question:** unconfirmed whether Hostinger's hPanel Git auto-deploy runs
+  `deploy.sh` after its `git pull`, or only pulls code. If there's no post-deploy
+  hook configured in hPanel, `deploy.sh` (and thus the env decrypt) must still be
+  run manually over SSH after each push.
