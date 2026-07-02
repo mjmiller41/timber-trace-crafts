@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Jobs\ImportEtsyOrder;
+use App\Jobs\UpdateEtsyOrderStatus;
 use App\Mail\EtsyNewOrderMail;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -238,5 +240,41 @@ class EtsyWebhookControllerTest extends TestCase
             ImportEtsyOrder::class,
             fn ($job) => $job->resourceUrl === 'https://api.etsy.com/v3/application/shops/123/receipts/999'
         );
+    }
+
+    #[Test]
+    public function status_events_are_queued_through_update_etsy_order_status(): void
+    {
+        Queue::fake();
+
+        Order::factory()->create(['etsy_receipt_id' => '11111']);
+
+        foreach (['order.canceled' => 'canceled', 'order.shipped' => 'shipped', 'order.delivered' => 'delivered'] as $eventType => $action) {
+            $this->postWebhook([
+                'event_type' => $eventType,
+                'resource_url' => 'https://api.etsy.com/v3/application/shops/1/receipts/11111',
+            ]);
+        }
+
+        Queue::assertPushed(UpdateEtsyOrderStatus::class, fn ($job) => $job->receiptId === '11111' && $job->action === 'canceled');
+        Queue::assertPushed(UpdateEtsyOrderStatus::class, fn ($job) => $job->receiptId === '11111' && $job->action === 'shipped');
+        Queue::assertPushed(UpdateEtsyOrderStatus::class, fn ($job) => $job->receiptId === '11111' && $job->action === 'delivered');
+    }
+
+    #[Test]
+    public function it_returns_a_non_2xx_response_when_status_processing_genuinely_fails(): void
+    {
+        Order::factory()->create(['etsy_receipt_id' => '22222', 'status' => 'processing']);
+
+        // Simulate a genuine backend failure (e.g. a DB outage) during synchronous
+        // job execution, rather than the old catch-all that always ACKed with 200.
+        Schema::drop('orders');
+
+        $response = $this->postWebhook([
+            'event_type' => 'order.shipped',
+            'resource_url' => 'https://api.etsy.com/v3/application/shops/1/receipts/22222',
+        ]);
+
+        $response->assertStatus(500)->assertJson(['ok' => false]);
     }
 }

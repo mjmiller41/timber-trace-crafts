@@ -53,6 +53,21 @@ class CouponTest extends TestCase
         $this->assertNull(session('coupon'));
     }
 
+    public function test_cart_page_renders_a_valid_js_expression_when_a_code_error_is_present(): void
+    {
+        $this->seedCart();
+
+        $this->post(route('cart.coupon'), ['code' => 'BADCODE']);
+
+        $response = $this->get(route('cart.index'));
+
+        $response->assertOk();
+        // Raw PHP must never leak into the Alpine x-show expression — it must
+        // be Blade-interpolated to a JS boolean literal before reaching the page.
+        $response->assertDontSee('$errors->has', false);
+        $response->assertSee('open || true', false);
+    }
+
     public function test_expired_coupon_returns_error(): void
     {
         $this->seedCart();
@@ -110,6 +125,19 @@ class CouponTest extends TestCase
     public function test_fixed_coupon_is_capped_at_eligible_subtotal(): void
     {
         $coupon = Coupon::factory()->fixed(200)->make(['applies_to' => 'all']);
+
+        $cart = [
+            'a' => ['product_id' => 1, 'price' => 30.00, 'personalization_price' => 0.0, 'qty' => 1],
+        ];
+
+        $this->assertEquals(30.00, $coupon->calculateDiscount($cart));
+    }
+
+    public function test_percent_coupon_stored_over_100_is_clamped_to_eligible_subtotal(): void
+    {
+        // Defensive clamp for any pre-existing coupon rows saved before the
+        // admin-side max:100 validation was added.
+        $coupon = Coupon::factory()->make(['type' => 'percent', 'value' => 150, 'applies_to' => 'all']);
 
         $cart = [
             'a' => ['product_id' => 1, 'price' => 30.00, 'personalization_price' => 0.0, 'qty' => 1],

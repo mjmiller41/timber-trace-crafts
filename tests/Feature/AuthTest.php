@@ -40,4 +40,56 @@ class AuthTest extends TestCase
 
         $this->assertEquals('customer', $customer->fresh()->role);
     }
+
+    #[Test]
+    public function registration_regenerates_the_session_id(): void
+    {
+        $this->get('/register');
+        $originalSessionId = session()->getId();
+
+        $this->post('/register', [
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'password' => 'Password1!',
+            'password_confirmation' => 'Password1!',
+        ]);
+
+        $this->assertNotEquals($originalSessionId, session()->getId());
+    }
+
+    #[Test]
+    public function register_is_rate_limited_after_five_attempts(): void
+    {
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/register', ['name' => 'Jane', 'email' => "jane{$i}@example.com", 'password' => 'short', 'password_confirmation' => 'short']);
+        }
+
+        $response = $this->post('/register', ['name' => 'Jane', 'email' => 'final@example.com', 'password' => 'short', 'password_confirmation' => 'short']);
+
+        $response->assertStatus(429);
+    }
+
+    #[Test]
+    public function forgot_password_is_rate_limited_after_six_attempts(): void
+    {
+        for ($i = 0; $i < 6; $i++) {
+            $this->post('/forgot-password', ['email' => 'nobody@example.com']);
+        }
+
+        $response = $this->post('/forgot-password', ['email' => 'nobody@example.com']);
+
+        $response->assertStatus(429);
+    }
+
+    #[Test]
+    public function reset_password_is_rate_limited_after_six_attempts(): void
+    {
+        for ($i = 0; $i < 6; $i++) {
+            $this->post('/reset-password', ['token' => 'bad', 'email' => 'nobody@example.com', 'password' => 'Password1!', 'password_confirmation' => 'Password1!']);
+        }
+
+        $response = $this->post('/reset-password', ['token' => 'bad', 'email' => 'nobody@example.com', 'password' => 'Password1!', 'password_confirmation' => 'Password1!']);
+
+        $response->assertStatus(429);
+    }
 }

@@ -8,6 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('etsy:sync-orders')->everyFifteenMinutes();
-Schedule::command('etsy:sync-inventory')->everyThirtyMinutes();
-Schedule::command('etsy:sync-products')->dailyAt('02:00');
+Schedule::command('etsy:sync-orders')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('etsy:sync-inventory')->everyThirtyMinutes()->withoutOverlapping();
+Schedule::command('etsy:sync-products')->dailyAt('02:00')->withoutOverlapping();

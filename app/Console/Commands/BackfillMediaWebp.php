@@ -95,8 +95,14 @@ class BackfillMediaWebp extends Command
             // Fall through to the public URL.
         }
 
-        $response = Http::get($media->url());
+        // A single dead/unreachable URL must not abort the whole backfill run —
+        // treat a connection failure the same as an unsuccessful response.
+        try {
+            $response = Http::get($media->url());
 
-        return $response->successful() ? $response->body() : null;
+            return $response->successful() ? $response->body() : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

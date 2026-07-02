@@ -34,6 +34,14 @@ class CartController extends Controller
         $product = Product::findOrFail($validated['product_id']);
         $variant = ProductVariant::findOrFail($validated['variant_id']);
 
+        if ($variant->product_id !== $product->id) {
+            return redirect()->back()->withErrors(['variant_id' => 'This option does not belong to that product.']);
+        }
+
+        if ($product->status !== 'active' || ! $variant->is_enabled) {
+            return redirect()->back()->withErrors(['product_id' => 'This item is not currently available.']);
+        }
+
         $personalizationText = $validated['personalization_text'] ?? null;
         $personalizationPrice = ($product->personalization_type === 'addon' && $personalizationText)
             ? (float) ($product->personalization_price ?? 0)

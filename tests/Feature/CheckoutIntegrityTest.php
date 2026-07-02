@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
+use App\Models\User;
 use App\Services\StripeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -175,6 +176,60 @@ class CheckoutIntegrityTest extends TestCase
     }
 
     #[Test]
+    public function checkout_charges_the_current_variant_price_not_the_stale_cart_snapshot(): void
+    {
+        // Cart snapshot says $20, but the variant price has since changed to $35.
+        $this->variant->update(['price' => 35.00]);
+
+        // $35 + $5 shipping = $40 = 4000 cents.
+        $this->mockStripe(amountReceived: 4000);
+
+        $response = $this->postCheckout();
+
+        $response->assertRedirect();
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('order_items', ['price_snapshot' => 35.00]);
+    }
+
+    #[Test]
+    public function checkout_rejects_an_inactive_shipping_method(): void
+    {
+        $this->shipping->update(['active' => false]);
+        $this->mockStripe(amountReceived: 2000);
+
+        $response = $this->postCheckout();
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('shipping_method_id');
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    #[Test]
+    public function guest_checkout_requires_an_email(): void
+    {
+        $this->mockStripe(amountReceived: 2500);
+
+        $response = $this->postCheckout(['guest_email' => '']);
+
+        $response->assertSessionHasErrors('guest_email');
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    #[Test]
+    public function authenticated_checkout_does_not_require_a_guest_email(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        $this->mockStripe(amountReceived: 2500);
+
+        $response = $this->postCheckout(['guest_email' => '']);
+
+        $response->assertRedirect();
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('orders', ['user_id' => $user->id, 'guest_email' => null]);
+    }
+
+    #[Test]
     public function checkout_honours_order_and_logs_overshoot_when_coupon_exhausted_mid_transaction(): void
     {
         Log::spy();
@@ -209,5 +264,56 @@ class CheckoutIntegrityTest extends TestCase
 
         // 4 (start) + 1 (simulated concurrent use) + 1 (this checkout) = 6.
         $this->assertEquals(6, $coupon->fresh()->used_count);
+    }
+
+    #[Test]
+    public function checkout_locks_multiple_cart_lines_in_ascending_variant_id_order(): void
+    {
+        // Created after $this->variant, so it has a higher id. Placed first in
+        // the cart array so the naive foreach would lock high-id-before-low-id.
+        $higherVariant = ProductVariant::factory()->create([
+            'product_id' => $this->product->id,
+            'stock_qty' => 5,
+        ]);
+        $this->assertTrue($higherVariant->id > $this->variant->id);
+
+        session(['cart' => [
+            'key1' => [
+                'row_key' => 'key1',
+                'product_id' => $this->product->id,
+                'variant_id' => $higherVariant->id,
+                'sku' => 'SKU2',
+                'name' => $this->product->name,
+                'variant_label' => '',
+                'personalization_text' => null,
+                'personalization_price' => 0.0,
+                'price' => 20.00,
+                'qty' => 1,
+                'image_url' => null,
+            ],
+            'key2' => [
+                'row_key' => 'key2',
+                'product_id' => $this->product->id,
+                'variant_id' => $this->variant->id,
+                'sku' => 'SKU1',
+                'name' => $this->product->name,
+                'variant_label' => '',
+                'personalization_text' => null,
+                'personalization_price' => 0.0,
+                'price' => 20.00,
+                'qty' => 1,
+                'image_url' => null,
+            ],
+        ]]);
+
+        // $20 + $20 + $5 shipping = $45 = 4500 cents.
+        $this->mockStripe(amountReceived: 4500);
+
+        $response = $this->postCheckout();
+
+        $response->assertRedirect();
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertEquals(4, $this->variant->fresh()->stock_qty);
+        $this->assertEquals(4, $higherVariant->fresh()->stock_qty);
     }
 }

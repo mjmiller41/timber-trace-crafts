@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\EtsyApiException;
+use App\Jobs\SyncProductToEtsy;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -13,6 +15,7 @@ use App\Services\Etsy\EtsyOrderSync;
 use App\Services\Etsy\EtsyProductSync;
 use App\Services\Etsy\EtsyShipmentSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Tests\TestCase;
 
@@ -46,6 +49,32 @@ class EtsySyncTest extends TestCase
         $sync->syncProduct($product);
 
         $this->assertEquals('987654321', $product->fresh()->etsy_listing_id);
+    }
+
+    public function test_sync_product_does_not_re_dispatch_a_sync_job_via_the_observer(): void
+    {
+        Queue::fake();
+
+        Setting::set('etsy.taxonomy_id', '1208');
+        $product = Product::factory()->create([
+            'status' => 'active',
+            'etsy_listing_id' => null,
+            'sold_on_etsy' => true,
+        ]);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'stock_qty' => 5]);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('post')
+            ->once()
+            ->with('/application/shops/12345678/listings', Mockery::type('array'))
+            ->andReturn(['listing_id' => 987654321]);
+
+        $sync = new EtsyProductSync($client);
+        $sync->syncProduct($product);
+
+        // The observer's own dispatch (from ::create() above) is expected;
+        // syncProduct()'s internal updateQuietly() must not add a second one.
+        Queue::assertPushed(SyncProductToEtsy::class, 1);
     }
 
     public function test_sync_product_updates_existing_listing(): void
@@ -145,6 +174,7 @@ class EtsySyncTest extends TestCase
                         'total_tax_cost' => ['amount' => 200, 'divisor' => 100],
                         'transactions' => [
                             [
+                                'transaction_id' => 445566,
                                 'title' => 'Oak Shelf',
                                 'quantity' => 1,
                                 'price' => ['amount' => 3500, 'divisor' => 100],
@@ -168,12 +198,20 @@ class EtsySyncTest extends TestCase
         $this->assertDatabaseHas('order_items', [
             'name_snapshot' => 'Oak Shelf',
             'qty' => 1,
+            'etsy_transaction_id' => '445566',
         ]);
     }
 
     public function test_order_sync_skips_already_imported_receipts(): void
     {
-        Order::factory()->create(['etsy_receipt_id' => '9876543']);
+        $order = Order::factory()->create(['etsy_receipt_id' => '9876543']);
+        $order->items()->create([
+            'name_snapshot' => 'Oak Shelf',
+            'sku_snapshot' => 'SHELF-OAK',
+            'price_snapshot' => 35.00,
+            'qty' => 1,
+            'subtotal' => 35.00,
+        ]);
 
         $client = Mockery::mock(EtsyClient::class);
         $client->shouldReceive('get')
@@ -189,6 +227,67 @@ class EtsySyncTest extends TestCase
 
         $this->assertEquals(1, $result->skipped);
         $this->assertDatabaseCount('orders', 1);
+    }
+
+    public function test_order_sync_heals_a_previously_itemless_order(): void
+    {
+        // A prior run failed mid-import and left an order with no items.
+        Order::factory()->create(['etsy_receipt_id' => '9876543']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('get')
+            ->andReturn([
+                'results' => [
+                    [
+                        'receipt_id' => 9876543,
+                        'name' => 'Jane Doe',
+                        'first_line' => '1 Main St',
+                        'city' => 'Portland',
+                        'state' => 'OR',
+                        'zip' => '97201',
+                        'country_iso' => 'US',
+                        'buyer_email' => 'jane@example.com',
+                        'grandtotal' => ['amount' => 3500, 'divisor' => 100],
+                        'subtotal' => ['amount' => 3500, 'divisor' => 100],
+                        'total_shipping_cost' => ['amount' => 0, 'divisor' => 100],
+                        'total_tax_cost' => ['amount' => 0, 'divisor' => 100],
+                        'transactions' => [
+                            [
+                                'title' => 'Oak Shelf',
+                                'quantity' => 1,
+                                'price' => ['amount' => 3500, 'divisor' => 100],
+                                'sku' => 'SHELF-OAK',
+                            ],
+                        ],
+                    ],
+                ],
+                'count' => 1,
+            ]);
+
+        $sync = new EtsyOrderSync($client);
+        $result = $sync->sync();
+
+        $this->assertEquals(1, $result->created);
+        $this->assertDatabaseCount('orders', 1);
+        $this->assertDatabaseHas('order_items', [
+            'name_snapshot' => 'Oak Shelf',
+            'qty' => 1,
+        ]);
+    }
+
+    public function test_order_sync_does_not_advance_watermark_on_fetch_failure(): void
+    {
+        Setting::set('etsy.orders_last_synced_at', '2026-01-01T00:00:00.000000Z');
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('get')
+            ->andThrow(new EtsyApiException('Etsy API error 500', 500));
+
+        $sync = new EtsyOrderSync($client);
+        $result = $sync->sync();
+
+        $this->assertEquals(1, $result->failed);
+        $this->assertEquals('2026-01-01T00:00:00.000000Z', Setting::get('etsy.orders_last_synced_at'));
     }
 
     // ── Shipment Sync ─────────────────────────────────────────────────

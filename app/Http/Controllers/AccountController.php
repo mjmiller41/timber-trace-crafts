@@ -161,14 +161,19 @@ class AccountController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
-        if (! empty($validated['password'])) {
+        $emailChanged = $user->email !== $validated['email'];
+
+        // A hijacked session could otherwise swap the account email, then use
+        // the (attacker-controlled) new address to reset the password.
+        if (! empty($validated['password']) || $emailChanged) {
             if (empty($validated['current_password']) || ! Hash::check($validated['current_password'], $user->password)) {
                 return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect.']);
             }
-            $user->password = Hash::make($validated['password']);
         }
 
-        $emailChanged = $user->email !== $validated['email'];
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];

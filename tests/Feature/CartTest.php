@@ -51,4 +51,59 @@ class CartTest extends TestCase
             return (float) collect($cart)->first()['price'] === 50.0;
         });
     }
+
+    #[Test]
+    public function it_rejects_a_variant_that_belongs_to_a_different_product(): void
+    {
+        $productA = Product::factory()->create(['price' => 100.00]);
+        $productB = Product::factory()->create(['price' => 10.00]);
+        $variantOfB = ProductVariant::factory()->create([
+            'product_id' => $productB->id,
+            'price' => 10.00,
+        ]);
+
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $productA->id,
+            'variant_id' => $variantOfB->id,
+            'qty' => 1,
+        ]);
+
+        $response->assertSessionHasErrors('variant_id');
+        $response->assertSessionMissing('cart');
+    }
+
+    #[Test]
+    public function it_rejects_adding_a_non_active_product(): void
+    {
+        $product = Product::factory()->create(['status' => 'draft']);
+        $variant = ProductVariant::factory()->create(['product_id' => $product->id]);
+
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'variant_id' => $variant->id,
+            'qty' => 1,
+        ]);
+
+        $response->assertSessionHasErrors('product_id');
+        $response->assertSessionMissing('cart');
+    }
+
+    #[Test]
+    public function it_rejects_adding_a_disabled_variant(): void
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        $variant = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'is_enabled' => false,
+        ]);
+
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'variant_id' => $variant->id,
+            'qty' => 1,
+        ]);
+
+        $response->assertSessionHasErrors('product_id');
+        $response->assertSessionMissing('cart');
+    }
 }

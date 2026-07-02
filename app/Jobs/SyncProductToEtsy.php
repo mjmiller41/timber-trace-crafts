@@ -6,11 +6,12 @@ use App\Models\Product;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyProductSync;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class SyncProductToEtsy implements ShouldQueue
+class SyncProductToEtsy implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -18,7 +19,16 @@ class SyncProductToEtsy implements ShouldQueue
 
     public int $backoff = 60;
 
+    public int $timeout = 60;
+
+    public int $uniqueFor = 3600;
+
     public function __construct(public readonly int $productId) {}
+
+    public function uniqueId(): string
+    {
+        return (string) $this->productId;
+    }
 
     public function handle(): void
     {

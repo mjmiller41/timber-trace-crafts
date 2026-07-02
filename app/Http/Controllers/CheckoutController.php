@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -59,10 +60,17 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'Your cart is empty.'], 422);
         }
 
-        $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
+        $cart = $this->revalidateCartPrices($cart);
+
+        $shippingMethod = ShippingMethod::where('id', $validated['shipping_method_id'])->where('active', true)->first();
         $methods = $this->shippingService->getAvailableMethods();
-        $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
-        $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
+        $methodData = $shippingMethod ? collect($methods)->firstWhere('id', $shippingMethod->id) : null;
+
+        if (! $methodData) {
+            return response()->json(['error' => 'That shipping method is no longer available.'], 422);
+        }
+
+        $shippingAmount = (float) $methodData['price'];
 
         $subtotal = $this->cartService->subtotal($cart);
         $discountAmount = $this->resolveCouponDiscount($cart, $subtotal);
@@ -86,7 +94,7 @@ class CheckoutController extends Controller
     public function process(Request $request): View|RedirectResponse
     {
         $validated = $request->validate([
-            'guest_email' => ['required_if:user,null', 'nullable', 'email', 'max:255'],
+            'guest_email' => [Rule::requiredIf(! auth()->check()), 'nullable', 'email', 'max:255'],
             'shipping_first_name' => ['required', 'string', 'max:100'],
             'shipping_last_name' => ['required', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:20'],
@@ -105,6 +113,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        $cart = $this->revalidateCartPrices($cart);
+
         // Verify the Stripe PaymentIntent succeeded
         try {
             $intent = $this->stripeService->verifyPaymentIntent($validated['payment_intent_id']);
@@ -117,10 +127,15 @@ class CheckoutController extends Controller
         }
 
         // Resolve shipping
-        $shippingMethod = ShippingMethod::findOrFail($validated['shipping_method_id']);
+        $shippingMethod = ShippingMethod::where('id', $validated['shipping_method_id'])->where('active', true)->first();
         $methods = $this->shippingService->getAvailableMethods();
-        $methodData = collect($methods)->firstWhere('id', $shippingMethod->id);
-        $shippingAmount = $methodData ? (float) $methodData['price'] : 0.0;
+        $methodData = $shippingMethod ? collect($methods)->firstWhere('id', $shippingMethod->id) : null;
+
+        if (! $methodData) {
+            return back()->withErrors(['shipping_method_id' => 'That shipping method is no longer available.'])->withInput();
+        }
+
+        $shippingAmount = (float) $methodData['price'];
 
         // Recalculate totals server-side (never trust client)
         $subtotal = $this->cartService->subtotal($cart);
@@ -161,8 +176,12 @@ class CheckoutController extends Controller
                 $shippingAmount, $taxAmount, $total,
                 $shippingMethod, $intent, $buyerEmail, $coupon
             ) {
-                // C3: Pessimistic stock lock — prevent overselling under concurrent checkouts
-                foreach ($cart as $item) {
+                // C3: Pessimistic stock lock — prevent overselling under concurrent checkouts.
+                // Lock in a consistent (variant_id) order across all requests so two
+                // checkouts sharing overlapping cart lines can't deadlock each other.
+                $lockOrderedCart = collect($cart)->sortBy('variant_id')->all();
+
+                foreach ($lockOrderedCart as $item) {
                     if (! isset($item['variant_id'])) {
                         continue;
                     }
@@ -291,6 +310,26 @@ class CheckoutController extends Controller
         $order->load('items');
 
         return view('checkout.confirmation', compact('order'));
+    }
+
+    /**
+     * Reload each cart line's price from the database so a stale add-to-cart
+     * snapshot (post price-change or expired sale) never reaches checkout.
+     *
+     * @param  array<string, array<string, mixed>>  $cart
+     * @return array<string, array<string, mixed>>
+     */
+    private function revalidateCartPrices(array $cart): array
+    {
+        return collect($cart)->map(function (array $item) {
+            $variant = ProductVariant::with('product')->find($item['variant_id'] ?? null);
+
+            if ($variant && $variant->product) {
+                $item['price'] = (float) ($variant->price ?? $variant->product->currentPrice());
+            }
+
+            return $item;
+        })->all();
     }
 
     private function resolveValidCoupon(float $subtotal): ?Coupon

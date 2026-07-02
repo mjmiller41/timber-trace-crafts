@@ -36,33 +36,47 @@ class EtsyClient
         $this->request('DELETE', $path);
     }
 
+    private const MAX_ATTEMPTS = 3;
+
     private function request(string $method, string $path, array $query = [], array $body = []): array
     {
         $this->oauth->refreshIfExpired();
 
-        $accessToken = $this->oauth->getAccessToken();
+        for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
+            $accessToken = $this->oauth->getAccessToken();
 
-        $pending = Http::withHeaders([
-            'x-api-key' => config('services.etsy.keystring').':'.config('services.etsy.shared_secret'),
-            'Authorization' => "Bearer {$accessToken}",
-        ]);
+            $pending = Http::withHeaders([
+                'x-api-key' => config('services.etsy.keystring').':'.config('services.etsy.shared_secret'),
+                'Authorization' => "Bearer {$accessToken}",
+            ]);
 
-        $response = match ($method) {
-            'GET' => $pending->get(self::BASE_URL.$path, $query),
-            'PUT' => $pending->asJson()->put(self::BASE_URL.$path, $body),
-            'POST' => $pending->asForm()->post(self::BASE_URL.$path, $body),
-            'PATCH' => $pending->asForm()->patch(self::BASE_URL.$path, $body),
-            'DELETE' => $pending->delete(self::BASE_URL.$path),
-            default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
-        };
+            $response = match ($method) {
+                'GET' => $pending->get(self::BASE_URL.$path, $query),
+                'PUT' => $pending->asJson()->put(self::BASE_URL.$path, $body),
+                'POST' => $pending->asForm()->post(self::BASE_URL.$path, $body),
+                'PATCH' => $pending->asForm()->patch(self::BASE_URL.$path, $body),
+                'DELETE' => $pending->delete(self::BASE_URL.$path),
+                default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),
+            };
 
-        if (! $response->successful()) {
-            throw new EtsyApiException(
-                "Etsy API error {$response->status()} on {$method} {$path}: {$response->body()}",
-                $response->status()
-            );
+            if ($response->successful()) {
+                return $response->json() ?? [];
+            }
+
+            // A single 429/5xx would otherwise fail an entire product sync, burn
+            // a webhook-import retry, or abort mid-pagination through order history.
+            $isRetryable = $response->status() === 429 || $response->status() >= 500;
+
+            if (! $isRetryable || $attempt === self::MAX_ATTEMPTS) {
+                throw new EtsyApiException(
+                    "Etsy API error {$response->status()} on {$method} {$path}: {$response->body()}",
+                    $response->status()
+                );
+            }
+
+            usleep(500_000 * $attempt);
         }
 
-        return $response->json() ?? [];
+        throw new EtsyApiException("Etsy API request exhausted retries on {$method} {$path}");
     }
 }

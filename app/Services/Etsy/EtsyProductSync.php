@@ -25,13 +25,15 @@ class EtsyProductSync
             try {
                 $this->client->patch("/application/shops/{$shopId}/listings/{$product->etsy_listing_id}", $payload);
             } catch (EtsyApiException $e) {
-                // Listing was deleted on Etsy — clear the stale ID and create a fresh one
+                // Listing was deleted on Etsy — clear the stale ID and create a fresh one.
+                // Quiet writes: this sync is *reacting to* ProductObserver, so saving here
+                // must not re-fire it and re-queue another SyncProductToEtsy for this product.
                 if ($e->statusCode === 403 && str_contains($e->getMessage(), 'removed')) {
                     $product->etsy_listing_id = null;
-                    $product->save();
+                    $product->saveQuietly();
                     $createPayload = $this->buildListingPayload($product);
                     $response = $this->client->post("/application/shops/{$shopId}/listings", $createPayload);
-                    $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
+                    $product->updateQuietly(['etsy_listing_id' => (string) $response['listing_id']]);
                 } else {
                     throw $e;
                 }
@@ -41,7 +43,7 @@ class EtsyProductSync
             $inventorySync->syncProduct($product);
         } else {
             $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
-            $product->update(['etsy_listing_id' => (string) $response['listing_id']]);
+            $product->updateQuietly(['etsy_listing_id' => (string) $response['listing_id']]);
         }
     }
 

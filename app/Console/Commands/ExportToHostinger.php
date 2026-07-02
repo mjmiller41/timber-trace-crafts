@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Schema;
 class ExportToHostinger extends Command
 {
     protected $signature = 'db:export-hostinger
-                            {--host=195.35.61.20}
-                            {--port=3306}
-                            {--database=u903552178_ttc}
-                            {--username=u903552178_ttc_admin}
+                            {--host= : Defaults to HOSTINGER_DB_HOST}
+                            {--port= : Defaults to HOSTINGER_DB_PORT (3306)}
+                            {--database= : Defaults to HOSTINGER_DB_DATABASE}
+                            {--username= : Defaults to HOSTINGER_DB_USERNAME}
                             {--password=}
                             {--tables=* : Specific tables to push (default: all content + account tables)}
                             {--dry-run : Connect, run preflight, and report counts without writing}
@@ -61,14 +61,14 @@ class ExportToHostinger extends Command
 
     public function handle(): int
     {
-        $password = $this->option('password') ?: $this->secret('Hostinger DB password');
+        $password = $this->option('password') ?: env('HOSTINGER_DB_PASSWORD') ?: $this->secret('Hostinger DB password');
 
         config(['database.connections.hostinger' => [
             'driver' => 'mysql',
-            'host' => $this->option('host'),
-            'port' => $this->option('port'),
-            'database' => $this->option('database'),
-            'username' => $this->option('username'),
+            'host' => $this->option('host') ?: env('HOSTINGER_DB_HOST'),
+            'port' => $this->option('port') ?: env('HOSTINGER_DB_PORT', 3306),
+            'database' => $this->option('database') ?: env('HOSTINGER_DB_DATABASE'),
+            'username' => $this->option('username') ?: env('HOSTINGER_DB_USERNAME'),
             'password' => $password,
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',

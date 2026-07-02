@@ -48,7 +48,7 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{rowKey}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/{rowKey}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->middleware('throttle:10,1')->name('cart.coupon');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 // Checkout
@@ -66,7 +66,7 @@ Route::post('/order-status', [OrderStatusController::class, 'lookup'])->middlewa
 Route::get('/order-status/{order}', [OrderStatusController::class, 'view'])->middleware('signed')->name('order.status.view');
 
 // Restock request
-Route::post('/restock-request', [RestockController::class, 'store'])->middleware('honeypot')->name('restock.store');
+Route::post('/restock-request', [RestockController::class, 'store'])->middleware(['honeypot', 'throttle:10,1'])->name('restock.store');
 
 // Journal
 Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
@@ -75,11 +75,11 @@ Route::get('/journal/tag/{tag:slug}', [JournalController::class, 'tag'])->name('
 Route::get('/journal/{slug}', [JournalController::class, 'show'])->name('journal.show');
 
 // Newsletter
-Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware('honeypot')->name('newsletter.store');
+Route::post('/newsletter', [NewsletterController::class, 'store'])->middleware(['honeypot', 'throttle:10,1'])->name('newsletter.store');
 
 // Contact
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
-Route::post('/contact', [ContactController::class, 'submit'])->middleware('honeypot')->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'submit'])->middleware(['honeypot', 'throttle:5,1'])->name('contact.submit');
 
 // Static pages
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
@@ -90,11 +90,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->middleware('honeypot');
+    Route::post('/register', [AuthController::class, 'register'])->middleware(['honeypot', 'throttle:5,1']);
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:6,1')->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:6,1')->name('password.update');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 

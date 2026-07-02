@@ -92,7 +92,7 @@
     @auth
         <a href="{{ url('/account/orders/' . $order->id) }}" class="email-btn email-btn-forest">View Order Details</a>
     @else
-        <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('order.status.view', ['order' => $order->id]) }}" class="email-btn email-btn-forest">Track Your Order</a>
+        <a href="{{ \Illuminate\Support\Facades\URL::temporarySignedRoute('order.status.view', now()->addDays(90), ['order' => $order->id]) }}" class="email-btn email-btn-forest">Track Your Order</a>
     @endauth
 </p>
 

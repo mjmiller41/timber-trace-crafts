@@ -5,6 +5,7 @@ namespace App\Services\Etsy;
 use App\Exceptions\EtsyApiException;
 use App\Models\Setting;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
@@ -79,11 +80,18 @@ class EtsyOAuthService
 
     public function refreshIfExpired(): void
     {
-        $expiresAt = Setting::get('etsy.token_expires_at');
+        // Etsy rotates refresh tokens on use, so two concurrent callers (scheduler +
+        // queue worker + admin request) racing this check-then-refresh can each grab
+        // the same refresh token and have the second call fail with invalid_grant.
+        // The lock serializes them; re-reading the expiry inside it lets the second
+        // caller see the first caller's already-refreshed token and skip the refresh.
+        Cache::lock('etsy.oauth.refresh', 15)->block(10, function () {
+            $expiresAt = Setting::get('etsy.token_expires_at');
 
-        if (! $expiresAt || now()->addMinutes(5)->greaterThan($expiresAt)) {
-            $this->refreshToken();
-        }
+            if (! $expiresAt || now()->addMinutes(5)->greaterThan($expiresAt)) {
+                $this->refreshToken();
+            }
+        });
     }
 
     public function refreshToken(): void

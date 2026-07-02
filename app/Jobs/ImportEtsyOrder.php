@@ -18,6 +18,8 @@ class ImportEtsyOrder implements ShouldQueue
 
     public int $backoff = 30;
 
+    public int $timeout = 60;
+
     public function __construct(public readonly string $resourceUrl) {}
 
     public function handle(): void

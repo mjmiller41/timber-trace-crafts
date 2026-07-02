@@ -47,9 +47,11 @@ class MigrateProductsToMedia extends Command
             }
 
             if (Storage::disk($disk)->copy($oldPath, $newPath)) {
-                Storage::disk($disk)->delete($oldPath);
-
+                // Update the DB record before deleting the source — if this crashes
+                // mid-migration, worst case is a harmless duplicate file rather than
+                // a Media row pointing at a path that no longer exists.
                 Media::where('path', $oldPath)->update(['path' => $newPath]);
+                Storage::disk($disk)->delete($oldPath);
 
                 $this->line("  ✓ {$oldPath} → {$newPath}");
                 $moved++;

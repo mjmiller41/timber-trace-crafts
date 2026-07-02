@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ImportEtsyOrder;
+use App\Jobs\UpdateEtsyOrderStatus;
 use App\Mail\EtsyNewOrderMail;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
@@ -41,7 +42,9 @@ class EtsyWebhookController extends Controller
                 'event_type' => $eventType,
                 'error' => $e->getMessage(),
             ]);
-            // Always return 200 — Etsy retries on non-2xx
+
+            // A genuine processing failure must not ACK — Etsy only redelivers on non-2xx.
+            return response()->json(['ok' => false], 500);
         }
 
         return response()->json(['ok' => true]);
@@ -130,7 +133,7 @@ class EtsyWebhookController extends Controller
             return;
         }
 
-        Order::where('etsy_receipt_id', $receiptId)->update(['status' => 'cancelled']);
+        UpdateEtsyOrderStatus::dispatch($receiptId, 'canceled');
     }
 
     private function handleOrderShipped(string $resourceUrl): void
@@ -141,10 +144,7 @@ class EtsyWebhookController extends Controller
             return;
         }
 
-        Order::where('etsy_receipt_id', $receiptId)->update([
-            'etsy_is_shipped' => true,
-            'status' => 'shipped',
-        ]);
+        UpdateEtsyOrderStatus::dispatch($receiptId, 'shipped');
     }
 
     private function handleOrderDelivered(string $resourceUrl): void
@@ -155,7 +155,7 @@ class EtsyWebhookController extends Controller
             return;
         }
 
-        Order::where('etsy_receipt_id', $receiptId)->update(['status' => 'delivered']);
+        UpdateEtsyOrderStatus::dispatch($receiptId, 'delivered');
     }
 
     private function extractReceiptId(string $resourceUrl): ?string

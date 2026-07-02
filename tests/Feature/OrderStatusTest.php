@@ -54,4 +54,24 @@ class OrderStatusTest extends TestCase
         $url = URL::signedRoute('order.status.view', ['order' => $order->id]).'tampered';
         $this->get($url)->assertForbidden();
     }
+
+    #[Test]
+    public function a_valid_temporary_signed_link_within_90_days_is_accepted(): void
+    {
+        $order = Order::factory()->create(['guest_email' => 'guest@example.com']);
+
+        $url = URL::temporarySignedRoute('order.status.view', now()->addDays(89), ['order' => $order->id]);
+
+        $this->get($url)->assertOk();
+    }
+
+    #[Test]
+    public function an_expired_signed_link_is_rejected(): void
+    {
+        $order = Order::factory()->create(['guest_email' => 'guest@example.com']);
+
+        $url = URL::temporarySignedRoute('order.status.view', now()->subDay(), ['order' => $order->id]);
+
+        $this->get($url)->assertForbidden();
+    }
 }
