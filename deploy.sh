@@ -9,6 +9,10 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # Decrypt .env.production.encrypted (committed to git) into the real .env this
 # process reads. The decryption key lives ONLY in this file, outside the git
 # repo and outside public_html — never commit it. See memory/project_infra.md.
+# IMPORTANT: the file must hold the FULL key string `php artisan env:encrypt`
+# printed, including the leading "base64:" — stripping that prefix produces a
+# raw string of the wrong byte length and env:decrypt fails with "Unsupported
+# cipher or incorrect key length".
 ENV_KEY_FILE="$HOME/.secrets/ttc-env-key"
 if [ ! -f "$ENV_KEY_FILE" ]; then
     echo "Missing $ENV_KEY_FILE — cannot decrypt .env.production.encrypted. Aborting." >&2
