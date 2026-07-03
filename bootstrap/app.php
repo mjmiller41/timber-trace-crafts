@@ -26,8 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'honeypot' => HoneypotCheck::class,
         ]);
         $middleware->web(append: [RotateCsrfOnRoleEscalation::class]);
-        // Etsy calls webhooks directly; no browser session or CSRF token
-        $middleware->validateCsrfTokens(except: ['webhooks/etsy']);
+        // Etsy & Stripe call webhooks directly; no browser session or CSRF token
+        $middleware->validateCsrfTokens(except: ['webhooks/etsy', 'webhooks/stripe']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
