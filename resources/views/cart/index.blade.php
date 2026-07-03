@@ -45,8 +45,8 @@
 
                             {{-- Image --}}
                             <div class="flex-shrink-0 w-20 h-20 bg-surface">
-                                @if(!empty($item['image']))
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
+                                @if(!empty($item['image_url']))
+                                    <img src="{{ $item['image_url'] }}" alt="{{ $item['name'] }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center bg-walnut/10">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-8 h-8 text-walnut/30">

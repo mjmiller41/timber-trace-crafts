@@ -106,4 +106,31 @@ class CartTest extends TestCase
         $response->assertSessionHasErrors('product_id');
         $response->assertSessionMissing('cart');
     }
+
+    #[Test]
+    public function the_cart_page_renders_the_item_image_from_the_image_url_key(): void
+    {
+        $imageUrl = 'https://cdn.example.com/products/teardrop.png';
+        $cart = [
+            'abc123' => [
+                'row_key' => 'abc123',
+                'product_id' => 1,
+                'variant_id' => 1,
+                'sku' => 'EAR-TD-01',
+                'name' => 'Teardrop Earrings',
+                'variant_label' => 'Cherry',
+                'personalization_text' => null,
+                'personalization_price' => 0.0,
+                'price' => 24.0,
+                'qty' => 1,
+                'image_url' => $imageUrl,
+            ],
+        ];
+
+        $response = $this->withSession(['cart' => $cart])->get(route('cart.index'));
+
+        $response->assertOk();
+        // The thumbnail must read the canonical `image_url` cart-item key.
+        $response->assertSee($imageUrl, false);
+    }
 }
