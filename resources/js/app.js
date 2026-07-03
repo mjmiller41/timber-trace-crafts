@@ -39,6 +39,38 @@ Alpine.data('variantSelector', (variants = [], pricing = {}) => ({
     selectVariant(variant) { this.selectedId = variant.id }
 }))
 
+// Recently viewed products — persisted in localStorage, rendered client-side.
+// `current` is the card data for the product being viewed (null off a product page).
+Alpine.data('recentlyViewed', (current = null) => ({
+    storageKey: 'ttc_recently_viewed',
+    max: 12,
+    items: [],
+    init() {
+        let stored = [];
+        try {
+            stored = JSON.parse(localStorage.getItem(this.storageKey)) || [];
+        } catch (e) {
+            stored = [];
+        }
+        if (!Array.isArray(stored)) { stored = []; }
+
+        if (current && current.slug) {
+            // Move the current product to the front, deduped, capped.
+            stored = stored.filter(p => p && p.slug !== current.slug);
+            stored.unshift(current);
+            stored = stored.slice(0, this.max);
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(stored));
+            } catch (e) { /* private mode / quota — non-fatal */ }
+        }
+
+        // Never show the product currently being viewed in its own strip.
+        this.items = stored.filter(p => p && p.slug && (!current || p.slug !== current.slug));
+    },
+    formatPrice(value) { return value == null ? '' : '$' + Number(value).toFixed(2); },
+    onSale(p) { return p.sale_price != null && p.sale_price < p.price; },
+}))
+
 // Cart quantity control
 Alpine.data('qtyControl', (initial = 1, max = 99) => ({
     qty: initial,
