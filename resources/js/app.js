@@ -71,6 +71,39 @@ Alpine.data('recentlyViewed', (current = null) => ({
     onSale(p) { return p.sale_price != null && p.sale_price < p.price; },
 }))
 
+// Social share buttons. Facebook/Pinterest are plain links; Instagram has no
+// web share intent, so its button copies the product URL to the clipboard.
+Alpine.data('shareButtons', (url = '') => ({
+    url,
+    copied: false,
+    copyTimer: null,
+    async copyLink() {
+        let ok = false;
+        try {
+            await navigator.clipboard.writeText(this.url);
+            ok = true;
+        } catch (e) {
+            // Fallback for older browsers / insecure contexts.
+            try {
+                const el = document.createElement('textarea');
+                el.value = this.url;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                ok = document.execCommand('copy');
+                document.body.removeChild(el);
+            } catch (e2) { ok = false; }
+        }
+        if (ok) {
+            this.copied = true;
+            clearTimeout(this.copyTimer);
+            this.copyTimer = setTimeout(() => { this.copied = false; }, 2500);
+        }
+    },
+}))
+
 // Cart quantity control
 Alpine.data('qtyControl', (initial = 1, max = 99) => ({
     qty: initial,

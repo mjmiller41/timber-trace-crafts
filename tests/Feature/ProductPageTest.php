@@ -59,4 +59,26 @@ class ProductPageTest extends TestCase
         $response->assertSee('Recently Viewed');
         $response->assertSee('&quot;slug&quot;:&quot;'.$product->slug.'&quot;', false);
     }
+
+    #[Test]
+    public function it_renders_facebook_and_pinterest_share_links_plus_the_copy_button(): void
+    {
+        $product = Product::factory()->create(['status' => 'active']);
+        ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'stock_qty' => 3,
+        ]);
+
+        $shareUrl = route('product.show', $product->slug);
+        $response = $this->get($shareUrl);
+
+        $response->assertOk();
+        // Facebook + Pinterest point at real share intents seeded with this product's URL.
+        $response->assertSee('facebook.com/sharer/sharer.php?u='.urlencode($shareUrl), false);
+        $response->assertSee('pinterest.com/pin/create/button/', false);
+        $response->assertSee(urlencode($shareUrl), false);
+        // Instagram button is a client-side copy (no web share intent).
+        $response->assertSee('shareButtons(', false);
+        $response->assertSee('copyLink()', false);
+    }
 }
