@@ -47,6 +47,27 @@ class EtsyClientTest extends TestCase
         $client->get('/application/listings/999');
     }
 
+    public function test_post_file_sends_multipart_and_returns_json(): void
+    {
+        Http::fake([
+            'api.etsy.com/*' => Http::response(['listing_image_id' => 5], 201),
+        ]);
+
+        $oauth = Mockery::mock(EtsyOAuthService::class);
+        $oauth->shouldReceive('refreshIfExpired')->once();
+        $oauth->shouldReceive('getAccessToken')->andReturn('test-token');
+
+        $client = new EtsyClient($oauth);
+
+        $result = $client->postFile('/application/shops/1/listings/2/images', ['rank' => 1], 'image', 'fake-bytes', 'photo.png');
+
+        $this->assertEquals(['listing_image_id' => 5], $result);
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/listings/2/images')
+                && $request->hasFile('image', 'fake-bytes', 'photo.png');
+        });
+    }
+
     public function test_404_is_not_retried(): void
     {
         Http::fake([

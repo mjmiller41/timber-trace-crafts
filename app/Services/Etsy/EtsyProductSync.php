@@ -34,6 +34,7 @@ class EtsyProductSync
                     $createPayload = $this->buildListingPayload($product);
                     $response = $this->client->post("/application/shops/{$shopId}/listings", $createPayload);
                     $product->updateQuietly(['etsy_listing_id' => (string) $response['listing_id']]);
+                    $this->uploadImagesForNewListing($product);
                 } else {
                     throw $e;
                 }
@@ -44,6 +45,24 @@ class EtsyProductSync
         } else {
             $response = $this->client->post("/application/shops/{$shopId}/listings", $payload);
             $product->updateQuietly(['etsy_listing_id' => (string) $response['listing_id']]);
+            $this->uploadImagesForNewListing($product);
+        }
+    }
+
+    /**
+     * A failed image upload must not fail the product push — the listing was
+     * created and its ID saved, so images can be retried via etsy:sync-images.
+     */
+    private function uploadImagesForNewListing(Product $product): void
+    {
+        try {
+            (new EtsyListingImageSync($this->client))->syncProduct($product, force: true);
+        } catch (\Throwable $e) {
+            Log::error('Etsy image sync after listing creation failed', [
+                'product_id' => $product->id,
+                'listing_id' => $product->etsy_listing_id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

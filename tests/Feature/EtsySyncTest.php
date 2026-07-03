@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Exceptions\EtsyApiException;
 use App\Jobs\SyncProductToEtsy;
+use App\Models\Media;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductMedia;
 use App\Models\ProductVariant;
 use App\Models\Setting;
 use App\Models\Shipment;
@@ -16,6 +18,7 @@ use App\Services\Etsy\EtsyProductSync;
 use App\Services\Etsy\EtsyShipmentSync;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\TestCase;
 
@@ -96,6 +99,31 @@ class EtsySyncTest extends TestCase
         $sync->syncProduct($product);
 
         $this->assertEquals('111222333', $product->fresh()->etsy_listing_id);
+    }
+
+    public function test_creating_a_listing_uploads_local_images(): void
+    {
+        Setting::set('etsy.taxonomy_id', '1208');
+        Storage::fake(config('filesystems.default'));
+
+        $product = Product::factory()->create(['status' => 'active', 'etsy_listing_id' => null]);
+        $media = Media::factory()->create();
+        Storage::disk($media->disk)->put($media->path, 'fake-image-bytes');
+        ProductMedia::create([
+            'product_id' => $product->id,
+            'media_id' => $media->id,
+            'sort_order' => 0,
+            'is_primary' => true,
+        ]);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('post')->once()->andReturn(['listing_id' => 987654321]);
+        $client->shouldReceive('postFile')->once()->andReturn(['listing_image_id' => 55]);
+
+        $sync = new EtsyProductSync($client);
+        $sync->syncProduct($product);
+
+        $this->assertEquals('55', $product->media()->first()->etsy_listing_image_id);
     }
 
     public function test_sync_all_returns_result_counts(): void

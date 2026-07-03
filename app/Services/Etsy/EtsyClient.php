@@ -31,6 +31,16 @@ class EtsyClient
         return $this->request('POST', $path, body: $body);
     }
 
+    /**
+     * POST a file as multipart/form-data (e.g. uploadListingImage).
+     *
+     * @param  array<string, mixed>  $body
+     */
+    public function postFile(string $path, array $body, string $fileField, string $fileContents, string $filename): array
+    {
+        return $this->request('POST_FILE', $path, body: $body, file: [$fileField, $fileContents, $filename]);
+    }
+
     public function delete(string $path): void
     {
         $this->request('DELETE', $path);
@@ -38,7 +48,10 @@ class EtsyClient
 
     private const MAX_ATTEMPTS = 3;
 
-    private function request(string $method, string $path, array $query = [], array $body = []): array
+    /**
+     * @param  array{0: string, 1: string, 2: string}|null  $file  [field, contents, filename]
+     */
+    private function request(string $method, string $path, array $query = [], array $body = [], ?array $file = null): array
     {
         $this->oauth->refreshIfExpired();
 
@@ -54,6 +67,7 @@ class EtsyClient
                 'GET' => $pending->get(self::BASE_URL.$path, $query),
                 'PUT' => $pending->asJson()->put(self::BASE_URL.$path, $body),
                 'POST' => $pending->asForm()->post(self::BASE_URL.$path, $body),
+                'POST_FILE' => $pending->attach($file[0], $file[1], $file[2])->post(self::BASE_URL.$path, $body),
                 'PATCH' => $pending->asForm()->patch(self::BASE_URL.$path, $body),
                 'DELETE' => $pending->delete(self::BASE_URL.$path),
                 default => throw new \InvalidArgumentException("Unsupported HTTP method: {$method}"),

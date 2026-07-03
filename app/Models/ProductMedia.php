@@ -16,6 +16,7 @@ class ProductMedia extends Model
         'sort_order',
         'is_primary',
         'alt_text',
+        'etsy_listing_image_id',
     ];
 
     protected function casts(): array
