@@ -8,7 +8,9 @@
         // value from yieldContent() is HTML-safe — a second e() here double-encodes
         // (e.g. "Terms & Conditions" → "&amp;amp;"). Render it as-is with {!! !!}.
         $metaTitle       = \Illuminate\Support\Facades\View::yieldContent('title', 'Home');
-        $metaDescription = e(\Illuminate\Support\Facades\View::yieldContent('meta_description', 'Handcrafted laser-cut wooden jewelry, boxes, and gifts. Made with precision and love.'));
+        // Like $metaTitle: inline @section('meta_description', $x) already escapes,
+        // so a second e() double-encodes '&'/quotes in the tag. Render with {!! !!}.
+        $metaDescription = \Illuminate\Support\Facades\View::yieldContent('meta_description', 'Handcrafted laser-cut wooden jewelry, boxes, and gifts. Made with precision and love.');
         $metaCanonical   = e(\Illuminate\Support\Facades\View::yieldContent('canonical', url()->current()));
         $metaRobots      = e(\Illuminate\Support\Facades\View::yieldContent('robots', 'index, follow'));
         $metaOgType      = e(\Illuminate\Support\Facades\View::yieldContent('og_type', 'website'));

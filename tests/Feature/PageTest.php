@@ -55,4 +55,22 @@ class PageTest extends TestCase
         // …and never double-encoded.
         $response->assertDontSee('&amp;amp;', false);
     }
+
+    #[Test]
+    public function the_meta_description_is_html_escaped_exactly_once(): void
+    {
+        Page::create([
+            'title' => 'Shipping Policy',
+            'slug' => 'shipping-policy',
+            'body' => 'Salt & Pepper care and handling details.',
+        ]);
+
+        $response = $this->get('/shipping-policy');
+
+        $response->assertOk();
+        // meta description is derived from the body; the '&' escapes once…
+        $response->assertSee('content="Salt &amp; Pepper care and handling details.', false);
+        // …and is never double-encoded.
+        $response->assertDontSee('&amp;amp;', false);
+    }
 }
