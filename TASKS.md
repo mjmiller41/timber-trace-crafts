@@ -2,7 +2,7 @@
 
 ## Active
 - [ ] **Write Care Guide content** - replace the "coming soon" placeholder on the `care-guide` page (materials, sizing, care). Needs real product specifics: finish type (oil/wax/poly), earring hardware metal, care instructions
-- [ ] **Fix site-wide `<title>` double-encoding** - `layouts/app.blade.php` line 7 does `e(View::yieldContent('title'))` then renders with `{!! !!}`, but inline `@section('title', $x)` already escapes, so titles with `&` show `&amp;amp;` (e.g. "Terms & Conditions"). Audit all `@section('title')` (block vs inline form) before changing, so block-form sections aren't left under-encoded
+- [ ] **Meta description / canonical double-encoding** - same `e()` + `{!! !!}` pattern as the title bug still affects `$metaDescription` and `$metaCanonical` in `layouts/app.blade.php` (lines 8-9). Title was fixed; description double-encodes `&` in meta tags, and canonical needs care (its default is a live URL where `&` must stay escaped). Fix description like the title; leave canonical or handle URL-encoding deliberately
 - [ ] **Custom orders / B2B / bulk quote flow**
 - [ ] **Gallery / portfolio page**
 - [ ] **Materials / sizing / care guide page**
@@ -59,6 +59,7 @@
 - [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
 
 ## Done
+- [x] **Heading SOFT axis + title double-encoding** (2026-07-03) - bumped Fraunces heading `font-variation-settings` 'SOFT' from 0 → 10 site-wide (both heading rules in `app.css`); at 0 the thin horizontal strokes vanished. Also fixed the `<title>` double-encoding: dropped the redundant `e()` in `layouts/app.blade.php` (inline `@section('title', $x)` already escapes via startSection), so "Terms & Conditions" renders `&amp;` not `&amp;amp;`. Regression test added. Description/canonical have the same latent pattern (filed as follow-up)
 - [x] **Materials / sizing / care guide page** (2026-07-03) - new `care-guide` CMS page (slug whitelisted in the `/{slug}` route, linked in the footer Info column, rendered via `pages.show`); row created on prod MySQL with a "coming soon" placeholder body. Real content tracked as a follow-up. 2 page tests. Title kept ampersand-free to dodge the pre-existing site-wide `<title>` double-encoding bug (also filed as a task)
 - [x] **Reorder past items** (2026-07-03) - "Reorder" button on the order-history list + order detail page re-adds each still-available line to the cart at current price/availability (variant override else sale-aware price; personalization carried over); skips missing/inactive/disabled items with a named notice, errors back if none available, ownership-guarded. Also fixed a pre-existing cart bug: the cart thumbnail read `$item['image']` instead of the canonical `image_url`, so no cart thumbnails rendered. 4 reorder tests + 1 cart-image test
 - [x] **Social sharing buttons** (2026-07-03) - Share row on product pages: Facebook + Pinterest use real web share intents (Pinterest seeded with product image + name); Instagram (no web share intent) copies the product link to the clipboard with a "paste into your IG story/bio" confirmation. 1 feature test
