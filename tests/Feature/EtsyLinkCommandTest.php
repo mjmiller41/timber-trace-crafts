@@ -33,8 +33,8 @@ class EtsyLinkCommandTest extends TestCase
             ]),
             'api.etsy.com/v3/application/listings/999111' => Http::response([
                 'listing_id' => 999111,
-                'title' => 'Linked Title',
-                'description' => 'Linked description',
+                'title' => 'Valentine&#39;s Linked Title',
+                'description' => 'A &quot;linked&quot; description',
                 'state' => 'active',
                 'taxonomy_id' => 1208,
                 'shipping_profile_id' => 555,
@@ -46,7 +46,10 @@ class EtsyLinkCommandTest extends TestCase
 
         $product->refresh();
         $this->assertEquals('999111', $product->etsy_listing_id);
-        $this->assertEquals('Linked Title', $product->name);
+        // Etsy returns HTML-encoded text; the DB must hold the decoded form
+        $this->assertEquals("Valentine's Linked Title", $product->name);
+        $this->assertEquals('A "linked" description', $product->description);
+        $this->assertEquals('valentines-linked-title', $product->slug);
         $this->assertEquals(1208, $product->etsy_taxonomy_id);
         $this->assertEquals(1478211423469, $product->etsy_readiness_state_id);
     }
