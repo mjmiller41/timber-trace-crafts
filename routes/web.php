@@ -84,7 +84,7 @@ Route::post('/contact', [ContactController::class, 'submit'])->middleware(['hone
 
 // Static pages
 Route::get('/{slug}', [PageController::class, 'show'])->name('page.show')
-    ->where('slug', 'faq|privacy-policy|terms-and-conditions|return-policy|shipping-policy|about-us');
+    ->where('slug', 'faq|privacy-policy|terms-and-conditions|return-policy|shipping-policy|about-us|care-guide');
 
 // Auth
 Route::middleware('guest')->group(function () {
