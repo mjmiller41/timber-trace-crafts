@@ -136,6 +136,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+    Route::post('/orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund');
     Route::post('/orders/{order}/shipment', [OrderController::class, 'addShipment'])->name('orders.shipment');
     Route::get('/orders/{order}/packing-slip', [OrderController::class, 'packingSlip'])->name('orders.packing-slip');
 

@@ -9,12 +9,14 @@ use App\Models\Order;
 use App\Services\Etsy\EtsyClient;
 use App\Services\Etsy\EtsyOAuthService;
 use App\Services\Etsy\EtsyShipmentSync;
+use App\Services\StripeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+use Stripe\Exception\ApiErrorException;
 
 class OrderController extends Controller
 {
@@ -66,6 +68,67 @@ class OrderController extends Controller
         }
 
         return redirect()->route('admin.orders.show', $order)->with('success', 'Order status updated.');
+    }
+
+    public function refund(Request $request, Order $order, StripeService $stripe): RedirectResponse
+    {
+        if (! $order->isStripeRefundable()) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'This order has no refundable Stripe payment.');
+        }
+
+        $validated = $request->validate([
+            'amount' => ['nullable', 'numeric', 'min:0.01', 'max:'.$order->refundableAmount()],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        // Default to the full remaining balance when no amount is supplied.
+        $amount = isset($validated['amount']) ? round((float) $validated['amount'], 2) : $order->refundableAmount();
+        $amountCents = (int) round($amount * 100);
+
+        try {
+            $refund = $stripe->refundPayment($order->stripe_payment_intent_id, $amountCents);
+        } catch (ApiErrorException $e) {
+            Log::error('Stripe refund failed', ['order' => $order->id, 'error' => $e->getMessage()]);
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Stripe refund failed: '.$e->getMessage());
+        }
+
+        $refundedTotal = round((float) $order->refunded_amount + $amount, 2);
+        $isFullyRefunded = $refundedTotal >= (float) $order->total;
+
+        $order->update([
+            'stripe_refund_id' => $refund->id,
+            'refunded_amount' => $refundedTotal,
+            'refunded_at' => now(),
+            'status' => $isFullyRefunded ? 'refunded' : $order->status,
+        ]);
+
+        $noteParts = array_filter([
+            ($isFullyRefunded ? 'Full' : 'Partial').' refund of $'.number_format($amount, 2).' issued via Stripe',
+            $validated['note'] ?? null,
+        ]);
+
+        $order->statusHistory()->create([
+            'status' => $isFullyRefunded ? 'refunded' : $order->status,
+            'note' => implode(' — ', $noteParts),
+            'created_by' => auth()->id(),
+        ]);
+
+        if ($isFullyRefunded) {
+            try {
+                $email = $order->user?->email ?? $order->guest_email;
+                if ($email) {
+                    Mail::to($email)->queue(new OrderStatusChangedMail($order));
+                }
+            } catch (\Throwable $e) {
+                Log::error('Refund email failed', ['order' => $order->id, 'error' => $e->getMessage()]);
+            }
+        }
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', ($isFullyRefunded ? 'Full' : 'Partial').' refund of $'.number_format($amount, 2).' processed.');
     }
 
     public function addShipment(Request $request, Order $order): RedirectResponse

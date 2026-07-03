@@ -5,9 +5,12 @@ namespace Tests\Feature\Admin;
 use App\Mail\OrderStatusChangedMail;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\StripeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\Test;
+use Stripe\Exception\InvalidRequestException;
+use Stripe\Refund;
 use Tests\TestCase;
 
 class OrderControllerTest extends TestCase
@@ -84,5 +87,138 @@ class OrderControllerTest extends TestCase
 
         $response->assertForbidden();
         $this->assertDatabaseMissing('shipments', ['order_id' => $order->id]);
+    }
+
+    private function mockRefund(string $refundId = 're_test_123'): void
+    {
+        $this->mock(StripeService::class)
+            ->shouldReceive('refundPayment')
+            ->andReturn(Refund::constructFrom(['id' => $refundId, 'status' => 'succeeded']));
+    }
+
+    #[Test]
+    public function admin_can_fully_refund_a_stripe_order(): void
+    {
+        Mail::fake();
+        $this->mockRefund();
+
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+            'user_id' => User::factory()->create()->id,
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.orders.refund', $order));
+
+        $response->assertRedirect(route('admin.orders.show', $order));
+        $response->assertSessionHas('success');
+
+        $order->refresh();
+        $this->assertEquals('refunded', $order->status);
+        $this->assertEquals('58.00', $order->refunded_amount);
+        $this->assertEquals('re_test_123', $order->stripe_refund_id);
+        $this->assertNotNull($order->refunded_at);
+        $this->assertDatabaseHas('order_status_history', [
+            'order_id' => $order->id,
+            'status' => 'refunded',
+        ]);
+        Mail::assertQueued(OrderStatusChangedMail::class);
+    }
+
+    #[Test]
+    public function admin_can_partially_refund_a_stripe_order(): void
+    {
+        Mail::fake();
+        $this->mockRefund();
+
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.orders.refund', $order), [
+            'amount' => 20.00,
+        ]);
+
+        $response->assertRedirect();
+        $order->refresh();
+        // Partial refund leaves status untouched and a balance remaining.
+        $this->assertEquals('processing', $order->status);
+        $this->assertEquals('20.00', $order->refunded_amount);
+        $this->assertEquals(38.00, $order->refundableAmount());
+        Mail::assertNothingQueued();
+    }
+
+    #[Test]
+    public function refund_amount_cannot_exceed_remaining_balance(): void
+    {
+        $order = Order::factory()->create([
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.orders.refund', $order), [
+            'amount' => 100.00,
+        ]);
+
+        $response->assertSessionHasErrors('amount');
+        $this->assertNull($order->fresh()->refunded_amount);
+    }
+
+    #[Test]
+    public function cannot_refund_an_order_without_a_stripe_payment(): void
+    {
+        $order = Order::factory()->create([
+            'total' => 58.00,
+            'stripe_payment_intent_id' => null,
+            'etsy_receipt_id' => 'etsy_999',
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.orders.refund', $order));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertNull($order->fresh()->refunded_amount);
+    }
+
+    #[Test]
+    public function stripe_failure_leaves_the_order_unchanged(): void
+    {
+        $this->mock(StripeService::class)
+            ->shouldReceive('refundPayment')
+            ->andThrow(new InvalidRequestException('Charge already refunded'));
+
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+        ]);
+
+        $response = $this->actingAs($this->admin())->post(route('admin.orders.refund', $order));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+
+        $order->refresh();
+        $this->assertEquals('processing', $order->status);
+        $this->assertNull($order->refunded_amount);
+        $this->assertNull($order->stripe_refund_id);
+    }
+
+    #[Test]
+    public function non_admin_cannot_refund_an_order(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $order = Order::factory()->create([
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+        ]);
+
+        $response = $this->actingAs($customer)->post(route('admin.orders.refund', $order));
+
+        $response->assertForbidden();
+        $this->assertNull($order->fresh()->refunded_amount);
     }
 }

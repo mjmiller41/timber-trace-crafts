@@ -227,6 +227,43 @@
             </form>
         </div>
 
+        {{-- Stripe Refund --}}
+        @if($order->stripe_payment_intent_id)
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <span class="admin-card-title">Refund</span>
+            </div>
+
+            @if($order->refunded_amount > 0)
+                <p style="font-size: 0.8125rem; color: #6b7280; margin-bottom: 0.875rem;">
+                    ${{ number_format($order->refunded_amount, 2) }} of ${{ number_format($order->total, 2) }}
+                    refunded{{ $order->refunded_at ? ' on '.$order->refunded_at->format('M j, Y') : '' }}.
+                </p>
+            @endif
+
+            @if($order->isStripeRefundable())
+            <form method="POST" action="{{ route('admin.orders.refund', $order) }}"
+                  onsubmit="return confirm('Issue this refund through Stripe? This moves real money and cannot be undone here.');">
+                @csrf
+                <div style="margin-bottom: 0.875rem;">
+                    <label class="admin-label" for="refund_amount">Amount (max ${{ number_format($order->refundableAmount(), 2) }})</label>
+                    <input type="number" step="0.01" min="0.01" max="{{ $order->refundableAmount() }}"
+                           id="refund_amount" name="amount" class="admin-input"
+                           value="{{ number_format($order->refundableAmount(), 2, '.', '') }}">
+                    <span style="font-size: 0.75rem; color: #9ca3af;">Leave at the full amount for a complete refund.</span>
+                </div>
+                <div style="margin-bottom: 0.875rem;">
+                    <label class="admin-label" for="refund_note">Note (optional)</label>
+                    <textarea id="refund_note" name="note" class="admin-input" rows="2" placeholder="Reason for refund…" style="resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="admin-btn admin-btn-danger" style="width: 100%; justify-content: center;">Issue Refund via Stripe</button>
+            </form>
+            @else
+                <p style="font-size: 0.8125rem; color: #9ca3af;">Fully refunded — no balance remaining.</p>
+            @endif
+        </div>
+        @endif
+
         {{-- Shipment --}}
         <div class="admin-card">
             <div class="admin-card-header">
