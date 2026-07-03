@@ -76,3 +76,36 @@ every deploy instead of it drifting out of sync (this is what caused the
   `cd ~/domains/timbertracecrafts.com/public_html && bash deploy.sh`.
   A local (untracked, machine-only) `.git/hooks/pre-push` prints this reminder
   automatically on every `git push` from this machine.
+
+## Local ↔ Hostinger DB sync (`db:export-hostinger` / `db:import-hostinger`)
+
+Lessons from a long 2026-07-03 session — read before touching prod data.
+
+- **Remote MySQL works** from a dev machine: host `195.35.61.20:3306` (panel
+  hostname `srv2141.hstgr.io`), db `u903552178_ttc`, user
+  `u903552178_ttc_admin`, Remote-MySQL access host `%` (hPanel → Databases →
+  Remote MySQL). It was never actually broken.
+- **CRLF gotcha (cost hours):** `.env.production` has **CRLF** line endings.
+  Extracting a value in shell with `cut`/`sed` keeps a trailing `\r`, so
+  `DB_PASSWORD` becomes `password\r` and every connection fails with
+  `SQLSTATE[HY000] [1045] Access denied ... (using password: YES)` — which looks
+  exactly like a wrong password or a missing grant but is neither. Laravel's
+  dotenv strips `\r`, so the app/prod is unaffected; only manual shell
+  extraction hits this. **Always pipe env values through `tr -d '\r'`** (and
+  strip surrounding quotes): `... | tr -d '\r' | sed -E 's/^"(.*)"$/\1/'`. This
+  single bug produced a false "missing `user@%` grant / Hostinger platform
+  limitation" diagnosis AND an unnecessary prod DB-password reset. Avoid both.
+- **`db:export-hostinger` is DESTRUCTIVE** — it TRUNCATEs then reinserts each
+  target table (auto-backs-up to `storage/app/backups/hostinger-<ts>/` first).
+  ALWAYS scope with `--tables=` (repeatable); non-interactive needs `--force`.
+  NEVER blind-push the accumulator tables that live only on prod: `orders`,
+  `order_items`, `order_status_history`, `shipments`, `users`, `addresses`,
+  `contact_submissions`, `product_reviews`, `wishlists`. Catalog-only pushes
+  (`products`, `product_variants`, sometimes `settings`) are the normal case.
+- **Verify syncs by CONTENT, not hash-equality.** A local↔prod hash match only
+  proves the two sides *agree* — not that they hold the *intended* values. On
+  2026-07-03 a mid-session revert of the LOCAL db (cause never pinned down)
+  meant a "verified" export pushed OLD data to prod and both matched as old =
+  false success. When confirming a push, assert the actual expected strings
+  (e.g. the specific product titles) and/or check against the true source (Etsy
+  live inventory) — not just `source == destination`.

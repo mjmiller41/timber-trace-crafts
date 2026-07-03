@@ -43,6 +43,12 @@ metadata:
 - **Inventory sync** — `etsy:sync-inventory` 6/6 OK; pushes LOCAL price/stock to live, so keep local aligned before running
 - **Image upload** — `etsy:sync-images` + auto-upload when push creates a listing; tracked via `product_media.etsy_listing_image_id`; skips listings with manually-uploaded images unless `--force` (would append/duplicate)
 
+### OAuth token is single-owner across environments (IMPORTANT — learned 2026-07-03)
+Local and prod share ONE Etsy connection (same shop). Etsy **rotates the refresh token on every use**, so whenever one environment refreshes or reconnects, the OTHER environment's token is immediately invalidated. Symptom: `No Etsy refresh token` / `invalid_grant`.
+- **Prod must own the live connection.** Etsy webhooks (`order.paid`, etc.) can only reach the public site, so treat PROD as the token owner and reconnect Etsy in the **prod** admin.
+- **Do NOT run token-refreshing Etsy commands locally** during normal ops. If you must do local Etsy work (e.g. re-linking, pulling live inventory), it WILL break prod's token — reconnect prod afterward.
+- Sync direction for catalog/stock: pull FROM Etsy on whichever env has a live token, write local, then push local→prod via `db:export-hostinger` (see project_infra DB-sync notes). Etsy is the source of truth for titles, descriptions, and stock.
+
 ### Pending / Known Gaps
 - **Etsy tags / materials / shop_section_id** — included in push payload only if set on product (copied by etsy:link)
 - **New product creation** — requires `etsy_taxonomy_id`, `etsy_shipping_profile_id`, `etsy_readiness_state_id` on product first (all copied by etsy:link)
