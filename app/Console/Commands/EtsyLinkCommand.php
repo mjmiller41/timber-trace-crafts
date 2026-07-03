@@ -56,6 +56,15 @@ class EtsyLinkCommand extends Command
             return 1;
         }
 
+        // Readiness state lives on the inventory offerings, not the listing itself,
+        // and EtsyInventorySync requires it — so copy it as part of the link.
+        $inventory = $client->get("/application/listings/{$listingId}/inventory");
+        $readinessStateId = collect($inventory['products'] ?? [])
+            ->flatMap(fn (array $p) => $p['offerings'] ?? [])
+            ->pluck('readiness_state_id')
+            ->filter()
+            ->first();
+
         $newName = $listing['title'] ?? $product->name;
         $newSlug = $this->uniqueSlug(Str::slug($newName), $product->id);
 
@@ -83,6 +92,7 @@ class EtsyLinkCommand extends Command
             'etsy_shop_section_id' => $listing['shop_section_id'] ?? null,
             'etsy_shipping_profile_id' => $listing['shipping_profile_id'] ?? null,
             'etsy_return_policy_id' => $listing['return_policy_id'] ?? null,
+            'etsy_readiness_state_id' => $readinessStateId,
         ];
 
         if ($this->option('activate')) {

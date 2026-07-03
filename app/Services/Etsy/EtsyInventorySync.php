@@ -2,7 +2,6 @@
 
 namespace App\Services\Etsy;
 
-use App\Exceptions\EtsyApiException;
 use App\Models\Product;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +20,16 @@ class EtsyInventorySync
 
         $price = (float) ($product->sale_price ?? $product->price);
         $readinessStateId = (int) ($product->etsy_readiness_state_id ?? Setting::get('etsy.readiness_state_id') ?? 0) ?: null;
+
+        if (! $readinessStateId) {
+            // Etsy rejects every offering without one ("All offerings need readiness state"),
+            // so fail before the API call with an actionable message instead of a generic 400.
+            throw new \RuntimeException(
+                "Cannot sync inventory for product #{$product->id}: no readiness_state_id. "
+                .'Set etsy_readiness_state_id on the product (etsy:link copies it from the listing) '
+                .'or the etsy.readiness_state_id setting.'
+            );
+        }
 
         $types = $product->variationTypes;
 
@@ -45,12 +54,9 @@ class EtsyInventorySync
         }
     }
 
-    private function syncBaseProduct(Product $product, float $price, ?int $readinessStateId): void
+    private function syncBaseProduct(Product $product, float $price, int $readinessStateId): void
     {
-        $offering = ['quantity' => 1, 'is_enabled' => true, 'price' => $price];
-        if ($readinessStateId) {
-            $offering['readiness_state_id'] = $readinessStateId;
-        }
+        $offering = ['quantity' => 1, 'is_enabled' => true, 'price' => $price, 'readiness_state_id' => $readinessStateId];
 
         $this->client->put("/application/listings/{$product->etsy_listing_id}/inventory", [
             'products' => [['sku' => $product->sku_base ?? '', 'offerings' => [$offering], 'property_values' => []]],
@@ -60,16 +66,13 @@ class EtsyInventorySync
         ]);
     }
 
-    private function syncLegacyVariants(Product $product, $variants, float $price, ?int $readinessStateId): void
+    private function syncLegacyVariants(Product $product, $variants, float $price, int $readinessStateId): void
     {
         $propertyName = $product->etsy_variation_name ?: 'Style';
 
         $products = $variants->map(function ($v) use ($price, $readinessStateId, $propertyName) {
             $variantPrice = ($v->price !== null) ? (float) $v->price : $price;
-            $offering = ['quantity' => max(0, $v->stock_qty), 'is_enabled' => (bool) $v->is_enabled, 'price' => $variantPrice];
-            if ($readinessStateId) {
-                $offering['readiness_state_id'] = $readinessStateId;
-            }
+            $offering = ['quantity' => max(0, $v->stock_qty), 'is_enabled' => (bool) $v->is_enabled, 'price' => $variantPrice, 'readiness_state_id' => $readinessStateId];
 
             return [
                 'sku' => $v->sku ?? '',
@@ -86,14 +89,11 @@ class EtsyInventorySync
         ]);
     }
 
-    private function syncSingleType(Product $product, $type, float $price, ?int $readinessStateId): void
+    private function syncSingleType(Product $product, $type, float $price, int $readinessStateId): void
     {
         $products = $type->variants->map(function ($v) use ($price, $readinessStateId, $type) {
             $variantPrice = ($v->price !== null) ? (float) $v->price : $price;
-            $offering = ['quantity' => max(0, $v->stock_qty), 'is_enabled' => (bool) $v->is_enabled, 'price' => $variantPrice];
-            if ($readinessStateId) {
-                $offering['readiness_state_id'] = $readinessStateId;
-            }
+            $offering = ['quantity' => max(0, $v->stock_qty), 'is_enabled' => (bool) $v->is_enabled, 'price' => $variantPrice, 'readiness_state_id' => $readinessStateId];
 
             return [
                 'sku' => $v->sku ?? '',
@@ -110,7 +110,7 @@ class EtsyInventorySync
         ]);
     }
 
-    private function syncTwoTypes(Product $product, $type1, $type2, float $price, ?int $readinessStateId): void
+    private function syncTwoTypes(Product $product, $type1, $type2, float $price, int $readinessStateId): void
     {
         $products = [];
 
@@ -121,10 +121,8 @@ class EtsyInventorySync
                     'quantity' => max(0, $v1->stock_qty),
                     'is_enabled' => (bool) $v1->is_enabled && (bool) $v2->is_enabled,
                     'price' => $variantPrice,
+                    'readiness_state_id' => $readinessStateId,
                 ];
-                if ($readinessStateId) {
-                    $offering['readiness_state_id'] = $readinessStateId;
-                }
 
                 $sku = implode('-', array_filter([$v1->sku, $v2->sku]));
 
@@ -157,7 +155,7 @@ class EtsyInventorySync
                 try {
                     $this->syncProduct($product);
                     $result->updated++;
-                } catch (EtsyApiException $e) {
+                } catch (\Throwable $e) {
                     $result->failed++;
                     Log::error('Etsy inventory sync failed', [
                         'product_id' => $product->id,

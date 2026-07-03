@@ -149,6 +149,59 @@ class EtsySyncTest extends TestCase
         $sync->syncProduct($product);
     }
 
+    public function test_inventory_sync_fails_fast_when_no_readiness_state_is_configured(): void
+    {
+        Setting::set('etsy.readiness_state_id', null);
+        $product = Product::factory()->create(['etsy_listing_id' => '777888', 'etsy_readiness_state_id' => null]);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'stock_qty' => 3]);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldNotReceive('put');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('no readiness_state_id');
+
+        (new EtsyInventorySync($client))->syncProduct($product);
+    }
+
+    public function test_inventory_sync_includes_readiness_state_on_every_offering(): void
+    {
+        $product = Product::factory()->create(['etsy_listing_id' => '777888', 'etsy_readiness_state_id' => 42]);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'label' => 'Small', 'stock_qty' => 3, 'sku' => 'ABC-S']);
+        ProductVariant::factory()->create(['product_id' => $product->id, 'label' => 'Large', 'stock_qty' => 7, 'sku' => 'ABC-L']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('put')
+            ->once()
+            ->with('/application/listings/777888/inventory', Mockery::on(function ($payload) {
+                return collect($payload['products'])->every(
+                    fn ($p) => ($p['offerings'][0]['readiness_state_id'] ?? null) === 42
+                );
+            }))
+            ->andReturn([]);
+
+        $sync = new EtsyInventorySync($client);
+        $sync->syncProduct($product);
+    }
+
+    public function test_sync_all_counts_non_api_exceptions_as_failed_and_continues(): void
+    {
+        // No taxonomy_id anywhere: creating the first listing throws a RuntimeException,
+        // which must be counted as a failure without aborting the rest of the run.
+        Product::factory()->create(['status' => 'active', 'etsy_listing_id' => null]);
+        Product::factory()->create(['status' => 'active', 'etsy_listing_id' => '555']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client->shouldReceive('patch')->once()->andReturn(['listing_id' => 555]);
+        $client->shouldReceive('put')->once()->andReturn([]);
+
+        $sync = new EtsyProductSync($client);
+        $result = $sync->syncAll();
+
+        $this->assertEquals(1, $result->failed);
+        $this->assertEquals(1, $result->updated);
+    }
+
     // ── Order Sync ────────────────────────────────────────────────────
 
     public function test_order_sync_imports_new_receipt_as_order(): void
