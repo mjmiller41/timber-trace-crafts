@@ -73,4 +73,26 @@ class PageTest extends TestCase
         // …and is never double-encoded.
         $response->assertDontSee('&amp;amp;', false);
     }
+
+    #[Test]
+    public function the_default_canonical_and_og_image_render_escaped_exactly_once(): void
+    {
+        Page::create([
+            'title' => 'FAQ',
+            'slug' => 'faq',
+            'body' => 'Answers.',
+        ]);
+
+        $response = $this->get('/faq');
+
+        $response->assertOk();
+        // Default canonical/og:url use url()->current(); dropping the outer e() must not
+        // leave them raw or double-encoded.
+        $url = url('/faq');
+        $response->assertSee('<link rel="canonical" href="'.e($url).'">', false);
+        $response->assertSee('<meta property="og:url" content="'.e($url).'">', false);
+        // Default og:image falls back to the bundled asset, escaped once.
+        $response->assertSee('content="'.e(asset('images/og-default.jpg')).'"', false);
+        $response->assertDontSee('&amp;amp;', false);
+    }
 }

@@ -1,7 +1,6 @@
 # Tasks
 
 ## Active
-- [ ] **Canonical URL double-encoding** - `$metaCanonical` in `layouts/app.blade.php` (line ~11) still uses the `e()` + `{!! !!}` pattern. Unlike title/description it can't just drop `e()`: its default is a live URL (`url()->current()`) whose `&` between query params must stay escaped in the href. Handle deliberately (the current default path is fine; only explicit `@section('canonical')` values double-encode)
 - [ ] **Custom orders / B2B / bulk quote flow**
 - [ ] **Gallery / portfolio page**
 - [ ] **Dark mode**
@@ -57,6 +56,7 @@
 - [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
 
 ## Done
+- [x] **Canonical + og:image double-encoding** (2026-07-03) - completed the meta-encoding cleanup in `layouts/app.blade.php`: pre-escape the *default* for `$metaCanonical` and `$metaOgImage` and drop the outer `e()`, so URL-valued metas escape exactly once whether set via inline `@section()` (already escaped) or the default. Fixes the latent canonical case and the section-set `og_image` (journal posts) whenever the image URL carries query-string `&`s. Regression test locks the default path. (robots/og_type defaults are plain literals — left as-is)
 - [x] **Meta description double-encoding** (2026-07-03) - dropped the redundant `e()` on `$metaDescription` in `layouts/app.blade.php` (all 8 `@section('meta_description')` are inline form, already escaped by startSection), so `&`/quotes in descriptions escape once instead of `&amp;amp;`/`&amp;quot;`. Regression test added. Canonical filed as remaining follow-up
 - [x] **Heading SOFT axis + title double-encoding** (2026-07-03) - bumped Fraunces heading `font-variation-settings` 'SOFT' from 0 → 10 site-wide (both heading rules in `app.css`); at 0 the thin horizontal strokes vanished. Also fixed the `<title>` double-encoding: dropped the redundant `e()` in `layouts/app.blade.php` (inline `@section('title', $x)` already escapes via startSection), so "Terms & Conditions" renders `&amp;` not `&amp;amp;`. Regression test added. Description/canonical have the same latent pattern (filed as follow-up)
 - [x] **Materials / sizing / care guide page** (2026-07-03) - new `care-guide` CMS page (slug whitelisted in the `/{slug}` route, linked in the footer Info column, rendered via `pages.show`); row created on prod MySQL. Real body content now written (earrings/boxes/tumblers care — Tried & True Original finish, etc.). 2 page tests. Title kept ampersand-free to dodge the then-unfixed site-wide `<title>` double-encoding bug (since fixed)

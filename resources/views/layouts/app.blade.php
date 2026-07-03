@@ -11,10 +11,13 @@
         // Like $metaTitle: inline @section('meta_description', $x) already escapes,
         // so a second e() double-encodes '&'/quotes in the tag. Render with {!! !!}.
         $metaDescription = \Illuminate\Support\Facades\View::yieldContent('meta_description', 'Handcrafted laser-cut wooden jewelry, boxes, and gifts. Made with precision and love.');
-        $metaCanonical   = e(\Illuminate\Support\Facades\View::yieldContent('canonical', url()->current()));
+        // URL-valued metas: inline @section() already escapes its value, so pre-escape
+        // the *default* too and drop the outer e() — otherwise a section-set URL with
+        // query-string '&'s double-encodes (e.g. og_image on a journal post).
+        $metaCanonical   = \Illuminate\Support\Facades\View::yieldContent('canonical', e(url()->current()));
         $metaRobots      = e(\Illuminate\Support\Facades\View::yieldContent('robots', 'index, follow'));
         $metaOgType      = e(\Illuminate\Support\Facades\View::yieldContent('og_type', 'website'));
-        $metaOgImage     = e(\Illuminate\Support\Facades\View::yieldContent('og_image', asset('images/og-default.jpg')));
+        $metaOgImage     = \Illuminate\Support\Facades\View::yieldContent('og_image', e(asset('images/og-default.jpg')));
     @endphp
     <title>{!! $metaTitle !!} | Timber Trace Crafts</title>
     <link rel="canonical" href="{!! $metaCanonical !!}">
