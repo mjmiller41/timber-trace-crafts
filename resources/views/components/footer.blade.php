@@ -33,6 +33,7 @@
                         <li><a href="{{ route('journal.index') }}" class="footer-link">Journal</a></li>
                         <li><a href="{{ route('contact.index') }}" class="footer-link">Contact</a></li>
                         <li><a href="{{ route('page.show', 'faq') }}" class="footer-link">FAQ</a></li>
+                        <li><a href="{{ route('page.show', 'care-guide') }}" class="footer-link">Care Guide</a></li>
                     </ul>
                 </div>
             </div>

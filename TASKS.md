@@ -1,6 +1,8 @@
 # Tasks
 
 ## Active
+- [ ] **Write Care Guide content** - replace the "coming soon" placeholder on the `care-guide` page (materials, sizing, care). Needs real product specifics: finish type (oil/wax/poly), earring hardware metal, care instructions
+- [ ] **Fix site-wide `<title>` double-encoding** - `layouts/app.blade.php` line 7 does `e(View::yieldContent('title'))` then renders with `{!! !!}`, but inline `@section('title', $x)` already escapes, so titles with `&` show `&amp;amp;` (e.g. "Terms & Conditions"). Audit all `@section('title')` (block vs inline form) before changing, so block-form sections aren't left under-encoded
 - [ ] **Custom orders / B2B / bulk quote flow**
 - [ ] **Gallery / portfolio page**
 - [ ] **Materials / sizing / care guide page**
@@ -57,6 +59,7 @@
 - [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
 
 ## Done
+- [x] **Materials / sizing / care guide page** (2026-07-03) - new `care-guide` CMS page (slug whitelisted in the `/{slug}` route, linked in the footer Info column, rendered via `pages.show`); row created on prod MySQL with a "coming soon" placeholder body. Real content tracked as a follow-up. 2 page tests. Title kept ampersand-free to dodge the pre-existing site-wide `<title>` double-encoding bug (also filed as a task)
 - [x] **Reorder past items** (2026-07-03) - "Reorder" button on the order-history list + order detail page re-adds each still-available line to the cart at current price/availability (variant override else sale-aware price; personalization carried over); skips missing/inactive/disabled items with a named notice, errors back if none available, ownership-guarded. Also fixed a pre-existing cart bug: the cart thumbnail read `$item['image']` instead of the canonical `image_url`, so no cart thumbnails rendered. 4 reorder tests + 1 cart-image test
 - [x] **Social sharing buttons** (2026-07-03) - Share row on product pages: Facebook + Pinterest use real web share intents (Pinterest seeded with product image + name); Instagram (no web share intent) copies the product link to the clipboard with a "paste into your IG story/bio" confirmation. 1 feature test
 - [x] **Recently viewed products** (2026-07-03) - Alpine.js + localStorage strip on product pages; each view records a compact card (slug/name/image/price/stock) into `ttc_recently_viewed`, deduped + capped at 12, shows up to 4 excluding the current product. Pure client-side, no backend. 1 feature test
