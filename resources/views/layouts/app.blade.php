@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @php
-        $metaTitle       = e(\Illuminate\Support\Facades\View::yieldContent('title', 'Home'));
+        // Inline @section('title', $x) already escapes via startSection(), so the
+        // value from yieldContent() is HTML-safe — a second e() here double-encodes
+        // (e.g. "Terms & Conditions" → "&amp;amp;"). Render it as-is with {!! !!}.
+        $metaTitle       = \Illuminate\Support\Facades\View::yieldContent('title', 'Home');
         $metaDescription = e(\Illuminate\Support\Facades\View::yieldContent('meta_description', 'Handcrafted laser-cut wooden jewelry, boxes, and gifts. Made with precision and love.'));
         $metaCanonical   = e(\Illuminate\Support\Facades\View::yieldContent('canonical', url()->current()));
         $metaRobots      = e(\Illuminate\Support\Facades\View::yieldContent('robots', 'index, follow'));

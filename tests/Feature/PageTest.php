@@ -37,4 +37,22 @@ class PageTest extends TestCase
 
         $this->get('/not-whitelisted')->assertNotFound();
     }
+
+    #[Test]
+    public function a_title_with_an_ampersand_is_html_escaped_exactly_once(): void
+    {
+        Page::create([
+            'title' => 'Terms & Conditions',
+            'slug' => 'terms-and-conditions',
+            'body' => 'Body.',
+        ]);
+
+        $response = $this->get('/terms-and-conditions');
+
+        $response->assertOk();
+        // Escaped once for HTML…
+        $response->assertSee('<title>Terms &amp; Conditions | Timber Trace Crafts</title>', false);
+        // …and never double-encoded.
+        $response->assertDontSee('&amp;amp;', false);
+    }
 }
