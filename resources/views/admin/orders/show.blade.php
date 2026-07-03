@@ -218,6 +218,9 @@
                         <option value="cancelled"       @selected($order->status === 'cancelled')>Cancelled</option>
                         <option value="refunded"        @selected($order->status === 'refunded')>Refunded</option>
                     </select>
+                    @if($order->isStripeRefundable())
+                    <span style="font-size: 0.75rem; color: #9ca3af;">To refund the Stripe payment, use the Refund card below — it sets this status automatically.</span>
+                    @endif
                 </div>
                 <div style="margin-bottom: 0.875rem;">
                     <label class="admin-label" for="status_note">Note (optional)</label>

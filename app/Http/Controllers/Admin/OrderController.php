@@ -46,6 +46,14 @@ class OrderController extends Controller
             'note' => ['nullable', 'string', 'max:500'],
         ]);
 
+        // A Stripe order with a live balance must be refunded through the Stripe
+        // API (which sets this status itself), not by flipping the label here.
+        // Etsy/manual orders have no PaymentIntent, so they refund freely.
+        if ($validated['status'] === 'refunded' && $order->isStripeRefundable()) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Use the Refund card to refund a Stripe payment — issuing the refund sets this status automatically.');
+        }
+
         $oldStatus = $order->status;
         $order->update(['status' => $validated['status']]);
 

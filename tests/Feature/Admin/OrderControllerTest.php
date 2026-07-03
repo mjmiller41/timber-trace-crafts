@@ -208,6 +208,55 @@ class OrderControllerTest extends TestCase
     }
 
     #[Test]
+    public function refunded_status_from_the_dropdown_is_blocked_for_stripe_orders(): void
+    {
+        Mail::fake();
+
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'total' => 58.00,
+            'stripe_payment_intent_id' => 'pi_test_123',
+        ]);
+
+        $response = $this->actingAs($this->admin())->patch(route('admin.orders.status', $order), [
+            'status' => 'refunded',
+        ]);
+
+        $response->assertRedirect(route('admin.orders.show', $order));
+        $response->assertSessionHas('error');
+        $this->assertEquals('processing', $order->fresh()->status);
+        $this->assertDatabaseMissing('order_status_history', [
+            'order_id' => $order->id,
+            'status' => 'refunded',
+        ]);
+        Mail::assertNothingQueued();
+    }
+
+    #[Test]
+    public function refunded_status_from_the_dropdown_is_allowed_for_non_stripe_orders(): void
+    {
+        Mail::fake();
+
+        $order = Order::factory()->create([
+            'status' => 'processing',
+            'total' => 58.00,
+            'stripe_payment_intent_id' => null,
+            'etsy_receipt_id' => 'etsy_999',
+        ]);
+
+        $response = $this->actingAs($this->admin())->patch(route('admin.orders.status', $order), [
+            'status' => 'refunded',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertEquals('refunded', $order->fresh()->status);
+        $this->assertDatabaseHas('order_status_history', [
+            'order_id' => $order->id,
+            'status' => 'refunded',
+        ]);
+    }
+
+    #[Test]
     public function non_admin_cannot_refund_an_order(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
