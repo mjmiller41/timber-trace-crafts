@@ -46,6 +46,21 @@
     $avgRating = $product->reviews->where('status', 'approved')->avg('rating');
     $reviewCount = $product->reviews->where('status', 'approved')->count();
     $ogImage = $images[0] ?? asset('images/og-default.jpg');
+
+    // Card data for the "Recently viewed" strip (persisted client-side in localStorage).
+    $recentlyViewedCard = [
+        'slug'         => $product->slug,
+        'name'         => $product->name,
+        'url'          => url('/product/'.$product->slug),
+        'image'        => $product->primary_image_url,
+        'image_webp'   => $product->primary_image_url
+            ? preg_replace('/\.(png|jpe?g)$/i', '.webp', $product->primary_image_url)
+            : null,
+        'price'        => (float) $product->price,
+        'sale_price'   => $product->sale_price !== null ? (float) $product->sale_price : null,
+        'category'     => $product->category?->name,
+        'out_of_stock' => $product->variants->sum('stock_qty') <= 0,
+    ];
 @endphp
 
 @push('head')
@@ -468,6 +483,74 @@
         </div>
     </div>
 @endif
+
+{{-- ============================================================ --}}
+{{-- RECENTLY VIEWED (client-side, localStorage) --}}
+{{-- ============================================================ --}}
+<div x-data="recentlyViewed({{ json_encode($recentlyViewedCard) }})"
+     x-show="items.length > 0"
+     x-cloak
+     class="border-t border-walnut/20 py-16 md:py-20">
+    <div class="page-container">
+        <p class="section-label mb-3">Recently Viewed</p>
+        <h2 class="font-heading text-3xl font-light text-charcoal mb-10">Pieces You've Looked At</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <template x-for="item in items.slice(0, 4)" :key="item.slug">
+                <article class="group">
+                    <a :href="item.url" class="block" :aria-label="item.name">
+                        {{-- Image --}}
+                        <div class="kerf-frame relative overflow-hidden bg-surface aspect-square mb-3">
+                            <template x-if="item.image">
+                                <picture>
+                                    <source :srcset="item.image_webp" type="image/webp">
+                                    <img :src="item.image" :alt="item.name"
+                                         class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                                         loading="lazy">
+                                </picture>
+                            </template>
+                            <template x-if="!item.image">
+                                <div class="w-full h-full flex items-center justify-center" style="background-color: #EDE8DF;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12" style="color: #C4B9AA;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+                                    </svg>
+                                </div>
+                            </template>
+                            <template x-if="item.out_of_stock">
+                                <div class="absolute top-2.5 left-2.5"
+                                     style="background-color: rgba(51,51,51,0.85); color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: var(--font-body);">
+                                    Out of Stock
+                                </div>
+                            </template>
+                            <template x-if="!item.out_of_stock && onSale(item)">
+                                <div class="absolute top-2.5 left-2.5"
+                                     style="background-color: #4A2C11; color: #F4F1EA; font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 8px; font-family: var(--font-body);">
+                                    Sale
+                                </div>
+                            </template>
+                        </div>
+                        {{-- Info --}}
+                        <div>
+                            <p class="section-label mb-1" style="font-size: 0.625rem;" x-show="item.category" x-text="item.category"></p>
+                            <h3 class="font-heading leading-snug mb-1.5 transition-colors duration-200 group-hover:text-forest-green"
+                                style="font-size: 1rem;" x-text="item.name"></h3>
+                            <div class="flex items-center gap-2">
+                                <template x-if="onSale(item)">
+                                    <span style="font-size: 0.9375rem; font-weight: 600; color: #4A2C11; font-family: var(--font-body);" x-text="formatPrice(item.sale_price)"></span>
+                                </template>
+                                <template x-if="onSale(item)">
+                                    <span style="font-size: 0.8125rem; color: #8C7B6C; text-decoration: line-through; font-family: var(--font-body);" x-text="formatPrice(item.price)"></span>
+                                </template>
+                                <template x-if="!onSale(item)">
+                                    <span style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: var(--font-body);" x-text="formatPrice(item.price)"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+            </template>
+        </div>
+    </div>
+</div>
 
 @endsection
 
