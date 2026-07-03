@@ -228,7 +228,8 @@ class EtsyDiffCommand extends Command
             $diff['price'] = ['db' => (float) $product->price, 'etsy' => $etsyPrice];
         }
 
-        $etsyTitle = $listing['title'] ?? null;
+        // Etsy returns titles HTML-encoded; decode before comparing to DB text
+        $etsyTitle = isset($listing['title']) ? html_entity_decode($listing['title'], ENT_QUOTES | ENT_HTML5) : null;
         if ($etsyTitle && $product->name !== $etsyTitle) {
             $diff['title'] = ['db' => $product->name, 'etsy' => $etsyTitle];
         }

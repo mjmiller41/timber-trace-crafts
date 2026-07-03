@@ -65,15 +65,20 @@ class EtsyLinkCommand extends Command
             ->filter()
             ->first();
 
-        $newName = $listing['title'] ?? $product->name;
+        // The Etsy API returns text HTML-encoded (&#39; etc.); decode so the DB
+        // holds the real text shown on Etsy.
+        $newName = html_entity_decode($listing['title'] ?? $product->name, ENT_QUOTES | ENT_HTML5);
+        $newDescription = isset($listing['description'])
+            ? html_entity_decode($listing['description'], ENT_QUOTES | ENT_HTML5)
+            : $product->description;
         $newSlug = $this->uniqueSlug(Str::slug($newName), $product->id);
 
         $updates = [
             'etsy_listing_id' => $listingId,
             'name' => $newName,
             'slug' => $newSlug,
-            'description' => $listing['description'] ?? $product->description,
-            'short_description' => Str::limit(strip_tags($listing['description'] ?? ''), 200) ?: $product->short_description,
+            'description' => $newDescription,
+            'short_description' => Str::limit(strip_tags($newDescription ?? ''), 200) ?: $product->short_description,
             'etsy_state' => $listing['state'] ?? null,
             'etsy_tags' => $listing['tags'] ?? [],
             'etsy_materials' => $listing['materials'] ?? [],
