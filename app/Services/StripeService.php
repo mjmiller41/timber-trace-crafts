@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
+use Stripe\Refund;
 use Stripe\Stripe;
 
 class StripeService
@@ -43,5 +44,26 @@ class StripeService
         }
 
         return $intent;
+    }
+
+    /**
+     * Refund a PaymentIntent, fully or partially.
+     *
+     * @param  int|null  $amountCents  Amount to refund in cents; null refunds the full remaining balance.
+     *
+     * @throws ApiErrorException
+     */
+    public function refundPayment(string $paymentIntentId, ?int $amountCents = null): Refund
+    {
+        $params = [
+            'payment_intent' => $paymentIntentId,
+            'reason' => 'requested_by_customer',
+        ];
+
+        if ($amountCents !== null) {
+            $params['amount'] = $amountCents;
+        }
+
+        return Refund::create($params);
     }
 }

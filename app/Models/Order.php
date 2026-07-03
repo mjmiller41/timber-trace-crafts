@@ -24,6 +24,9 @@ class Order extends Model
         'coupon_id',
         'coupon_code_snapshot',
         'stripe_payment_intent_id',
+        'stripe_refund_id',
+        'refunded_amount',
+        'refunded_at',
         'etsy_receipt_id',
         'message_from_buyer',
         'etsy_is_paid',
@@ -62,12 +65,31 @@ class Order extends Model
             'shipping_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
             'total' => 'decimal:2',
+            'refunded_amount' => 'decimal:2',
+            'refunded_at' => 'datetime',
         ];
     }
 
     public function isGuest(): bool
     {
         return $this->user_id === null;
+    }
+
+    /**
+     * Remaining amount (in dollars) that can still be refunded via Stripe.
+     */
+    public function refundableAmount(): float
+    {
+        return round((float) $this->total - (float) $this->refunded_amount, 2);
+    }
+
+    /**
+     * Whether this order can be refunded through the Stripe API: it was paid
+     * via Stripe (has a PaymentIntent) and still has a positive balance left.
+     */
+    public function isStripeRefundable(): bool
+    {
+        return ! empty($this->stripe_payment_intent_id) && $this->refundableAmount() > 0;
     }
 
     public function user(): BelongsTo
