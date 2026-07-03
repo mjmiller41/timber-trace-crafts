@@ -46,7 +46,7 @@ metadata:
 ### Pending / Known Gaps
 - **Etsy tags / materials / shop_section_id** — included in push payload only if set on product (copied by etsy:link)
 - **New product creation** — requires `etsy_taxonomy_id`, `etsy_shipping_profile_id`, `etsy_readiness_state_id` on product first (all copied by etsy:link)
-- **Local product names** — etsy:link copied Etsy titles, so butterfly products #3/#4/#5 now have IDENTICAL names locally (slugs suffixed -2/-3); may want distinct display names before storefront launch, but pushing changed names would overwrite live Etsy titles
+- **Product names/descriptions** — DECIDED (2026-07-03): Etsy is canonical for name + description; DB verified matching all 6 live listings byte-for-byte. Butterfly products #3/#4/#5 intentionally share the identical Etsy title (distinguished by SKU -01/-02/-03; slugs suffixed -2/-3). Etsy API returns text HTML-encoded — etsy:link/etsy:diff decode it
 - **Tumbler price** — local was $20, live Etsy $25; local set to $25 (2026-07-03) to match live. If $20 was intentional for the own-store price, revisit
 
 ### API Notes
