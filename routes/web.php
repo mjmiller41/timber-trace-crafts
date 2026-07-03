@@ -118,6 +118,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [AccountController::class, 'orderShow'])->name('orders.show');
     Route::get('/orders/{order}/invoice', [AccountController::class, 'orderInvoice'])->name('orders.invoice');
+    Route::post('/orders/{order}/reorder', [AccountController::class, 'orderReorder'])->name('orders.reorder');
     Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
     Route::post('/wishlist', [AccountController::class, 'wishlistAdd'])->name('wishlist.add');
     Route::delete('/wishlist/{variant}', [AccountController::class, 'wishlistRemove'])->name('wishlist.remove');

@@ -92,7 +92,15 @@
 
             {{-- Order Items --}}
             <div>
-                <h2 class="font-heading text-xl font-light mb-4">Items</h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-heading text-xl font-light">Items</h2>
+                    <form method="POST" action="{{ route('account.orders.reorder', $order) }}">
+                        @csrf
+                        <button type="submit" class="btn-outline text-xs px-4 py-2">
+                            Reorder These Items
+                        </button>
+                    </form>
+                </div>
                 <div class="card overflow-hidden">
                     <div class="divide-y divide-walnut/10">
                         @foreach($order->items as $item)

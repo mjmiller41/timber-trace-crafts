@@ -162,4 +162,129 @@ class AccountTest extends TestCase
             'product_variant_id' => $variant->id,
         ]);
     }
+
+    #[Test]
+    public function reorder_adds_available_lines_to_the_cart_at_current_price(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['status' => 'active', 'price' => 30.00]);
+        $variant = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'is_enabled' => true,
+            'price' => null,
+            'stock_qty' => 5,
+        ]);
+
+        $order = Order::factory()->create(['user_id' => $user->id]);
+        $order->items()->create([
+            'product_id' => $product->id,
+            'variant_id' => $variant->id,
+            'name_snapshot' => $product->name,
+            'sku_snapshot' => 'SKU-'.uniqid(),
+            // Snapshot price is stale; reorder must use the current product price.
+            'price_snapshot' => 12.00,
+            'qty' => 2,
+            'subtotal' => 24.00,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('account.orders.reorder', $order));
+
+        $response->assertRedirect(route('cart.index'));
+        $response->assertSessionHas('success');
+
+        $cart = session('cart');
+        $this->assertCount(1, $cart);
+        $line = array_values($cart)[0];
+        $this->assertSame($variant->id, $line['variant_id']);
+        $this->assertSame(2, $line['qty']);
+        // Current product price (30), not the stale snapshot (12).
+        $this->assertEquals(30.00, $line['price']);
+    }
+
+    #[Test]
+    public function reorder_skips_unavailable_lines_and_reports_them(): void
+    {
+        $user = User::factory()->create();
+
+        $active = Product::factory()->create(['status' => 'active', 'price' => 20.00]);
+        $activeVariant = ProductVariant::factory()->create([
+            'product_id' => $active->id,
+            'is_enabled' => true,
+            'stock_qty' => 5,
+        ]);
+
+        $inactive = Product::factory()->create(['status' => 'draft', 'price' => 20.00]);
+        $inactiveVariant = ProductVariant::factory()->create([
+            'product_id' => $inactive->id,
+            'is_enabled' => true,
+            'stock_qty' => 5,
+        ]);
+
+        $order = Order::factory()->create(['user_id' => $user->id]);
+        $order->items()->create([
+            'product_id' => $active->id,
+            'variant_id' => $activeVariant->id,
+            'name_snapshot' => $active->name,
+            'sku_snapshot' => 'SKU-'.uniqid(),
+            'price_snapshot' => 20.00,
+            'qty' => 1,
+            'subtotal' => 20.00,
+        ]);
+        $order->items()->create([
+            'product_id' => $inactive->id,
+            'variant_id' => $inactiveVariant->id,
+            'name_snapshot' => 'Discontinued Piece',
+            'sku_snapshot' => 'SKU-'.uniqid(),
+            'price_snapshot' => 20.00,
+            'qty' => 1,
+            'subtotal' => 20.00,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('account.orders.reorder', $order));
+
+        $response->assertRedirect(route('cart.index'));
+        $this->assertCount(1, session('cart'));
+        $this->assertStringContainsString('Discontinued Piece', session('success'));
+    }
+
+    #[Test]
+    public function reorder_with_no_available_lines_redirects_back_with_error(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['status' => 'draft', 'price' => 20.00]);
+        $variant = ProductVariant::factory()->create([
+            'product_id' => $product->id,
+            'is_enabled' => true,
+            'stock_qty' => 5,
+        ]);
+
+        $order = Order::factory()->create(['user_id' => $user->id]);
+        $order->items()->create([
+            'product_id' => $product->id,
+            'variant_id' => $variant->id,
+            'name_snapshot' => $product->name,
+            'sku_snapshot' => 'SKU-'.uniqid(),
+            'price_snapshot' => 20.00,
+            'qty' => 1,
+            'subtotal' => 20.00,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('account.orders.reorder', $order));
+
+        $response->assertRedirect(route('account.orders.show', $order));
+        $response->assertSessionHas('error');
+        $this->assertEmpty(session('cart', []));
+    }
+
+    #[Test]
+    public function reorder_forbidden_for_another_users_order(): void
+    {
+        $owner = User::factory()->create();
+        $stranger = User::factory()->create();
+        $order = Order::factory()->create(['user_id' => $owner->id]);
+
+        $response = $this->actingAs($stranger)->post(route('account.orders.reorder', $order));
+
+        $response->assertForbidden();
+    }
 }

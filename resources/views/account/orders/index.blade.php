@@ -68,9 +68,17 @@
                                             ${{ number_format($order->total, 2) }}
                                         </td>
                                         <td class="py-3.5 px-4 text-right">
-                                            <a href="{{ route('account.orders.show', $order) }}" class="btn-outline text-xs px-3 py-1.5">
-                                                View
-                                            </a>
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="{{ route('account.orders.show', $order) }}" class="btn-outline text-xs px-3 py-1.5">
+                                                    View
+                                                </a>
+                                                <form method="POST" action="{{ route('account.orders.reorder', $order) }}">
+                                                    @csrf
+                                                    <button type="submit" class="btn-outline text-xs px-3 py-1.5">
+                                                        Reorder
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Wishlist;
+use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +36,73 @@ class AccountController extends Controller
         abort_unless($order->user_id === auth()->id(), 403);
 
         return view('account.orders.show', compact('order'));
+    }
+
+    /**
+     * Re-add the still-available lines from a past order to the cart at current
+     * price/availability. Lines whose product or variant is gone, inactive, or
+     * disabled are skipped and reported back to the customer.
+     */
+    public function orderReorder(Order $order, CartService $cart): RedirectResponse
+    {
+        abort_unless($order->user_id === auth()->id(), 403);
+
+        $added = 0;
+        $skipped = [];
+
+        foreach ($order->items as $line) {
+            $product = $line->product_id ? Product::find($line->product_id) : null;
+            $variant = $line->variant_id ? ProductVariant::find($line->variant_id) : null;
+
+            $label = $line->name_snapshot ?? $product?->name ?? 'An item';
+
+            if (! $product || ! $variant || $variant->product_id !== $product->id) {
+                $skipped[] = $label;
+
+                continue;
+            }
+
+            if ($product->status !== 'active' || ! $variant->is_enabled) {
+                $skipped[] = $label;
+
+                continue;
+            }
+
+            $personalizationText = $line->personalization_text ?: null;
+            $personalizationPrice = ($product->personalization_type === 'addon' && $personalizationText)
+                ? (float) ($product->personalization_price ?? 0)
+                : 0.0;
+
+            $cart->add([
+                'row_key' => md5($product->id.'-'.$variant->id.'-'.$personalizationText),
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'sku' => $variant->sku ?? '',
+                'name' => $product->name,
+                'variant_label' => $variant->label ?? '',
+                'personalization_text' => $personalizationText,
+                'personalization_price' => $personalizationPrice,
+                // Current (sale-aware) price, mirroring the add-to-cart flow —
+                // a variant price is an absolute override.
+                'price' => (float) ($variant->price ?? $product->currentPrice()),
+                'qty' => (int) $line->qty,
+                'image_url' => $product->primary_image_url ?? null,
+            ]);
+
+            $added++;
+        }
+
+        if ($added === 0) {
+            return redirect()->route('account.orders.show', $order)
+                ->with('error', 'None of the items from this order are available to reorder right now.');
+        }
+
+        $message = $added === 1 ? '1 item added to your cart.' : "{$added} items added to your cart.";
+        if (! empty($skipped)) {
+            $message .= ' Skipped (no longer available): '.implode(', ', $skipped).'.';
+        }
+
+        return redirect()->route('cart.index')->with('success', $message);
     }
 
     public function orderInvoice(Order $order): View
