@@ -29,6 +29,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RestockController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
@@ -222,3 +223,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Etsy webhook — public, no auth (Etsy calls this directly)
 Route::post('/webhooks/etsy', [EtsyWebhookController::class, 'handle'])->name('webhooks.etsy');
+
+// Stripe webhook — public, no auth (Stripe calls this directly)
+Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle'])->name('webhooks.stripe');
