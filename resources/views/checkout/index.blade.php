@@ -277,6 +277,20 @@
                         @endforeach
                     </div>
 
+                    {{-- Gift message (optional) --}}
+                    <div class="mb-8">
+                        <label for="gift_message" class="section-label block mb-2">Gift Message <span class="text-walnut/50 font-400 normal-case tracking-normal">(optional)</span></label>
+                        <textarea id="gift_message"
+                                  name="gift_message"
+                                  rows="3"
+                                  maxlength="500"
+                                  placeholder="Add a personal message for the recipient — we'll include it on the packing slip."
+                                  class="form-field text-sm resize-none @error('gift_message') border-error @enderror">{{ old('gift_message') }}</textarea>
+                        @error('gift_message')
+                            <p class="mt-1 font-body text-xs text-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Stripe Card Element --}}
                     <div class="mb-8">
                         <p class="section-label block mb-4">Card Details</p>

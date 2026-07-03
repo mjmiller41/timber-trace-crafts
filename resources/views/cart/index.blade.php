@@ -185,14 +185,7 @@
                         </div>
                     </div>
 
-                    {{-- Gift message --}}
-                    <div class="py-3 border-t border-walnut/20">
-                        <label class="section-label block mb-2">Gift Message <span class="text-walnut/50 font-400 normal-case tracking-normal">(optional)</span></label>
-                        <textarea name="gift_message"
-                                  rows="3"
-                                  placeholder="Add a personal message for the recipient..."
-                                  class="form-field text-sm resize-none"></textarea>
-                    </div>
+                    {{-- Gift message is collected at checkout (Step 3) --}}
 
                     {{-- CTA --}}
                     <a href="{{ route('checkout.index') }}" class="btn-forest block w-full text-center py-4">

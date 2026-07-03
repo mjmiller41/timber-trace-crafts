@@ -61,18 +61,22 @@ class ShopController extends Controller
         $products = $query->paginate(16)->withQueryString();
         $categories = Category::whereNull('parent_id')->orderBy('sort_order')->get();
         $woodTags = Tag::where('type', 'wood_species')->orderBy('name')->get();
+        $styleTags = Tag::where('type', 'style')->orderBy('name')->get();
 
         $activeCategory = $request->query('category');
         $activeTag = $request->query('tag');
         $activeSort = $request->query('sort', 'newest');
+        $activeSearch = $request->query('search');
 
         return view('shop.index', compact(
             'products',
             'categories',
             'woodTags',
+            'styleTags',
             'activeCategory',
             'activeTag',
-            'activeSort'
+            'activeSort',
+            'activeSearch'
         ));
     }
 }

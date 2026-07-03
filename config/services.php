@@ -55,6 +55,12 @@ return [
         'redirect_uri' => env('ETSY_REDIRECT_URI'), // override for ngrok / local dev
     ],
 
+    'indexnow' => [
+        // IndexNow key. Not a secret — it is published at /{key}.txt on the site root.
+        // If overridden via env, host a matching {key}.txt in public/.
+        'key' => env('INDEXNOW_KEY', '43cf04c90b16ed6f72f647f01835ae23'),
+    ],
+
     'imap' => [
         'host' => env('IMAP_HOST', 'imap.hostinger.com'),
         'port' => env('IMAP_PORT', 993),

@@ -1,10 +1,32 @@
 {{-- Sidebar filters partial. Included by shop/index.blade.php for both desktop and mobile. --}}
 
 @php
-    $hasFilters = $activeCategory || $activeTag || request('sale');
+    $hasFilters = $activeCategory || $activeTag || request('sale') || $activeSearch;
 @endphp
 
 <div class="space-y-8">
+
+    {{-- ── Search ── --}}
+    <form method="GET" action="{{ route('shop') }}" role="search" class="relative">
+        {{-- Preserve active filters/sort when searching --}}
+        @foreach(request()->except(['search', 'page']) as $key => $value)
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+        @endforeach
+        @php($searchId = 'shop-search-'.(($mobile ?? false) ? 'mobile' : 'desktop'))
+        <label for="{{ $searchId }}" class="sr-only">Search products</label>
+        <input type="search"
+               id="{{ $searchId }}"
+               name="search"
+               value="{{ $activeSearch }}"
+               placeholder="Search products…"
+               class="form-field text-sm w-full pr-10">
+        <button type="submit" aria-label="Search"
+                class="absolute right-0 top-0 h-full px-3 text-walnut hover:text-charcoal transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+        </button>
+    </form>
 
     {{-- Section heading --}}
     <div class="flex items-center justify-between">
@@ -48,6 +70,24 @@
             <p class="font-body text-xs font-600 tracking-widest uppercase text-charcoal mb-3">Wood Species</p>
             <ul class="space-y-1.5">
                 @foreach($woodTags as $tag)
+                    <li>
+                        <a href="{{ route('shop') }}?{{ http_build_query(array_merge(request()->except('tag', 'page'), ['tag' => $tag->slug])) }}"
+                           class="font-body text-sm transition-colors
+                                  {{ $activeTag === $tag->slug ? 'text-forest-green font-600' : 'text-walnut hover:text-charcoal' }}">
+                            {{ $tag->name }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- ── Style / Tags ── --}}
+    @if($styleTags->isNotEmpty())
+        <div>
+            <p class="font-body text-xs font-600 tracking-widest uppercase text-charcoal mb-3">Style</p>
+            <ul class="space-y-1.5">
+                @foreach($styleTags as $tag)
                     <li>
                         <a href="{{ route('shop') }}?{{ http_build_query(array_merge(request()->except('tag', 'page'), ['tag' => $tag->slug])) }}"
                            class="font-body text-sm transition-colors
