@@ -19,7 +19,8 @@ metadata:
 
 ### Key Settings (stored in DB via Setting model)
 - `etsy.shop_id` = 64205843
-- `etsy.readiness_state_id` = 1488822641920 (made_to_order, 1-3 days)
+- `etsy.readiness_state_id` — NOT set globally (was null in local DB, caused the bulk-push 400s); now set per-product via `etsy_readiness_state_id`, copied by `etsy:link`
+- Readiness states: 1488822641920 = made_to_order 1-3 days · 1478211423469 = ready_to_ship 1-2 days. Heart box is made_to_order; tumbler + all earrings are ready_to_ship
 - `etsy.shipping_profile_id` = 303514857493 (copied from earrings listing)
 - `etsy.taxonomy_id` — not set globally; set per-product via `etsy_taxonomy_id` column
 
@@ -29,21 +30,24 @@ metadata:
 - Jewelry Boxes (under Jewelry): **6102**
 - Jewelry Boxes (under Storage): **6105**
 
-### Active Etsy Listings (production)
-- 4517004325 — America 250 Tumbler
-- 4511088718 — Personalized Heart Jewelry Box
-- 4507368334 — Butterfly Earrings Design 3
-- 4507325946 — Butterfly Earrings Design 2
-- 4506611612 — Butterfly Earrings Design 1
-- 4505102326 — Teardrop Earrings
-- 4528126178 — "test" (draft, can delete)
+### Active Etsy Listings (production, all linked to local products 2026-07-03)
+- 4517004325 — America 250 Tumbler (product #1), $25
+- 4511088718 — Personalized Heart Jewelry Box (product #2), $40
+- 4507368334 — Butterfly Earrings Design 3 (product #5, SKUs -03)
+- 4507325946 — Butterfly Earrings Design 2 (product #4, SKUs -02)
+- 4506611612 — Butterfly Earrings Design 1 (product #3, SKUs -01)
+- 4505102326 — Teardrop Earrings (product #6)
+
+### Working as of 2026-07-03
+- **Bulk product push** — `etsy:sync-products` 6/6 OK. Root cause of old 7/7 failure: products weren't linked (tried to create duplicates) + missing readiness_state_id on inventory offerings
+- **Inventory sync** — `etsy:sync-inventory` 6/6 OK; pushes LOCAL price/stock to live, so keep local aligned before running
+- **Image upload** — `etsy:sync-images` + auto-upload when push creates a listing; tracked via `product_media.etsy_listing_image_id`; skips listings with manually-uploaded images unless `--force` (would append/duplicate)
 
 ### Pending / Known Gaps
-- **Bulk product push** — `etsy:sync-products` was failing (7/7 failed); individual push now works; bulk not retested
-- **Product images** — push does not upload images to Etsy; would need `uploadListingImage` endpoint
-- **Inventory sync** — `etsy:sync-inventory` exists but untested after recent changes
-- **Etsy tags / materials / shop_section_id** — not included in push payload yet
-- **New product creation** — requires `etsy_taxonomy_id` and `etsy_shipping_profile_id` set on product first (copy from existing via tinker or etsy:link)
+- **Etsy tags / materials / shop_section_id** — included in push payload only if set on product (copied by etsy:link)
+- **New product creation** — requires `etsy_taxonomy_id`, `etsy_shipping_profile_id`, `etsy_readiness_state_id` on product first (all copied by etsy:link)
+- **Local product names** — etsy:link copied Etsy titles, so butterfly products #3/#4/#5 now have IDENTICAL names locally (slugs suffixed -2/-3); may want distinct display names before storefront launch, but pushing changed names would overwrite live Etsy titles
+- **Tumbler price** — local was $20, live Etsy $25; local set to $25 (2026-07-03) to match live. If $20 was intentional for the own-store price, revisit
 
 ### API Notes
 - `x-api-key` header format: `keystring:shared_secret`

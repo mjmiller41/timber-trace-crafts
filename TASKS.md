@@ -1,9 +1,7 @@
 # Tasks
 
 ## Active
-- [ ] **16. ** - [Medium]** Media write-path failures invisible — merged into Active item "Investigate prod R2 `put()` failure" (detail there).**
 - [ ] **Stripe refund via API** - admin can mark "refunded" but no real Stripe call yet
-- [ ] **Invoice/receipt download** - My Account → order detail
 - [ ] **Recently viewed products** - Alpine.js + localStorage
 - [ ] **Social sharing buttons on product pages** - Facebook, Pinterest, Instagram
 - [ ] **Reorder past items** - from order history
@@ -22,9 +20,6 @@
 - [ ] **Shipping labels (Avery 5126)** - printable from admin order detail
 - [ ] **Umami analytics integration**
 - [ ] **Marketplace sync** - Etsy/eBay/Amazon Handmade, Phase 3
-- [ ] **Bulk Etsy product push** - retest, was 7/7 failing; individual push works
-- [ ] **Etsy image upload on push** - needs uploadListingImage endpoint
-- [ ] **Etsy inventory sync** - untested after recent changes
 - [ ] **After each post** - run `/blog analyze`, score 80+, add internal links to product pages, apply tags
 
 ## Waiting On
@@ -66,6 +61,11 @@
 - [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
 
 ## Done
+- [x] **Bulk Etsy product push** (2026-07-03) - root cause: missing readiness_state_id (Etsy rejects offerings without one). Fixed: etsy:link now copies it from the listing, inventory sync fails fast with actionable error, syncAll continues past per-product failures. Linked all 6 products to live listings, aligned local stock/price to live, retest: 6 updated / 0 failed, diff shows 6 matched
+- [x] **Etsy inventory sync** (2026-07-03) - etsy:sync-inventory ran clean: 6 updated / 0 failed
+- [x] **Etsy image upload on push** (2026-07-03) - new EtsyListingImageSync + etsy:sync-images command; auto-uploads on listing creation; tracks etsy_listing_image_id per media row; skips listings with manually-uploaded images unless --force
+- [x] **Media write-path failures invisible** (2026-07-03) - closed as stale: its merge target "Investigate prod R2 `put()` failure" was completed and archived 2026-07-02 (WebP write retry now surfaces the real R2 error)
+- [x] **Invoice/receipt download** (2026-07-03) - verified already implemented: `account.orders.invoice` route + `AccountController::orderInvoice` (with ownership check) + view, linked from order detail; feature test passes
 - [x] **Gift message field at checkout** (2026-07-03) - fixed: field now lives in checkout Step 3 form; was orphaned on cart page (never submitted) while controller already persisted it
 - [x] **Product search UI** (2026-07-03) - search box wired into shop sidebar (desktop + mobile), preserves active filters/sort
 - [x] **Shop filter by tags** (2026-07-03) - added Style tag section to shop sidebar (wood-species already present)
