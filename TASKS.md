@@ -1,7 +1,6 @@
 # Tasks
 
 ## Active
-- [ ] **Social sharing buttons on product pages** - Facebook, Pinterest, Instagram
 - [ ] **Reorder past items** - from order history
 - [ ] **Custom orders / B2B / bulk quote flow**
 - [ ] **Gallery / portfolio page**
@@ -59,6 +58,7 @@
 - [ ] **Get Certificate of Insurance to City of Avon Park** - for Local Business Tax Receipt application; City wants Avon Park listed as certificate holder (contact: dperez@avonpark.city, since 2026-06-25)
 
 ## Done
+- [x] **Social sharing buttons** (2026-07-03) - Share row on product pages: Facebook + Pinterest use real web share intents (Pinterest seeded with product image + name); Instagram (no web share intent) copies the product link to the clipboard with a "paste into your IG story/bio" confirmation. 1 feature test
 - [x] **Recently viewed products** (2026-07-03) - Alpine.js + localStorage strip on product pages; each view records a compact card (slug/name/image/price/stock) into `ttc_recently_viewed`, deduped + capped at 12, shows up to 4 excluding the current product. Pure client-side, no backend. 1 feature test
 - [x] **Stripe webhook** (2026-07-03) - `POST /webhooks/stripe` (CSRF-excluded, signature-verified via `STRIPE_WEBHOOK_SECRET`): syncs Dashboard-initiated refunds onto orders (idempotent vs our own admin-card refunds), surfaces charged-but-orderless payments (browser-died orphans), logs failures; 400 on bad/missing sig, 500 on genuine failure so Stripe redelivers. 7 tests. Live pk/sk verified valid against Stripe API. Endpoint registered in Dashboard for charge.refunded + payment_intent.succeeded + payment_intent.payment_failed
 - [x] **Stripe refund via API** (2026-07-03) - real `Refund::create` via `StripeService::refundPayment` (full or partial); new "Issue Refund via Stripe" card on order detail, guarded to Stripe-paid orders with a remaining balance (Etsy/manual refunds still use the status dropdown); tracks `stripe_refund_id`/`refunded_amount`/`refunded_at`, sets status to refunded + emails customer on full refund, logs+flashes Stripe API errors without mutating the order; 6 new feature tests
