@@ -58,7 +58,7 @@ class EtsyProductSync
                     $isNew = $product->etsy_listing_id === null;
                     $this->syncProduct($product);
                     $isNew ? $result->created++ : $result->updated++;
-                } catch (EtsyApiException $e) {
+                } catch (\Throwable $e) {
                     $result->failed++;
                     Log::error('Etsy product sync failed', [
                         'product_id' => $product->id,
