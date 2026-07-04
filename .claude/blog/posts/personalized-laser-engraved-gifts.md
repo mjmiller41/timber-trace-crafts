@@ -18,7 +18,7 @@ published_at: "2026-07-07"
   Free options to download + upload: https://pixabay.com/images/search/laser%20engraving%20wood/
   Alt text is in frontmatter (cover_image_alt).
 
-  INLINE IMAGES — download free, upload to Media Library, replace each <!-- [PIXABAY PLACEHOLDER] --> :
+  INLINE IMAGES — download free, upload to Media Library, replace each [PIXABAY PLACEHOLDER] marker:
   - Workshop / laser at work: https://pixabay.com/images/search/laser%20engraver/
   - Wood earrings close-up:    https://pixabay.com/images/search/wooden%20earrings/
   - Engraved keepsake box:     https://pixabay.com/images/search/engraved%20wooden%20box/
