@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\GiftCard;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 class GiftCardService
@@ -38,6 +39,35 @@ class GiftCardService
 
             return $card;
         });
+    }
+
+    /**
+     * Issue a card for a confirmed self-service online purchase, keyed by the
+     * Stripe PaymentIntent id. Idempotent: a redelivered webhook (or a race
+     * between two deliveries) never issues a second card for the same payment.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @return array{0: GiftCard, 1: bool} [card, wasNewlyCreated]
+     */
+    public function fulfillPurchase(string $paymentIntentId, float $amount, array $attributes = []): array
+    {
+        $existing = GiftCard::where('purchase_payment_intent_id', $paymentIntentId)->first();
+
+        if ($existing) {
+            return [$existing, false];
+        }
+
+        try {
+            $card = $this->issue($amount, array_merge($attributes, [
+                'purchase_payment_intent_id' => $paymentIntentId,
+                'issue_note' => 'Purchased online — Stripe '.$paymentIntentId,
+            ]));
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent duplicate webhook won the race; return the card it made.
+            return [GiftCard::where('purchase_payment_intent_id', $paymentIntentId)->firstOrFail(), false];
+        }
+
+        return [$card, true];
     }
 
     /**
