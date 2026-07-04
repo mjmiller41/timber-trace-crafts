@@ -104,6 +104,26 @@
                         @error('category_id') <p class="admin-error-text">{{ $message }}</p> @enderror
                     </div>
 
+                    @php
+                        $selectedTagIds = collect(old('tags', isset($product) ? $product->tags->pluck('id')->all() : []))
+                            ->map(fn ($id) => (int) $id);
+                    @endphp
+                    <div>
+                        <label class="admin-label">Storefront Tags <span style="color: #9ca3af; font-weight: 400;">(browse/filter on timbertracecrafts.com)</span></label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.5rem 0;">
+                            @forelse($tags as $tag)
+                                <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 400; cursor: pointer;">
+                                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
+                                        @checked($selectedTagIds->contains($tag->id))>
+                                    {{ $tag->name }}
+                                </label>
+                            @empty
+                                <span style="color: #9ca3af;">No tags defined yet.</span>
+                            @endforelse
+                        </div>
+                        @error('tags') <p class="admin-error-text">{{ $message }}</p> @enderror
+                    </div>
+
                     <div>
                         <label class="admin-label" for="sort_order">Sort Order</label>
                         <input
