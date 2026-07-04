@@ -33,8 +33,10 @@ class AppServiceProvider extends ServiceProvider
             $socialInstagram = Cache::rememberForever('setting.social.instagram_url', fn () => Setting::get('social.instagram_url', ''));
             $socialFacebook = Cache::rememberForever('setting.social.facebook_url', fn () => Setting::get('social.facebook_url', ''));
             $socialPinterest = Cache::rememberForever('setting.social.pinterest_url', fn () => Setting::get('social.pinterest_url', ''));
+            $socialYoutube = Cache::rememberForever('setting.social.youtube_url', fn () => Setting::get('social.youtube_url', ''));
+            $socialLinkedin = Cache::rememberForever('setting.social.linkedin_url', fn () => Setting::get('social.linkedin_url', ''));
 
-            $view->with(compact('siteName', 'siteTagline', 'siteLogoUrl', 'socialInstagram', 'socialFacebook', 'socialPinterest'));
+            $view->with(compact('siteName', 'siteTagline', 'siteLogoUrl', 'socialInstagram', 'socialFacebook', 'socialPinterest', 'socialYoutube', 'socialLinkedin'));
         });
     }
 }

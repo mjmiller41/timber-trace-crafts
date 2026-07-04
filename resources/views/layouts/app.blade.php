@@ -56,7 +56,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
-        $sameAsUrls = collect([$socialInstagram, $socialFacebook, $socialPinterest])->filter()->values()->all();
+        $sameAsUrls = collect([$socialInstagram, $socialFacebook, $socialPinterest, $socialYoutube, $socialLinkedin])->filter()->values()->all();
         $siteSchema = json_encode([
             '@context' => 'https://schema.org',
             '@graph'   => [
@@ -81,6 +81,8 @@
                     '@id'         => url('/').'#author',
                     'name'        => 'Michael J. Miller',
                     'url'         => url('/about-us'),
+                    'jobTitle'    => 'Founder & Maker',
+                    'description' => 'Michael J. Miller is the founder and maker behind Timber Trace Crafts, handcrafting laser-cut wood earrings, jewelry boxes, and engraved tumblers in Avon Park, Florida.',
                     'worksFor'    => ['@id' => url('/').'#organization'],
                 ],
                 [

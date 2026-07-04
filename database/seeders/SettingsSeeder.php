@@ -24,6 +24,8 @@ class SettingsSeeder extends Seeder
             ['key' => 'social.instagram_url', 'value' => '', 'group' => 'social', 'label' => 'Instagram URL'],
             ['key' => 'social.facebook_url',  'value' => '', 'group' => 'social', 'label' => 'Facebook URL'],
             ['key' => 'social.pinterest_url', 'value' => '', 'group' => 'social', 'label' => 'Pinterest URL'],
+            ['key' => 'social.youtube_url',   'value' => '', 'group' => 'social', 'label' => 'YouTube URL'],
+            ['key' => 'social.linkedin_url',  'value' => '', 'group' => 'social', 'label' => 'LinkedIn URL'],
 
             // Shipping
             ['key' => 'shipping.priority_upcharge',         'value' => '7.00',  'group' => 'shipping', 'label' => 'Priority Mail Upcharge'],
