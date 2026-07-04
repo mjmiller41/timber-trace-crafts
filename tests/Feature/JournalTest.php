@@ -90,6 +90,54 @@ class JournalTest extends TestCase
         $response->assertSee('media/list.webp', false);
     }
 
+    public function test_journal_show_featured_image_uses_media_alt_text(): void
+    {
+        $media = Media::factory()->create([
+            'disk' => 'public', 'path' => 'media/hero.png', 'mime_type' => 'image/png',
+            'alt_text' => 'A specific descriptive alt text',
+        ]);
+        $post = JournalPost::factory()->published()->create([
+            'title' => 'Post Title', 'featured_image_id' => $media->id,
+        ]);
+
+        $response = $this->get(route('journal.show', $post->slug));
+
+        $response->assertOk();
+        $response->assertSee('alt="A specific descriptive alt text"', false);
+    }
+
+    // ── Public: FAQPage schema ──────────────────────────────────────────────
+
+    public function test_journal_show_emits_faqpage_schema_when_body_has_faq(): void
+    {
+        $post = JournalPost::factory()->published()->create([
+            'body' => '<p>Intro.</p>'
+                .'<h2>Frequently Asked Questions</h2>'
+                .'<h3>Is the engraving permanent?</h3>'
+                .'<p>Yes, it is burned into the surface and does not fade.</p>'
+                .'<h2>Wrapping Up</h2><p>Thanks.</p>',
+        ]);
+
+        $response = $this->get(route('journal.show', $post->slug));
+
+        $response->assertOk();
+        $response->assertSee('"@type":"FAQPage"', false);
+        $response->assertSee('Is the engraving permanent?', false);
+        $response->assertSee('burned into the surface', false);
+    }
+
+    public function test_journal_show_omits_faqpage_schema_without_faq(): void
+    {
+        $post = JournalPost::factory()->published()->create([
+            'body' => '<p>Just prose with no FAQ section at all.</p>',
+        ]);
+
+        $response = $this->get(route('journal.show', $post->slug));
+
+        $response->assertOk();
+        $response->assertDontSee('"@type":"FAQPage"', false);
+    }
+
     // ── Public: RSS feed ────────────────────────────────────────────────────
 
     public function test_rss_feed_returns_xml_with_published_posts(): void
