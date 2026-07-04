@@ -30,7 +30,7 @@ class CartService
 
     public function clear(): void
     {
-        session()->forget(['cart', 'cart_count', 'coupon']);
+        session()->forget(['cart', 'cart_count', 'coupon', 'gift_card']);
     }
 
     public function add(array $item): void

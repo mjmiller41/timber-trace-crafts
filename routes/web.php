@@ -57,6 +57,8 @@ Route::patch('/cart/{rowKey}', [CartController::class, 'update'])->name('cart.up
 Route::delete('/cart/{rowKey}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->middleware('throttle:10,1')->name('cart.coupon');
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+Route::post('/cart/gift-card', [CartController::class, 'applyGiftCard'])->middleware('throttle:10,1')->name('cart.gift-card');
+Route::delete('/cart/gift-card', [CartController::class, 'removeGiftCard'])->name('cart.gift-card.remove');
 
 // Checkout
 Route::middleware('throttle:60,1')->group(function () {

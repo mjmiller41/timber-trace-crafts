@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Coupon;
+use App\Models\GiftCard;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\CartService;
@@ -121,5 +122,31 @@ class CartController extends Controller
         session()->forget('coupon');
 
         return redirect()->back()->with('success', 'Coupon removed.');
+    }
+
+    public function applyGiftCard(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+        ]);
+
+        $code = strtoupper(trim($validated['code']));
+
+        $giftCard = GiftCard::where('code', $code)->first();
+
+        if (! $giftCard || ! $giftCard->isRedeemable()) {
+            return redirect()->back()->withErrors(['gift_card' => 'This gift card is invalid, expired, or has no balance remaining.']);
+        }
+
+        session(['gift_card' => $code]);
+
+        return redirect()->back()->with('success', 'Gift card applied.');
+    }
+
+    public function removeGiftCard(): RedirectResponse
+    {
+        session()->forget('gift_card');
+
+        return redirect()->back()->with('success', 'Gift card removed.');
     }
 }

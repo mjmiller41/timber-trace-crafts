@@ -23,6 +23,9 @@ class Order extends Model
         'total',
         'coupon_id',
         'coupon_code_snapshot',
+        'gift_card_id',
+        'gift_card_amount',
+        'gift_card_code_snapshot',
         'stripe_payment_intent_id',
         'stripe_refund_id',
         'refunded_amount',
@@ -65,6 +68,7 @@ class Order extends Model
             'shipping_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
             'total' => 'decimal:2',
+            'gift_card_amount' => 'decimal:2',
             'refunded_amount' => 'decimal:2',
             'refunded_at' => 'datetime',
         ];
@@ -100,6 +104,11 @@ class Order extends Model
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function giftCard(): BelongsTo
+    {
+        return $this->belongsTo(GiftCard::class);
     }
 
     public function items(): HasMany

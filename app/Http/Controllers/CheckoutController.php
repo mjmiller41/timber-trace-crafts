@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderConfirmationMail;
 use App\Models\Coupon;
+use App\Models\GiftCard;
 use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Models\ShippingMethod;
 use App\Services\CartService;
+use App\Services\GiftCardService;
 use App\Services\RecaptchaService;
 use App\Services\ShippingService;
 use App\Services\StripeService;
@@ -30,6 +32,7 @@ class CheckoutController extends Controller
         private readonly TaxService $taxService,
         private readonly StripeService $stripeService,
         private readonly RecaptchaService $recaptchaService,
+        private readonly GiftCardService $giftCardService,
     ) {}
 
     public function index(): View|RedirectResponse
@@ -44,13 +47,14 @@ class CheckoutController extends Controller
         $shippingMethods = $this->shippingService->getAvailableMethods();
         $coupon = $this->resolveValidCoupon($subtotal);
         $discountAmount = $coupon ? $coupon->calculateDiscount($cart) : 0.0;
+        $giftCard = $this->resolveValidGiftCard();
 
         Analytics::record('begin_checkout', [
             'items' => count($cart),
             'value' => round($subtotal, 2),
         ]);
 
-        return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods', 'coupon', 'discountAmount'));
+        return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods', 'coupon', 'discountAmount', 'giftCard'));
     }
 
     /**
@@ -84,12 +88,22 @@ class CheckoutController extends Controller
         $discountAmount = $this->resolveCouponDiscount($cart, $subtotal);
         $taxAmount = $this->taxService->calculate($subtotal - $discountAmount + $shippingAmount, $validated['shipping_state'] ?? '');
         $total = round($subtotal - $discountAmount + $shippingAmount + $taxAmount, 2);
-        $totalCents = (int) round($total * 100);
+
+        // Gift cards are tender applied to the grand total (after tax + shipping).
+        $giftCard = $this->resolveValidGiftCard();
+        $giftApplied = $giftCard ? $giftCard->redeemableAmount($total) : 0.0;
+        $payable = round($total - $giftApplied, 2);
+        $payableCents = (int) round($payable * 100);
+
+        // Whole order covered by gift-card balance — no card payment required.
+        if ($payableCents <= 0) {
+            return response()->json(['fully_covered' => true, 'payable' => 0]);
+        }
 
         $buyerEmail = auth()->user()?->email;
 
         try {
-            $intent = $this->stripeService->createPaymentIntent($totalCents, $buyerEmail);
+            $intent = $this->stripeService->createPaymentIntent($payableCents, $buyerEmail);
 
             return response()->json(['client_secret' => $intent->client_secret]);
         } catch (\Throwable $e) {
@@ -118,7 +132,8 @@ class CheckoutController extends Controller
             'shipping_state' => ['required', 'string', 'max:2'],
             'shipping_zip' => ['required', 'string', 'max:10'],
             'shipping_method_id' => ['required', 'integer', 'exists:shipping_methods,id'],
-            'payment_intent_id' => ['required', 'string', 'max:255'],
+            // Optional: absent only when a gift card covers the whole order total.
+            'payment_intent_id' => ['nullable', 'string', 'max:255'],
             'gift_message' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -128,17 +143,6 @@ class CheckoutController extends Controller
         }
 
         $cart = $this->revalidateCartPrices($cart);
-
-        // Verify the Stripe PaymentIntent succeeded
-        try {
-            $intent = $this->stripeService->verifyPaymentIntent($validated['payment_intent_id']);
-        } catch (\Throwable $e) {
-            Log::error('Stripe payment verification failed', ['error' => $e->getMessage()]);
-
-            return back()->withErrors([
-                'payment' => 'Payment could not be verified. Please try again or contact support.',
-            ])->withInput();
-        }
 
         // Resolve shipping
         $shippingMethod = ShippingMethod::where('id', $validated['shipping_method_id'])->where('active', true)->first();
@@ -162,25 +166,51 @@ class CheckoutController extends Controller
             ? auth()->user()->email
             : $validated['guest_email'];
 
-        // C1: Reject if Stripe amount doesn't match our server-calculated total
-        $expectedCents = (int) round($total * 100);
-        if ($intent->amount_received !== $expectedCents || $intent->currency !== 'usd') {
-            Log::warning('Checkout amount mismatch', [
-                'expected_cents' => $expectedCents,
-                'received_cents' => $intent->amount_received,
-                'currency' => $intent->currency,
-            ]);
+        // Gift cards are tender applied to the grand total. Compute the intended
+        // application here (pre-lock); the actual redemption happens under a row
+        // lock inside the order transaction below.
+        $giftCard = $this->resolveValidGiftCard();
+        $giftIntended = $giftCard ? $giftCard->redeemableAmount($total) : 0.0;
+        $payable = round($total - $giftIntended, 2);
+        $payableCents = (int) round($payable * 100);
 
-            return back()->withErrors(['payment' => 'Payment amount does not match order total.'])->withInput();
-        }
+        // Stripe is only involved when there is a positive amount left to charge
+        // after the gift card. A card that covers the whole order needs no charge.
+        $intent = null;
+        if ($payableCents > 0) {
+            if (empty($validated['payment_intent_id'])) {
+                return back()->withErrors(['payment' => 'Payment information is missing. Please try again.'])->withInput();
+            }
 
-        // C2: Idempotency — block replay of the same payment intent
-        if (Order::where('stripe_payment_intent_id', $intent->id)->exists()) {
-            $existingOrder = Order::where('stripe_payment_intent_id', $intent->id)->first();
+            try {
+                $intent = $this->stripeService->verifyPaymentIntent($validated['payment_intent_id']);
+            } catch (\Throwable $e) {
+                Log::error('Stripe payment verification failed', ['error' => $e->getMessage()]);
 
-            session()->push('confirmed_orders', $existingOrder->id);
+                return back()->withErrors([
+                    'payment' => 'Payment could not be verified. Please try again or contact support.',
+                ])->withInput();
+            }
 
-            return redirect()->route('checkout.confirmation', ['order' => $existingOrder]);
+            // C1: Reject if Stripe amount doesn't match the amount payable after gift card.
+            if ($intent->amount_received !== $payableCents || $intent->currency !== 'usd') {
+                Log::warning('Checkout amount mismatch', [
+                    'expected_cents' => $payableCents,
+                    'received_cents' => $intent->amount_received,
+                    'currency' => $intent->currency,
+                ]);
+
+                return back()->withErrors(['payment' => 'Payment amount does not match order total.'])->withInput();
+            }
+
+            // C2: Idempotency — block replay of the same payment intent
+            if (Order::where('stripe_payment_intent_id', $intent->id)->exists()) {
+                $existingOrder = Order::where('stripe_payment_intent_id', $intent->id)->first();
+
+                session()->push('confirmed_orders', $existingOrder->id);
+
+                return redirect()->route('checkout.confirmation', ['order' => $existingOrder]);
+            }
         }
 
         // Create order + items in a transaction (RuntimeException from C3 rolls back and surfaces as error)
@@ -188,7 +218,8 @@ class CheckoutController extends Controller
             $order = DB::transaction(function () use (
                 $validated, $cart, $subtotal, $discountAmount,
                 $shippingAmount, $taxAmount, $total,
-                $shippingMethod, $intent, $buyerEmail, $coupon
+                $shippingMethod, $intent, $buyerEmail, $coupon,
+                $giftCard, $giftIntended, $payableCents
             ) {
                 // C3: Pessimistic stock lock — prevent overselling under concurrent checkouts.
                 // Lock in a consistent (variant_id) order across all requests so two
@@ -222,7 +253,10 @@ class CheckoutController extends Controller
                     'total' => $total,
                     'coupon_id' => $coupon?->id,
                     'coupon_code_snapshot' => $coupon?->code,
-                    'stripe_payment_intent_id' => $intent->id,
+                    'gift_card_id' => $giftCard?->id,
+                    'gift_card_amount' => 0,
+                    'gift_card_code_snapshot' => $giftCard?->code,
+                    'stripe_payment_intent_id' => $intent?->id,
                     'shipping_method' => $shippingMethod->name,
                     'gift_message' => $validated['gift_message'] ?? null,
                     'shipping_first_name' => $validated['shipping_first_name'],
@@ -281,12 +315,40 @@ class CheckoutController extends Controller
                                 'code' => $lockedCoupon->code,
                                 'used_count' => $lockedCoupon->used_count,
                                 'max_uses' => $lockedCoupon->max_uses,
-                                'payment_intent' => $intent->id,
+                                'payment_intent' => $intent?->id,
                             ]);
                         }
 
                         $lockedCoupon->increment('used_count');
                     }
+                }
+
+                // Redeem gift-card tender under a row lock (double-spend safe).
+                if ($giftCard && $giftIntended > 0) {
+                    $applied = $this->giftCardService->redeem(
+                        $giftCard,
+                        $giftIntended,
+                        $order->id,
+                        "Redeemed on order #{$order->id}."
+                    );
+
+                    // Fully-covered orders have no Stripe fallback, so if the
+                    // balance was consumed concurrently (or on a double submit)
+                    // we must fail closed and roll the whole order back.
+                    if ($payableCents <= 0 && $applied < $giftIntended) {
+                        throw new \RuntimeException('This gift card no longer has enough balance to cover your order. Please review your cart and try again.');
+                    }
+
+                    if ($applied < $giftIntended) {
+                        Log::warning('Gift card balance changed during checkout; shortfall absorbed', [
+                            'gift_card_id' => $giftCard->id,
+                            'intended' => $giftIntended,
+                            'applied' => $applied,
+                            'order_id' => $order->id,
+                        ]);
+                    }
+
+                    $order->forceFill(['gift_card_amount' => $applied])->save();
                 }
 
                 return $order;
@@ -380,5 +442,21 @@ class CheckoutController extends Controller
         $coupon = $this->resolveValidCoupon($subtotal);
 
         return $coupon ? $coupon->calculateDiscount($cart) : 0.0;
+    }
+
+    private function resolveValidGiftCard(): ?GiftCard
+    {
+        $code = session('gift_card');
+        if (! $code) {
+            return null;
+        }
+
+        $card = GiftCard::where('code', $code)->first();
+
+        if (! $card || ! $card->isRedeemable()) {
+            return null;
+        }
+
+        return $card;
     }
 }
