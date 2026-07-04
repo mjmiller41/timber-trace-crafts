@@ -217,6 +217,24 @@
                 <span class="nav-icon">&#x2699;</span>
                 <span x-show="!collapsed" x-cloak>Settings</span>
             </a>
+
+            <a
+                href="{{ route('admin.audit.index') }}"
+                class="admin-sidebar-link {{ request()->is('admin/audit*') ? 'active' : '' }}"
+                title="Audit Log"
+            >
+                <span class="nav-icon">&#x1F4DC;</span>
+                <span x-show="!collapsed" x-cloak>Audit Log</span>
+            </a>
+
+            <a
+                href="{{ route('admin.errors.index') }}"
+                class="admin-sidebar-link {{ request()->is('admin/errors*') ? 'active' : '' }}"
+                title="Error Log"
+            >
+                <span class="nav-icon">&#x1F41E;</span>
+                <span x-show="!collapsed" x-cloak>Error Log</span>
+            </a>
         </div>
 
     </nav>

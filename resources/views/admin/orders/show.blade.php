@@ -21,6 +21,9 @@
         <a href="{{ route('admin.orders.packing-slip', $order) }}" target="_blank" class="admin-btn admin-btn-outline">
             &#x1F4C4; Packing Slip
         </a>
+        <a href="{{ route('admin.orders.shipping-label', $order) }}" target="_blank" class="admin-btn admin-btn-outline">
+            &#x1F3F7; Shipping Label
+        </a>
         <button type="button" class="admin-btn admin-btn-outline" disabled title="Coming soon">
             &#9993; Send Status Email
         </button>

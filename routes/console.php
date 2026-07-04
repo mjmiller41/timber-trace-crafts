@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('etsy:sync-orders')->everyFifteenMinutes()->withoutOverlapping();
 Schedule::command('etsy:sync-inventory')->everyThirtyMinutes()->withoutOverlapping();
 Schedule::command('etsy:sync-products')->dailyAt('02:00')->withoutOverlapping();
+Schedule::command('admin:prune-audit-log')->dailyAt('03:30')->withoutOverlapping();

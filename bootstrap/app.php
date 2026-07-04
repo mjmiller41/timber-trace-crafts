@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\AdminIdleTimeout;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\HoneypotCheck;
+use App\Http\Middleware\LogAdminActions;
 use App\Http\Middleware\RotateCsrfOnRoleEscalation;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -23,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeaders::class);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'admin.idle' => AdminIdleTimeout::class,
+            'admin.audit' => LogAdminActions::class,
             'honeypot' => HoneypotCheck::class,
         ]);
         $middleware->web(append: [RotateCsrfOnRoleEscalation::class]);

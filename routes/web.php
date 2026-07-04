@@ -131,7 +131,7 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
 });
 
 // Admin
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'admin.idle', 'admin.audit'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Orders
@@ -141,6 +141,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund');
     Route::post('/orders/{order}/shipment', [OrderController::class, 'addShipment'])->name('orders.shipment');
     Route::get('/orders/{order}/packing-slip', [OrderController::class, 'packingSlip'])->name('orders.packing-slip');
+    Route::get('/orders/{order}/shipping-label', [OrderController::class, 'shippingLabel'])->name('orders.shipping-label');
 
     // Products
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class)->except(['destroy']);
@@ -203,6 +204,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Settings
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // Audit log & error log (read-only ops views)
+    Route::get('/audit', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit.index');
+    Route::get('/errors', [App\Http\Controllers\Admin\ErrorLogController::class, 'index'])->name('errors.index');
 
     // Shipping methods
     Route::resource('shipping', ShippingMethodController::class)->except(['show']);

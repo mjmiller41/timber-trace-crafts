@@ -195,4 +195,15 @@ class OrderController extends Controller
 
         return view('admin.orders.packing-slip', compact('order'));
     }
+
+    /**
+     * Printable shipping label sized for Avery 5126 stock (two 5.5" x 8.5"
+     * labels per US-Letter sheet). Rendered as a standalone print page.
+     */
+    public function shippingLabel(Order $order): View
+    {
+        $order->load(['user']);
+
+        return view('admin.orders.shipping-label', compact('order'));
+    }
 }
