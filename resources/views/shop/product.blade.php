@@ -343,7 +343,7 @@
                                class="form-field w-24 text-center">
                     </div>
 
-                    <button type="submit" class="btn-forest w-full py-4 text-base">
+                    <button type="submit" class="btn-forest w-full py-4 text-base" data-umami-event="add_to_cart">
                         Add to Cart
                     </button>
                 </form>

@@ -96,6 +96,7 @@
     <script type="application/ld+json">{!! $siteSchema !!}</script>
     @stack('schema')
     @stack('head')
+    @include('partials.analytics')
 </head>
 <body class="bg-oak-sand text-charcoal font-body antialiased">
 

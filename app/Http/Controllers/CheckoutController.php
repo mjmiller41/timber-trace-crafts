@@ -12,6 +12,7 @@ use App\Services\RecaptchaService;
 use App\Services\ShippingService;
 use App\Services\StripeService;
 use App\Services\TaxService;
+use App\Support\Analytics;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,11 @@ class CheckoutController extends Controller
         $shippingMethods = $this->shippingService->getAvailableMethods();
         $coupon = $this->resolveValidCoupon($subtotal);
         $discountAmount = $coupon ? $coupon->calculateDiscount($cart) : 0.0;
+
+        Analytics::record('begin_checkout', [
+            'items' => count($cart),
+            'value' => round($subtotal, 2),
+        ]);
 
         return view('checkout.index', compact('cart', 'subtotal', 'shippingMethods', 'coupon', 'discountAmount'));
     }
@@ -316,6 +322,19 @@ class CheckoutController extends Controller
         }
 
         $order->load('items');
+
+        // Record the purchase once per session per order so page refreshes on the
+        // confirmation screen don't inflate the conversion count.
+        $tracked = (array) session('tracked_purchases', []);
+        if (! in_array($order->id, $tracked, true)) {
+            Analytics::record('purchase', [
+                'order_id' => $order->id,
+                'value' => round((float) $order->total, 2),
+                'currency' => 'USD',
+                'items' => $order->items->count(),
+            ]);
+            session(['tracked_purchases' => [...$tracked, $order->id]]);
+        }
 
         return view('checkout.confirmation', compact('order'));
     }
