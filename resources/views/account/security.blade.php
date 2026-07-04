@@ -79,18 +79,20 @@
                         </div>
                     </form>
                 @elseif($setup)
-                    {{-- Enrollment in progress: show secret + confirm form --}}
+                    {{-- Enrollment in progress: show QR + secret + confirm form --}}
                     <div class="space-y-6 max-w-md">
                         <div>
                             <p class="text-sm text-walnut mb-3">
-                                1. Add this key to your authenticator app, or enter it manually:
+                                1. Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.):
                             </p>
+                            <div x-data="totpQr({{ json_encode($setup['uri']) }})"
+                                 x-init="init()"
+                                 class="mb-4 border border-walnut/20 inline-block p-2">
+                                <canvas x-ref="qr"></canvas>
+                            </div>
+                            <p class="text-sm text-walnut mb-2">Or enter this key manually:</p>
                             <p class="font-mono text-lg tracking-widest border border-walnut/20 px-4 py-3 break-all">
                                 {{ $setup['secret'] }}
-                            </p>
-                            <p class="text-xs text-walnut mt-2 break-all">
-                                Or use this setup link:
-                                <a href="{{ $setup['uri'] }}" class="underline">{{ $setup['uri'] }}</a>
                             </p>
                         </div>
 
