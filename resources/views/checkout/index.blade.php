@@ -365,6 +365,13 @@
                                 <span class="font-body text-sm text-forest-green font-600">−${{ number_format($discountAmount, 2) }}</span>
                             </div>
                         @endif
+                        @if($giftCard)
+                            <div class="flex justify-between">
+                                <span class="font-body text-sm text-forest-green">Gift Card ({{ $giftCard->code }})</span>
+                                <span class="font-body text-sm text-forest-green font-600">up to −${{ number_format($giftCard->balance, 2) }}</span>
+                            </div>
+                            <p class="font-body text-xs text-walnut">Applied as store credit against your final total. Any card details below are only charged for the remaining balance.</p>
+                        @endif
                         <div class="flex justify-between">
                             <span class="font-body text-sm text-walnut">Shipping</span>
                             <span class="section-label">TBD</span>
@@ -445,6 +452,12 @@
                 if (data.error) {
                     showError(data.error);
                     resetButton();
+                    return;
+                }
+                // Gift card covers the whole order — no card charge required.
+                // Submit directly; the server creates the order with no PaymentIntent.
+                if (data.fully_covered) {
+                    form.submit();
                     return;
                 }
                 clientSecret = data.client_secret;

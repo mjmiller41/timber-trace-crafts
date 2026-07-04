@@ -10,6 +10,7 @@ use App\Models\ShippingMethod;
 use App\Services\StripeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Stripe\PaymentIntent;
 use Tests\TestCase;
 
 class GiftCardCheckoutTest extends TestCase
@@ -155,6 +156,61 @@ class GiftCardCheckoutTest extends TestCase
 
         // $30 - $25 = $5 remaining on the card.
         $this->assertSame('5.00', $card->fresh()->balance);
+    }
+
+    #[Test]
+    public function cart_page_renders_the_gift_card_apply_ui(): void
+    {
+        $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertSee('Have a gift card?')
+            ->assertSee(route('cart.gift-card'), false);
+    }
+
+    #[Test]
+    public function checkout_shows_the_applied_gift_card_line(): void
+    {
+        $card = GiftCard::factory()->balance(30)->create(['code' => 'GC-CDEF-1234']);
+        session(['gift_card' => $card->code]);
+
+        $this->get(route('checkout.index'))
+            ->assertOk()
+            ->assertSee('GC-CDEF-1234');
+    }
+
+    #[Test]
+    public function payment_intent_reports_fully_covered_when_gift_card_covers_total(): void
+    {
+        // Total = $20 + $5 shipping (+ $0 tax in OR) = $25. Card $30 covers it fully.
+        $card = GiftCard::factory()->balance(30)->create();
+        session(['gift_card' => $card->code]);
+
+        // Stripe must never be hit on the fully-covered path.
+        $this->mock(StripeService::class)->shouldNotReceive('createPaymentIntent');
+
+        $this->postJson(route('checkout.payment-intent'), [
+            'shipping_method_id' => $this->shipping->id,
+            'shipping_state' => 'OR',
+        ])->assertOk()->assertJson(['fully_covered' => true, 'payable' => 0]);
+    }
+
+    #[Test]
+    public function payment_intent_returns_a_client_secret_when_a_balance_remains(): void
+    {
+        // Card $10 against a $25 total leaves $15 payable → a Stripe intent is created.
+        $card = GiftCard::factory()->balance(10)->create();
+        session(['gift_card' => $card->code]);
+
+        $this->mock(StripeService::class)
+            ->shouldReceive('createPaymentIntent')
+            ->once()
+            ->with(1500, null)
+            ->andReturn(PaymentIntent::constructFrom(['client_secret' => 'pi_test_secret']));
+
+        $this->postJson(route('checkout.payment-intent'), [
+            'shipping_method_id' => $this->shipping->id,
+            'shipping_state' => 'OR',
+        ])->assertOk()->assertJson(['client_secret' => 'pi_test_secret']);
     }
 
     #[Test]

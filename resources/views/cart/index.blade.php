@@ -173,6 +173,45 @@
                         @endif
                     </div>
 
+                    {{-- Gift card --}}
+                    <div x-data="giftCardForm()" class="py-2 border-t border-walnut/20">
+                        @if(session('gift_card'))
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <p class="section-label mb-0.5">Gift Card Applied</p>
+                                    <p class="font-body text-sm font-600 text-forest-green">{{ session('gift_card') }}</p>
+                                </div>
+                                <form method="POST" action="{{ route('cart.gift-card.remove') }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="font-body text-xs text-walnut hover:text-error transition-colors underline">
+                                        Remove
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <button @click="open = !open"
+                                    class="font-body text-xs tracking-wider uppercase text-walnut hover:text-charcoal transition-colors underline underline-offset-2">
+                                Have a gift card?
+                            </button>
+                            <div x-show="open || {{ $errors->has('gift_card') ? 'true' : 'false' }}" x-cloak x-transition class="mt-3">
+                                <form method="POST" action="{{ route('cart.gift-card') }}" class="flex gap-0">
+                                    @csrf
+                                    <input type="text"
+                                           name="code"
+                                           value="{{ old('code') }}"
+                                           placeholder="Gift card code"
+                                           class="form-field flex-1 py-2 text-sm @error('gift_card') border-error @enderror">
+                                    <button type="submit" class="btn-primary px-4 py-2 text-xs">Apply</button>
+                                </form>
+                                @error('gift_card')
+                                    <p class="font-body text-xs text-error mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="font-body text-xs text-walnut mt-1">Applied as store credit against your order total at checkout.</p>
+                            </div>
+                        @endif
+                    </div>
+
                     {{-- Shipping + Tax --}}
                     <div class="space-y-2 py-3 border-t border-walnut/20">
                         <div class="flex items-center justify-between">
@@ -207,6 +246,12 @@
 @push('scripts')
 <script>
     function couponForm() {
+        return {
+            open: false
+        };
+    }
+
+    function giftCardForm() {
         return {
             open: false
         };
