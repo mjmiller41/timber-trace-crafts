@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
+use App\Models\CartEmailSuppression;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -121,5 +123,28 @@ class CartController extends Controller
         session()->forget('coupon');
 
         return redirect()->back()->with('success', 'Coupon removed.');
+    }
+
+    /**
+     * One-click unsubscribe from abandoned-cart reminders. The token is unique
+     * per cart so the email address never travels in the URL; we resolve the
+     * cart, add its email to the suppression list, and stop future reminders
+     * for every cart that address owns.
+     */
+    public function unsubscribe(string $token): View
+    {
+        $cart = Cart::where('unsubscribe_token', $token)->first();
+
+        if ($cart && $cart->email) {
+            CartEmailSuppression::firstOrCreate(
+                ['email' => $cart->email],
+                ['reason' => 'unsubscribe', 'created_at' => now()],
+            );
+
+            // Stop the sweep from revisiting this cart.
+            Cart::where('email', $cart->email)->update(['reminder_stage' => 99]);
+        }
+
+        return view('cart.unsubscribed', ['found' => (bool) $cart]);
     }
 }
