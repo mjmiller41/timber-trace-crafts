@@ -73,6 +73,17 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // First-party funnel/conversion events (see App\Support\Analytics).
+        // Kept in its own daily file so revenue metrics are easy to grep/rotate
+        // without wading through application logs.
+        'analytics' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/analytics.log'),
+            'level' => 'info',
+            'days' => env('ANALYTICS_LOG_DAYS', 90),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

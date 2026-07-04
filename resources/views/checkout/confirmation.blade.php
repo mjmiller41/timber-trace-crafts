@@ -147,3 +147,18 @@
 </div>
 
 @endsection
+
+@push('scripts')
+    {{-- Client-side purchase conversion (fires only when Umami is loaded). --}}
+    <script>
+        window.addEventListener('load', function () {
+            if (window.umami) {
+                window.umami.track('purchase', {
+                    order_id: {{ (int) $order->id }},
+                    value: {{ (float) $order->total }},
+                    currency: 'USD'
+                });
+            }
+        });
+    </script>
+@endpush

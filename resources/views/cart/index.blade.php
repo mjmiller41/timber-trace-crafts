@@ -188,7 +188,7 @@
                     {{-- Gift message is collected at checkout (Step 3) --}}
 
                     {{-- CTA --}}
-                    <a href="{{ route('checkout.index') }}" class="btn-forest block w-full text-center py-4">
+                    <a href="{{ route('checkout.index') }}" class="btn-forest block w-full text-center py-4" data-umami-event="begin_checkout">
                         Proceed to Checkout
                     </a>
 

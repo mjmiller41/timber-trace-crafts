@@ -6,6 +6,7 @@ use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\CartService;
+use App\Support\Analytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -66,6 +67,13 @@ class CartController extends Controller
         ];
 
         $this->cartService->add($item);
+
+        Analytics::record('add_to_cart', [
+            'product_id' => $product->id,
+            'variant_id' => $variant->id,
+            'qty' => (int) $validated['qty'],
+            'value' => round($item['price'] * (int) $validated['qty'], 2),
+        ]);
 
         return redirect()->back()->with('success', 'Item added to cart.');
     }
