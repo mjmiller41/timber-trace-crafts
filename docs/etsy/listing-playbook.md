@@ -78,10 +78,13 @@ Reusable tag bank by product family (pick/adjust 13):
 - **Home / signs:** `personalized sign`, `custom wood sign`, `housewarming gift`,
   `wall decor`, `wedding sign`, `family name sign`, `engraved wood sign`.
 
-> **Gap flagged (TIM-4):** local products currently store **no tags/materials** — those
-> live only on Etsy. When a new product is seeded locally, populate `etsy_materials` and
-> the product's tag relation so `etsy:sync-products` can push them. Until then, tags are
-> entered in the Etsy editor by hand from the sets above.
+> **Resolved (TIM-10):** the launch catalog now stores `etsy_tags` **and** `etsy_materials`
+> locally, and `etsy:sync-products` pushes both (`buildListingPayload` emits `tags` +
+> `materials`). New products carry them from creation via the admin editor — **Etsy Tags**,
+> **Materials**, and **Storefront Tags** fields on the product form. The one-time backfill
+> for the first 6 products lives in `etsy:backfill-materials` (idempotent, data-only; run
+> with `--apply`). After backfilling materials, a prod `etsy:sync-products` run pushes them
+> to the live listings.
 
 ---
 
