@@ -123,6 +123,15 @@
             </a>
 
             <a
+                href="{{ url('/admin/gift-cards') }}"
+                class="admin-sidebar-link {{ request()->is('admin/gift-cards*') ? 'active' : '' }}"
+                title="Gift Cards"
+            >
+                <span class="nav-icon">&#x1F381;</span>
+                <span x-show="!collapsed" x-cloak>Gift Cards</span>
+            </a>
+
+            <a
                 href="{{ url('/admin/customers') }}"
                 class="admin-sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}"
                 title="Customers"

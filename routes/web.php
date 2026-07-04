@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\EtsyController;
+use App\Http\Controllers\Admin\GiftCardController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MessageController;
@@ -181,6 +182,15 @@ Route::middleware(['auth', 'admin', 'admin.2fa', 'admin.idle', 'admin.audit'])->
 
     // Coupons
     Route::resource('coupons', CouponController::class)->except(['show']);
+
+    // Gift Cards
+    Route::get('gift-cards', [GiftCardController::class, 'index'])->name('gift-cards.index');
+    Route::get('gift-cards/create', [GiftCardController::class, 'create'])->name('gift-cards.create');
+    Route::post('gift-cards', [GiftCardController::class, 'store'])->name('gift-cards.store');
+    Route::get('gift-cards/{giftCard}', [GiftCardController::class, 'show'])->name('gift-cards.show');
+    Route::post('gift-cards/{giftCard}/void', [GiftCardController::class, 'void'])->name('gift-cards.void');
+    Route::post('gift-cards/{giftCard}/reactivate', [GiftCardController::class, 'reactivate'])->name('gift-cards.reactivate');
+    Route::post('gift-cards/{giftCard}/refund', [GiftCardController::class, 'refund'])->name('gift-cards.refund');
 
     // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
