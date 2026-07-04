@@ -24,6 +24,7 @@
     <meta name="robots" content="{!! $metaRobots !!}">
     <meta name="description" content="{!! $metaDescription !!}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="p:domain_verify" content="400dcd47df9251301752c1d8e227ec85"/>
 
     {{-- Dark-mode bootstrap: apply the stored/preferred theme before first paint
          to avoid a flash, and expose a global toggle used by the nav switch. --}}
