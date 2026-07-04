@@ -11,14 +11,15 @@ metadata:
 - Server IP: 5.183.10.138
 - SSH: `ssh -p 65002 u903552178@5.183.10.138`
 - Deploy path: `~/domains/timbertracecrafts.com/public_html`
-- Git integration: hPanel → Advanced → Git → auto-deploys `main` → `public_html`.
-  Confirmed 2026-07-02: this only clones, runs `composer install`, then
-  "publishes" (syncs into live `public_html`, preserving `.env`/`vendor` rather
-  than overwriting them). No hook exists to run a custom command afterward, and
-  composer.json script hooks aren't reliable here either — they'd fire in the
-  throwaway clone/build step before "publish", not against the live directory.
-  `deploy.sh` (migrations, cache rebuild, env decrypt) must be run manually over
-  SSH after every push — see the pre-push reminder note below.
+- Git integration: hPanel → Advanced → Git → auto-deploys `main` → `public_html`
+  on push to GitHub (`origin` = `git@github.com:mjmiller41/timber-trace-crafts.git`).
+  **Correction (2026-07-04): the live `public_html` IS a real git checkout** —
+  `git -C public_html rev-parse HEAD` returns the deployed SHA and advances on
+  each auto-deploy. The earlier "opaque synced copy / not a git repo" belief was
+  wrong. This is what makes the deploy race-free: poll the server HEAD until it
+  equals the pushed SHA, THEN run `deploy.sh`. Hostinger still runs no
+  post-publish hook, so `deploy.sh` (migrate, cache, env decrypt) is invoked over
+  SSH — but now automatically by `ship.sh`, not by hand. See "AI-driven deploy".
 - Root `.htaccess` redirects all traffic into `public/` and blocks `.env` access
 - Node.js unavailable on server — `public/build/` is committed to git and built locally via pre-push hook
 - `exec()` disabled — `php artisan storage:link` fails; use `ln -s` directly in terminal instead
@@ -40,6 +41,34 @@ metadata:
 
 - `php artisan media:sync` — insert media DB records for any files in storage missing from DB
 - `php artisan media:upload-to-r2` — upload local images to R2 and set disk='r2' on all records
+
+## AI-driven deploy — `ship.sh` (added 2026-07-04)
+
+One command replaces the whole manual release (encrypt → commit → push → SSH →
+`deploy.sh`). Run from repo root **on `main`**:
+
+- `./ship.sh` — full pipeline: re-encrypt `.env.production` only if it drifted
+  from the committed ciphertext (CRLF-normalized, order-insensitive compare) →
+  `npm run build` + commit `public/build/` → push `main` → **poll the server's
+  published HEAD until it equals the pushed SHA** (race-free; timeout 480s) →
+  SSH `bash deploy.sh` → `curl` smoke-test the live site (must be 200).
+- `./ship.sh --prep-only` — encrypt-if-needed + build + commit; no push/deploy.
+- `./ship.sh --remote-only [SHA]` — skip prep/push; wait for SHA (default local
+  `main`) to publish, then `deploy.sh` + verify. Used by the pre-push hook.
+
+Encryption is automatic and keyless-to-the-human: `ship.sh` reads the key from
+`~/.secrets/ttc-env-key` (a chmod-600 mirror of the server's copy, outside git;
+mirror it with `ssh … 'cat ~/.secrets/ttc-env-key' > ~/.secrets/ttc-env-key`).
+No manual `env:encrypt`/`env:decrypt`, no manual SSH.
+
+`.git/hooks/pre-push` (replaced the old build+reminder hook): stands down when
+`ship.sh` drives (`TTC_SHIP=1`); on a bare `git push` of `main` it builds assets
+and backgrounds `./ship.sh --remote-only <sha>` (log:
+`storage/logs/deploy-bare-push.log`) so a plain push still auto-deploys. Caveat:
+a pre-push hook can't inject new commits into the in-flight push, so production
+**env re-encryption must go through `./ship.sh`** (bare push won't carry it).
+
+Requires passwordless SSH (confirmed working) and the local key file.
 
 ## Production env — encrypted-at-rest workflow (added 2026-07-02)
 
@@ -70,12 +99,11 @@ every deploy instead of it drifting out of sync (this is what caused the
 - **If the key ever leaks** (accidental commit, exposed log), rotate everything in
   the file, not just the key — it's symmetric encryption (Stripe keys, Etsy OAuth
   secret, IMAP password, `APP_KEY`, etc.).
-- **Confirmed:** Hostinger's auto-deploy does NOT run `deploy.sh` (see hosting
-  section above) — it must be run manually over SSH after each push:
-  `ssh -p 65002 u903552178@5.183.10.138` then
+- Hostinger's auto-deploy still does NOT run `deploy.sh` itself. Previously this
+  meant a manual `ssh … && bash deploy.sh` after every push; **as of 2026-07-04
+  `ship.sh` automates it** (see "AI-driven deploy" above). The manual fallback
+  remains valid: `ssh -p 65002 u903552178@5.183.10.138` then
   `cd ~/domains/timbertracecrafts.com/public_html && bash deploy.sh`.
-  A local (untracked, machine-only) `.git/hooks/pre-push` prints this reminder
-  automatically on every `git push` from this machine.
 
 ## Local ↔ Hostinger DB sync (`db:export-hostinger` / `db:import-hostinger`)
 
