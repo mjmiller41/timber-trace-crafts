@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminIdleTimeout;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureTwoFactorPassed;
 use App\Http\Middleware\HoneypotCheck;
 use App\Http\Middleware\LogAdminActions;
 use App\Http\Middleware\RotateCsrfOnRoleEscalation;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'admin.idle' => AdminIdleTimeout::class,
             'admin.audit' => LogAdminActions::class,
+            'admin.2fa' => EnsureTwoFactorPassed::class,
             'honeypot' => HoneypotCheck::class,
         ]);
         $middleware->web(append: [RotateCsrfOnRoleEscalation::class]);

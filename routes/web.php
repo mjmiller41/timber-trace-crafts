@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\EtsyController;
 use App\Http\Controllers\Admin\InboxController;
 use App\Http\Controllers\Admin\MediaController;
@@ -31,6 +33,8 @@ use App\Http\Controllers\RestockController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\TwoFactorChallengeController;
+use App\Http\Controllers\TwoFactorSettingsController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
@@ -101,6 +105,11 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Two-factor login challenge (session-held user, not yet authenticated)
+Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'show'])->name('two-factor.login');
+Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
+    ->middleware('throttle:5,1')->name('two-factor.login.store');
+
 // Email verification
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', [AuthController::class, 'showVerificationNotice'])->name('verification.notice');
@@ -130,10 +139,16 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::delete('/addresses/{address}', [AccountController::class, 'addressDelete'])->name('addresses.delete');
     Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profile', [AccountController::class, 'profileUpdate'])->name('profile.update');
+
+    // Two-factor authentication (TOTP) enrollment & management
+    Route::get('/security', [TwoFactorSettingsController::class, 'show'])->name('security');
+    Route::post('/security/two-factor', [TwoFactorSettingsController::class, 'enable'])->name('security.2fa.enable');
+    Route::post('/security/two-factor/confirm', [TwoFactorSettingsController::class, 'confirm'])->name('security.2fa.confirm');
+    Route::delete('/security/two-factor', [TwoFactorSettingsController::class, 'disable'])->name('security.2fa.disable');
 });
 
 // Admin
-Route::middleware(['auth', 'admin', 'admin.idle', 'admin.audit'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'admin.2fa', 'admin.idle', 'admin.audit'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Orders
@@ -208,8 +223,8 @@ Route::middleware(['auth', 'admin', 'admin.idle', 'admin.audit'])->prefix('admin
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // Audit log & error log (read-only ops views)
-    Route::get('/audit', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit.index');
-    Route::get('/errors', [App\Http\Controllers\Admin\ErrorLogController::class, 'index'])->name('errors.index');
+    Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
+    Route::get('/errors', [ErrorLogController::class, 'index'])->name('errors.index');
 
     // Shipping methods
     Route::resource('shipping', ShippingMethodController::class)->except(['show']);

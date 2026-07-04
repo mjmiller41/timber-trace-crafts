@@ -36,8 +36,24 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            // Password was correct, but if the account has confirmed 2FA we do
+            // not fully log them in yet: drop the authenticated user and hold
+            // them at the TOTP challenge screen, remembering just enough in the
+            // session to complete login once a valid code is supplied.
+            if ($user->hasTwoFactorEnabled()) {
+                Auth::logout();
+
+                $request->session()->put('login.2fa.id', $user->id);
+                $request->session()->put('login.2fa.remember', $request->boolean('remember'));
+
+                return redirect()->route('two-factor.login');
+            }
+
             $request->session()->regenerate();
-            $request->session()->put('auth.role', Auth::user()->role);
+            $request->session()->put('auth.role', $user->role);
+            $request->session()->put('auth.2fa_passed', true);
 
             return redirect()->intended(route('account.dashboard'));
         }

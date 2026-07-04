@@ -5,6 +5,7 @@
         ['label' => 'Wishlist',    'route' => 'account.wishlist'],
         ['label' => 'Addresses',   'route' => 'account.addresses'],
         ['label' => 'Profile',     'route' => 'account.profile'],
+        ['label' => 'Security',    'route' => 'account.security'],
     ];
 @endphp
 
