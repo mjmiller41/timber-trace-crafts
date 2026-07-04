@@ -2,17 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\GiftCardIssuedMail;
+use App\Mail\GiftCardPurchaseReceiptMail;
 use App\Mail\OrderStatusChangedMail;
 use App\Models\Order;
+use App\Services\GiftCardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\StripeObject;
 use Stripe\Webhook;
 
 class StripeWebhookController extends Controller
 {
+    public function __construct(
+        private readonly GiftCardService $giftCards,
+    ) {}
+
     public function handle(Request $request): JsonResponse
     {
         $secret = config('services.stripe.webhook_secret');
@@ -126,6 +135,18 @@ class StripeWebhookController extends Controller
      */
     private function handlePaymentIntentSucceeded(object $intent): void
     {
+        $metadata = $intent->metadata instanceof StripeObject
+            ? $intent->metadata->toArray()
+            : (array) ($intent->metadata ?? []);
+
+        // Self-service gift-card purchase: issue the card + email the recipient
+        // only now that Stripe has confirmed the charge. Idempotent on redelivery.
+        if (($metadata['type'] ?? null) === 'giftcard_purchase') {
+            $this->fulfillGiftCardPurchase($intent, $metadata);
+
+            return;
+        }
+
         if (Order::where('stripe_payment_intent_id', $intent->id)->exists()) {
             return;
         }
@@ -135,6 +156,75 @@ class StripeWebhookController extends Controller
             'amount' => $intent->amount_received ?? $intent->amount ?? null,
             'email' => $intent->receipt_email ?? null,
         ]);
+    }
+
+    /**
+     * Issue a gift card for a confirmed online purchase and queue the recipient
+     * + purchaser emails. Keyed on the PaymentIntent id so a redelivered webhook
+     * neither issues a second card nor re-sends the emails.
+     */
+    private function fulfillGiftCardPurchase(object $intent, array $metadata): void
+    {
+        // The charged amount is the source of truth; metadata is only carried context.
+        $amount = round((int) ($intent->amount_received ?? $intent->amount ?? 0) / 100, 2);
+
+        if ($amount <= 0) {
+            Log::warning('Gift-card webhook with non-positive amount', ['payment_intent' => $intent->id]);
+
+            return;
+        }
+
+        [$card, $created] = $this->giftCards->fulfillPurchase($intent->id, $amount, [
+            'recipient_email' => $metadata['recipient_email'] ?? null,
+            'recipient_name' => ($metadata['recipient_name'] ?? '') ?: null,
+            'purchaser_email' => $metadata['purchaser_email'] ?? null,
+            'message' => ($metadata['message'] ?? '') ?: null,
+        ]);
+
+        // Duplicate delivery — card already issued and its emails already queued.
+        if (! $created) {
+            return;
+        }
+
+        Log::info('Gift card issued from online purchase', [
+            'gift_card_id' => $card->id,
+            'payment_intent' => $intent->id,
+        ]);
+
+        // Recipient email — deferred to the requested send date when it's in the future.
+        if ($card->recipient_email) {
+            $mail = new GiftCardIssuedMail($card);
+
+            if ($sendAt = $this->parseFutureSendDate($metadata['send_date'] ?? '')) {
+                $mail->delay($sendAt);
+            }
+
+            Mail::to($card->recipient_email)->queue($mail);
+        }
+
+        // Purchaser receipt — always sent immediately.
+        if ($card->purchaser_email) {
+            Mail::to($card->purchaser_email)->queue(new GiftCardPurchaseReceiptMail($card));
+        }
+    }
+
+    /**
+     * Parse an optional YYYY-MM-DD send date, returning it only if it is in the
+     * future (so "today" and past/invalid values fall through to immediate send).
+     */
+    private function parseFutureSendDate(string $raw): ?Carbon
+    {
+        if ($raw === '') {
+            return null;
+        }
+
+        try {
+            $date = Carbon::parse($raw)->startOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $date->isFuture() ? $date : null;
     }
 
     private function handlePaymentIntentFailed(object $intent): void

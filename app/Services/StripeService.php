@@ -17,15 +17,20 @@ class StripeService
     /**
      * Create a PaymentIntent for the given amount.
      *
+     * @param  array<string, string>  $metadata  Extra metadata merged onto the intent
+     *                                           (e.g. gift-card purchase details read
+     *                                           back in the webhook). Stripe caps each
+     *                                           value at 500 chars.
+     *
      * @throws ApiErrorException
      */
-    public function createPaymentIntent(int $amountCents, ?string $receiptEmail = null): PaymentIntent
+    public function createPaymentIntent(int $amountCents, ?string $receiptEmail = null, array $metadata = []): PaymentIntent
     {
         return PaymentIntent::create([
             'amount' => $amountCents,
             'currency' => 'usd',
             'receipt_email' => $receiptEmail,
-            'metadata' => ['store' => config('app.name')],
+            'metadata' => array_merge(['store' => config('app.name')], $metadata),
         ]);
     }
 

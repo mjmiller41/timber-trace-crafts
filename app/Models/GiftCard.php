@@ -20,6 +20,7 @@ class GiftCard extends Model
         'recipient_email',
         'recipient_name',
         'purchaser_email',
+        'purchase_payment_intent_id',
         'message',
         'active',
         'expires_at',

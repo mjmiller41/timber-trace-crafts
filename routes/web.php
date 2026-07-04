@@ -24,6 +24,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EtsyWebhookController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\GiftCardPurchaseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\NewsletterController;
@@ -67,6 +68,13 @@ Route::middleware('throttle:60,1')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'process'])->middleware('honeypot')->name('checkout.process');
     Route::post('/checkout/payment-intent', [CheckoutController::class, 'createPaymentIntent'])->name('checkout.payment-intent');
     Route::get('/checkout/confirmation/{order}', [CheckoutController::class, 'confirmation'])->name('checkout.confirmation');
+});
+
+// Gift cards — self-service purchase (public)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/gift-cards', [GiftCardPurchaseController::class, 'show'])->name('gift-cards.show');
+    Route::post('/gift-cards/payment-intent', [GiftCardPurchaseController::class, 'createPaymentIntent'])->name('gift-cards.payment-intent');
+    Route::get('/gift-cards/thank-you', [GiftCardPurchaseController::class, 'thankYou'])->name('gift-cards.thank-you');
 });
 
 // Order status lookup (no login)
