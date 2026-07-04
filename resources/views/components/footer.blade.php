@@ -30,6 +30,7 @@
                     <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(244, 241, 234, 0.45); margin-bottom: 0.875rem;">Info</p>
                     <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
                         <li><a href="{{ route('page.show', 'about-us') }}" class="footer-link">About</a></li>
+                        <li><a href="{{ route('gallery.index') }}" class="footer-link">Gallery</a></li>
                         <li><a href="{{ route('journal.index') }}" class="footer-link">Journal</a></li>
                         <li><a href="{{ route('contact.index') }}" class="footer-link">Contact</a></li>
                         <li><a href="{{ route('page.show', 'faq') }}" class="footer-link">FAQ</a></li>

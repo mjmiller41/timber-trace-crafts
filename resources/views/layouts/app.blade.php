@@ -25,6 +25,23 @@
     <meta name="description" content="{!! $metaDescription !!}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Dark-mode bootstrap: apply the stored/preferred theme before first paint
+         to avoid a flash, and expose a global toggle used by the nav switch. --}}
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('theme');
+                var dark = stored ? stored === 'dark'
+                    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.classList.toggle('dark', dark);
+            } catch (e) {}
+            window.toggleTheme = function () {
+                var isDark = document.documentElement.classList.toggle('dark');
+                try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+            };
+        })();
+    </script>
+
     {{-- Open Graph --}}
     <meta property="og:type" content="{!! $metaOgType !!}">
     <meta property="og:title" content="{!! $metaTitle !!} | {{ $siteName }}">

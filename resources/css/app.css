@@ -52,6 +52,25 @@
     --default-text-color: var(--color-charcoal);
 }
 
+/* ---- Dark mode -----------------------------------------------------------
+   Tailwind v4 emits utilities that reference the theme vars (e.g.
+   .bg-oak-sand{background-color:var(--color-oak-sand)}), so redefining the
+   named colors under html.dark flips the entire storefront with no per-utility
+   edits. Semantic names are unchanged; only their resolved values invert:
+   oak-sand = page surface, charcoal = primary ink, surface = elevated panel.
+   html.dark (0,1,1) outranks the :root theme block (0,1,0) regardless of order. */
+html.dark {
+    color-scheme: dark;
+
+    --color-oak-sand: #1b1712;   /* warm near-black page background */
+    --color-surface: #241e18;    /* elevated / alternating section panel */
+    --color-charcoal: #ece6dc;   /* primary ink → warm off-white */
+    --color-walnut: #ad9c8b;     /* muted text + hairline borders, lifted for contrast */
+    --color-mahogany: #c68a5b;   /* copper accent (stars, prices) — original is too dark on black */
+    --color-forest-green: #3e6650;
+    --color-error: #e5534b;
+}
+
 @layer base {
     [x-cloak] { display: none !important; }
 
@@ -387,4 +406,26 @@
             transition: none;
         }
     }
+
+    /* ---- Dark-mode overrides for components with hardcoded light values ---- */
+    /* These few classes bake in white/black literals that the theme-var swap
+       can't reach, so they need explicit dark treatment. */
+    html.dark .form-field {
+        background-color: #221c16;
+        border-color: rgb(173 156 139 / 0.5);
+        color: var(--color-charcoal);
+    }
+    html.dark .btn-outline:hover {
+        background-color: rgb(255 255 255 / 0.08);
+    }
+    html.dark .card {
+        background-color: var(--color-surface);
+        border-color: rgb(173 156 139 / 0.25);
+    }
+
+    /* ---- Theme toggle: swap sun/moon glyphs on the <html>.dark state ------- */
+    .theme-toggle .theme-icon-sun { display: none; }
+    .theme-toggle .theme-icon-moon { display: inline-flex; }
+    html.dark .theme-toggle .theme-icon-sun { display: inline-flex; }
+    html.dark .theme-toggle .theme-icon-moon { display: none; }
 }

@@ -10,6 +10,10 @@
         <lastmod>{{ $products->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
     </url>
     <url>
+        <loc>{{ route('gallery.index') }}</loc>
+        <lastmod>{{ $products->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
+    </url>
+    <url>
         <loc>{{ route('journal.index') }}</loc>
         <lastmod>{{ $posts->first()?->updated_at?->toAtomString() ?? now()->toAtomString() }}</lastmod>
     </url>

@@ -16,6 +16,7 @@ class ProductController extends Controller
             'media.media',
             'tags',
             'reviews' => fn ($q) => $q->where('status', 'approved')->latest()->limit(10),
+            'reviews.user',
         ])
             ->where('slug', $slug)
             ->where('status', 'active')

@@ -451,7 +451,11 @@
 {{-- ============================================================ --}}
 {{-- REVIEWS --}}
 {{-- ============================================================ --}}
-<div id="reviews" class="border-t border-walnut/20 py-16 md:py-20">
+@php
+    $approvedReviews = $product->reviews->where('status', 'approved');
+    $reviewPhotos = $approvedReviews->filter(fn ($r) => $r->hasImage())->values();
+@endphp
+<div id="reviews" class="border-t border-walnut/20 py-16 md:py-20" x-data="{ lightbox: null }">
     <div class="page-container">
         <div class="max-w-3xl">
             <div class="flex items-end justify-between mb-10">
@@ -474,7 +478,30 @@
                 </div>
             </div>
 
-            @php $approvedReviews = $product->reviews->where('status', 'approved'); @endphp
+            {{-- Customer photos strip — pulls every approved review that carries a
+                 photo into a scannable gallery above the written reviews. --}}
+            @if($reviewPhotos->isNotEmpty())
+                <div class="mb-12">
+                    <p class="section-label mb-3">Photos from customers</p>
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                        @foreach($reviewPhotos as $photo)
+                            <button
+                                type="button"
+                                x-on:click="lightbox = @js($photo->image_url)"
+                                class="flex-shrink-0 w-24 h-24 md:w-28 md:h-28 overflow-hidden border border-walnut/20 group"
+                                aria-label="View customer photo from {{ $photo->reviewer_name }}"
+                            >
+                                <img
+                                    src="{{ $photo->image_url }}"
+                                    alt="Customer photo of {{ $product->name }} by {{ $photo->reviewer_name }}"
+                                    loading="lazy"
+                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                >
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             @if($approvedReviews->isEmpty())
                 <div class="py-8 border-t border-walnut/20">
@@ -487,7 +514,7 @@
                             <div class="flex items-start justify-between mb-3">
                                 <div>
                                     <p class="font-body text-sm font-600 text-charcoal mb-0.5">
-                                        {{ $review->reviewer_name ?? 'Verified Buyer' }}
+                                        {{ $review->reviewer_name }}
                                     </p>
                                     <div class="flex text-mahogany text-sm" aria-label="{{ $review->rating }} stars">
                                         @for($i = 1; $i <= 5; $i++)
@@ -503,11 +530,52 @@
                                 <h4 class="font-body text-sm font-600 mb-2">{{ $review->title }}</h4>
                             @endif
                             <p class="font-body text-sm text-charcoal/80 leading-relaxed">{{ $review->body }}</p>
+                            @if($review->hasImage())
+                                <button
+                                    type="button"
+                                    x-on:click="lightbox = @js($review->image_url)"
+                                    class="mt-4 block w-28 h-28 overflow-hidden border border-walnut/20 group"
+                                    aria-label="View photo from this review"
+                                >
+                                    <img
+                                        src="{{ $review->image_url }}"
+                                        alt="Customer photo of {{ $product->name }} by {{ $review->reviewer_name }}"
+                                        loading="lazy"
+                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    >
+                                </button>
+                            @endif
                         </div>
                     @endforeach
                 </div>
             @endif
         </div>
+    </div>
+
+    {{-- Lightbox for review photos --}}
+    <div
+        x-show="lightbox"
+        x-cloak
+        x-transition.opacity
+        x-on:click="lightbox = null"
+        x-on:keydown.escape.window="lightbox = null"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
+        style="display: none;"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Review photo"
+    >
+        <img :src="lightbox" alt="Customer review photo, enlarged" class="max-w-full max-h-[90vh] object-contain shadow-2xl">
+        <button
+            type="button"
+            x-on:click="lightbox = null"
+            class="absolute top-4 right-4 text-white/80 hover:text-white"
+            aria-label="Close photo"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 </div>
 

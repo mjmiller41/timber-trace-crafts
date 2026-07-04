@@ -11,7 +11,7 @@
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="flex-shrink-0 flex items-center gap-2.5">
             <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="200" height="40" class="h-10 w-auto">
-            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.375rem; letter-spacing: 0.01em; color: #333333;">{{ $siteName }}</span>
+            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.375rem; letter-spacing: 0.01em; color: var(--color-charcoal);">{{ $siteName }}</span>
         </a>
 
         {{-- Center nav links --}}
@@ -20,6 +20,10 @@
                 href="{{ url('/shop') }}"
                 class="section-label transition-colors hover:text-charcoal {{ request()->is('shop*') ? 'text-charcoal' : '' }}"
             >Shop</a>
+            <a
+                href="{{ url('/gallery') }}"
+                class="section-label transition-colors hover:text-charcoal {{ request()->is('gallery') ? 'text-charcoal' : '' }}"
+            >Gallery</a>
             <a
                 href="{{ url('/journal') }}"
                 class="section-label transition-colors hover:text-charcoal {{ request()->is('journal*') ? 'text-charcoal' : '' }}"
@@ -36,6 +40,26 @@
 
         {{-- Right icons --}}
         <div class="flex items-center gap-5">
+
+            {{-- Dark-mode toggle --}}
+            <button
+                type="button"
+                onclick="window.toggleTheme()"
+                class="theme-toggle flex items-center text-walnut hover:text-charcoal transition-colors"
+                aria-label="Toggle light or dark theme"
+                title="Toggle light / dark theme"
+            >
+                <span class="theme-icon-moon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                </span>
+                <span class="theme-icon-sun">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                    </svg>
+                </span>
+            </button>
 
             {{-- Account --}}
             @auth
@@ -83,7 +107,7 @@
         {{-- Brand --}}
         <a href="{{ url('/') }}" class="flex items-center gap-2">
             <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="160" height="32" class="h-8 w-auto">
-            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
+            <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: var(--color-charcoal);">{{ $siteName }}</span>
         </a>
 
         {{-- Cart --}}
@@ -124,13 +148,13 @@
             x-transition:leave-start="translate-x-0"
             x-transition:leave-end="-translate-x-full"
             class="absolute left-0 top-0 bottom-0 w-72 flex flex-col"
-            style="background-color: #F4F1EA;"
+            style="background-color: var(--color-oak-sand);"
             x-on:click.stop
         >
             {{-- Drawer header --}}
             <div class="flex items-center justify-between px-5 h-14 border-b" style="border-color: rgb(140 123 108 / 0.2);">
                 <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" width="160" height="32" class="h-8 w-auto">
-                <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: #333333;">{{ $siteName }}</span>
+                <span style="font-family: var(--font-heading); font-weight: 400; font-size: 1.125rem; color: var(--color-charcoal);">{{ $siteName }}</span>
                 <button
                     type="button"
                     class="text-charcoal"
@@ -152,6 +176,12 @@
                     x-on:click="open = false"
                 >Shop</a>
                 <a
+                    href="{{ url('/gallery') }}"
+                    class="flex items-center py-3 section-label border-b {{ request()->is('gallery') ? 'text-charcoal' : '' }}"
+                    style="border-color: rgb(140 123 108 / 0.15);"
+                    x-on:click="open = false"
+                >Gallery</a>
+                <a
                     href="{{ url('/journal') }}"
                     class="flex items-center py-3 section-label border-b {{ request()->is('journal*') ? 'text-charcoal' : '' }}"
                     style="border-color: rgb(140 123 108 / 0.15);"
@@ -171,7 +201,8 @@
             </nav>
 
             {{-- Drawer footer --}}
-            <div class="px-5 py-5 border-t" style="border-color: rgb(140 123 108 / 0.2);">
+            <div class="px-5 py-5 border-t flex items-center justify-between gap-4" style="border-color: rgb(140 123 108 / 0.2);">
+                <div>
                 @auth
                     <a href="{{ url('/account') }}" class="section-label hover:text-charcoal transition-colors">My Account</a>
                 @else
@@ -181,6 +212,27 @@
                         <a href="{{ url('/register') }}" class="section-label hover:text-charcoal transition-colors">Register</a>
                     </div>
                 @endauth
+                </div>
+
+                {{-- Dark-mode toggle --}}
+                <button
+                    type="button"
+                    onclick="window.toggleTheme()"
+                    class="theme-toggle flex items-center text-walnut hover:text-charcoal transition-colors"
+                    aria-label="Toggle light or dark theme"
+                    title="Toggle light / dark theme"
+                >
+                    <span class="theme-icon-moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
+                    </span>
+                    <span class="theme-icon-sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                        </svg>
+                    </span>
+                </button>
             </div>
 
         </div>

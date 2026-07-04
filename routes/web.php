@@ -20,6 +20,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EtsyWebhookController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\NewsletterController;
@@ -42,6 +43,7 @@ Route::permanentRedirect('/about', '/about-us');
 // Public pages
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 
 // Cart

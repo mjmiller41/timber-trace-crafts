@@ -81,20 +81,20 @@
             <div class="flex items-center gap-2">
                 @if($onSale)
                     <span
-                        style="font-size: 0.9375rem; font-weight: 600; color: #4A2C11; font-family: var(--font-body);"
+                        style="font-size: 0.9375rem; font-weight: 600; color: var(--color-mahogany); font-family: var(--font-body);"
                     >${{ number_format($salePrice, 2) }}</span>
                     <span
-                        style="font-size: 0.8125rem; color: #8C7B6C; text-decoration: line-through; font-family: var(--font-body);"
+                        style="font-size: 0.8125rem; color: var(--color-walnut); text-decoration: line-through; font-family: var(--font-body);"
                     >${{ number_format($price, 2) }}</span>
                 @elseif($price !== null)
                     <span
-                        style="font-size: 0.9375rem; font-weight: 500; color: #333333; font-family: var(--font-body);"
+                        style="font-size: 0.9375rem; font-weight: 500; color: var(--color-charcoal); font-family: var(--font-body);"
                     >${{ number_format($price, 2) }}</span>
                 @endif
 
                 @if($outOfStock)
                     <span
-                        style="font-size: 0.6875rem; font-weight: 600; color: #8C7B6C; font-family: var(--font-body);"
+                        style="font-size: 0.6875rem; font-weight: 600; color: var(--color-walnut); font-family: var(--font-body);"
                     >— Sold Out</span>
                 @endif
             </div>
