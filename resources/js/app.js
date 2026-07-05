@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs'
+import QRCode from 'qrcode'
 
 // Mobile nav component
 Alpine.data('mobileNav', () => ({ open: false }))
@@ -121,6 +122,18 @@ Alpine.data('flash', () => ({
 // Coupon code toggle
 Alpine.data('couponForm', () => ({
     open: false
+}))
+
+// TOTP enrollment QR code — renders the otpauth:// URI into a canvas element.
+Alpine.data('totpQr', (uri) => ({
+    async init() {
+        if (!uri) { return }
+        try {
+            await QRCode.toCanvas(this.$refs.qr, uri, { width: 200, margin: 2 })
+        } catch (e) {
+            // QR render failure is non-fatal; the text key + URI remain visible.
+        }
+    }
 }))
 
 window.Alpine = Alpine

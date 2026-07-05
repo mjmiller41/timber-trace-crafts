@@ -43,6 +43,13 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        // A logged-in shopper reaching checkout is a strong abandonment signal
+        // and their email is already known + consented — attach it now so a
+        // reminder can reach them if they drop off before paying.
+        if (auth()->check()) {
+            $this->cartService->attachIdentity();
+        }
+
         $subtotal = $this->cartService->subtotal($cart);
         $shippingMethods = $this->shippingService->getAvailableMethods();
         $coupon = $this->resolveValidCoupon($subtotal);
@@ -141,6 +148,14 @@ class CheckoutController extends Controller
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
+
+        // Capture the shopper's email against the persisted cart before we
+        // attempt payment. If the payment then fails and they abandon, the
+        // cart is reachable for a reminder. Whether guest addresses are
+        // actually emailed is gated by config('cart.reminders.email_guests').
+        $this->cartService->attachIdentity(
+            auth()->check() ? null : ($validated['guest_email'] ?? null)
+        );
 
         $cart = $this->revalidateCartPrices($cart);
 

@@ -61,6 +61,7 @@ Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->middleware(
 Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 Route::post('/cart/gift-card', [CartController::class, 'applyGiftCard'])->middleware('throttle:10,1')->name('cart.gift-card');
 Route::delete('/cart/gift-card', [CartController::class, 'removeGiftCard'])->name('cart.gift-card.remove');
+Route::get('/cart/unsubscribe/{token}', [CartController::class, 'unsubscribe'])->middleware('throttle:20,1')->name('cart.unsubscribe');
 
 // Checkout
 Route::middleware('throttle:60,1')->group(function () {
