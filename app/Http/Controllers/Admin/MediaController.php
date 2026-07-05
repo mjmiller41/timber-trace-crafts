@@ -70,7 +70,7 @@ class MediaController extends Controller
 
         try {
             $media = $this->uploader->store($request->file('file'), $request->input('alt_text'));
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
 

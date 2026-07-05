@@ -44,6 +44,11 @@ class MediaUploader
         $filename = Str::slug(pathinfo($original, PATHINFO_FILENAME)).'-'.uniqid().'.'.$extension;
         $path = $file->storeAs('media', $filename, $disk);
 
+        if ($path === false) {
+            $reason = $this->diagnoseWriteFailure($disk, "media/{$filename}", (string) file_get_contents($file->getRealPath()));
+            throw new \RuntimeException("Failed to store file on {$disk}: {$reason}");
+        }
+
         $this->generateWebpVariant($disk, $path, file_get_contents($file->getRealPath()));
 
         return Media::create([
