@@ -410,6 +410,78 @@ const IMAGE_EDITOR_LIGHT_THEME = {
     "colorpicker.title.color": "#333",
 };
 
+// Media page uploader — registered here so there are no inline scripts on the page.
+Alpine.data("mediaUploader", (storeUrl, csrfToken) => ({
+    queue: [],
+    uploading: false,
+    dragging: false,
+    dragCount: 0,
+    beforeUnloadHandler: null,
+
+    filesToQueue(files) {
+        const incoming = Array.from(files).map((f) => ({
+            file: f,
+            name: f.name,
+            status: "pending",
+            error: "",
+        }));
+        const existing = new Set(this.queue.map((i) => i.name));
+        this.queue.push(...incoming.filter((i) => !existing.has(i.name)));
+    },
+
+    selectFiles(event) {
+        this.filesToQueue(event.target.files);
+    },
+
+    dropFiles(event) {
+        this.filesToQueue(event.dataTransfer.files);
+    },
+
+    async startUpload() {
+        if (this.uploading || this.queue.length === 0) return;
+        this.uploading = true;
+
+        this.beforeUnloadHandler = (e) => {
+            e.preventDefault();
+        };
+        window.addEventListener("beforeunload", this.beforeUnloadHandler);
+
+        for (const item of this.queue) {
+            if (item.status === "done") continue;
+            item.status = "loading";
+
+            const body = new FormData();
+            body.append("file", item.file);
+            body.append("_token", csrfToken);
+
+            try {
+                const res = await fetch(storeUrl, {
+                    method: "POST",
+                    headers: { Accept: "application/json" },
+                    body,
+                });
+                if (res.ok) {
+                    item.status = "done";
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    item.status = "error";
+                    item.error = data.message ?? data.error ?? `HTTP ${res.status}`;
+                }
+            } catch {
+                item.status = "error";
+                item.error = "Network error";
+            }
+        }
+
+        this.uploading = false;
+        window.removeEventListener("beforeunload", this.beforeUnloadHandler);
+
+        if (this.queue.some((i) => i.status === "done")) {
+            window.location.reload();
+        }
+    },
+}));
+
 // Media image editor (TUI Image Editor / ZenImages)
 Alpine.data("mediaEditor", () => ({
     open: false,
@@ -438,6 +510,19 @@ Alpine.data("mediaEditor", () => ({
             this.editor.destroy();
             this.editor = null;
         }
+
+        // Verify the image is reachable before loading the heavy editor bundle.
+        try {
+            const probe = await fetch(this.mediaUrl, { method: "HEAD" });
+            if (!probe.ok) {
+                this.error = `Image not accessible (HTTP ${probe.status}). It may be missing from storage.`;
+                return;
+            }
+        } catch {
+            this.error = "Could not reach image — check your network connection.";
+            return;
+        }
+
         const [{ default: ImageEditor }] = await Promise.all([
             import("tui-image-editor"),
             import("tui-image-editor/dist/tui-image-editor.css"),
@@ -451,6 +536,9 @@ Alpine.data("mediaEditor", () => ({
                 menuBarPosition: "left",
             },
             usageStatistics: false,
+        });
+        this.editor.on("errorLoadImage", () => {
+            this.error = "Image failed to load in the editor.";
         });
     },
 

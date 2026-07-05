@@ -44,16 +44,20 @@ class SecurityHeaders
     {
         $r2Host = parse_url((string) config('filesystems.disks.r2.url'), PHP_URL_HOST);
 
-        $imgSrc = array_filter(["'self'", 'data:', $r2Host ? "https://{$r2Host}" : null]);
+        // blob: is needed for canvas exports from the TUI image editor.
+        $imgSrc = array_filter(["'self'", 'data:', 'blob:', $r2Host ? "https://{$r2Host}" : null]);
 
         $directives = [
             "default-src 'self'",
-            "script-src 'self' https://js.stripe.com",
+            // 'unsafe-eval' is required by tui-image-editor's internal canvas rendering.
+            "script-src 'self' https://js.stripe.com 'unsafe-eval'",
             "frame-src 'self' https://js.stripe.com",
             "connect-src 'self' https://api.stripe.com",
             'img-src '.implode(' ', $imgSrc),
-            "style-src 'self' 'unsafe-inline'",
-            "font-src 'self'",
+            // Google Fonts CSS is loaded from fonts.googleapis.com.
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            // Google Fonts files are served from fonts.gstatic.com.
+            "font-src 'self' https://fonts.gstatic.com",
             "object-src 'none'",
             "base-uri 'self'",
         ];

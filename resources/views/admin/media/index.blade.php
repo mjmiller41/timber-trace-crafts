@@ -171,85 +171,8 @@
 		</template>
 	</div>
 
-	@push('scripts')
-		<script>
-			function mediaUploader(storeUrl, csrfToken) {
-				return {
-					queue: [],
-					uploading: false,
-					dragging: false,
-					dragCount: 0,
-
-					filesToQueue(files) {
-						const incoming = Array.from(files).map(f => ({
-							file: f,
-							name: f.name,
-							status: 'pending',
-							error: '',
-						}));
-						// Merge with existing queue, skip duplicates by name
-						const existing = new Set(this.queue.map(i => i.name));
-						this.queue.push(...incoming.filter(i => !existing.has(i.name)));
-					},
-
-					selectFiles(event) {
-						this.filesToQueue(event.target.files);
-					},
-
-					dropFiles(event) {
-						this.filesToQueue(event.dataTransfer.files);
-					},
-
-					beforeUnloadHandler: null,
-
-					async startUpload() {
-						if (this.uploading || this.queue.length === 0) return;
-						this.uploading = true;
-
-						this.beforeUnloadHandler = e => { e.preventDefault(); };
-						window.addEventListener('beforeunload', this.beforeUnloadHandler);
-
-						for (const item of this.queue) {
-							if (item.status === 'done') continue;
-							item.status = 'loading';
-
-							const body = new FormData();
-							body.append('file', item.file);
-							body.append('_token', csrfToken);
-
-							try {
-								const res = await fetch(storeUrl, {
-									method: 'POST',
-									headers: { Accept: 'application/json' },
-									body,
-								});
-								if (res.ok) {
-									item.status = 'done';
-								} else {
-									const data = await res.json().catch(() => ({}));
-									item.status = 'error';
-									item.error = data.message ?? data.error ?? `HTTP ${res.status}`;
-								}
-							} catch {
-								item.status = 'error';
-								item.error = 'Network error';
-							}
-						}
-
-						this.uploading = false;
-						window.removeEventListener('beforeunload', this.beforeUnloadHandler);
-
-						if (this.queue.some(i => i.status === 'done')) {
-							window.location.reload();
-						}
-					},
-				};
-			}
-		</script>
-	@endpush
-
 	{{-- Search + Sort --}}
-	<form method="GET" action="{{ route('admin.media.index') }}"
+	<form x-data method="GET" action="{{ route('admin.media.index') }}"
 		style="display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
 		<div style="flex: 2; min-width: 200px;">
 			<label class="admin-label" for="search">Search</label>
@@ -258,7 +181,7 @@
 		</div>
 		<div style="min-width: 160px;">
 			<label class="admin-label" for="sort">Sort by</label>
-			<select id="sort" name="sort" class="admin-input" onchange="this.form.submit()">
+			<select id="sort" name="sort" class="admin-input" @change="$el.form.submit()">
 				<option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Newest first
 				</option>
 				<option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>Oldest first
@@ -373,9 +296,8 @@
 						<div
 							style="display: flex; gap: 0.375rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
 							<button type="button"
-								onclick="navigator.clipboard.writeText('{{ $media->url() }}')"
-								style="font-size: 0.625rem; background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: 0.125rem; cursor: pointer; font-family: 'Montserrat', sans-serif;"
-								@click.stop>
+								@click.stop="navigator.clipboard.writeText('{{ $media->url() }}')"
+								style="font-size: 0.625rem; background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: 0.125rem; cursor: pointer; font-family: 'Montserrat', sans-serif;">
 								Copy URL
 							</button>
 							<button type="button"
