@@ -123,15 +123,6 @@
             </a>
 
             <a
-                href="{{ url('/admin/gift-cards') }}"
-                class="admin-sidebar-link {{ request()->is('admin/gift-cards*') ? 'active' : '' }}"
-                title="Gift Cards"
-            >
-                <span class="nav-icon">&#x1F381;</span>
-                <span x-show="!collapsed" x-cloak>Gift Cards</span>
-            </a>
-
-            <a
                 href="{{ url('/admin/customers') }}"
                 class="admin-sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}"
                 title="Customers"
@@ -267,7 +258,7 @@
 </aside>
 
 {{-- Push main content when sidebar is open --}}
-<script>
+<script nonce="{{ \Illuminate\Support\Facades\Vite::cspNonce() }}">
     (function () {
         // Sync admin-main margin with sidebar collapsed state on load
         const collapsed = localStorage.getItem('sidebarCollapsed') === 'true'
