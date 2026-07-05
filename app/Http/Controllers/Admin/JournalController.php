@@ -124,7 +124,7 @@ class JournalController extends Controller
 
         $relatedPosts = $tagIds->isNotEmpty()
             ? JournalPost::with('featuredImage')
-                ->where('status', 'published')
+                ->live()
                 ->where('id', '!=', $post->id)
                 ->whereHas('tags', fn ($q) => $q->whereIn('tags.id', $tagIds))
                 ->orderByDesc('published_at')

@@ -30,7 +30,7 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
 
-        $journalPosts = JournalPost::where('status', 'published')
+        $journalPosts = JournalPost::live()
             ->with('featuredImage')
             ->latest('published_at')
             ->limit(3)

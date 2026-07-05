@@ -16,7 +16,7 @@ class SitemapController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
-        $posts = JournalPost::where('status', 'published')
+        $posts = JournalPost::live()
             ->select('slug', 'updated_at')
             ->orderByDesc('updated_at')
             ->get();

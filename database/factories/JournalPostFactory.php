@@ -34,4 +34,16 @@ class JournalPostFactory extends Factory
             'published_at' => now()->subDays(fake()->numberBetween(1, 30)),
         ]);
     }
+
+    /**
+     * A post marked published but dated in the future — it should stay hidden
+     * from the public until its release time (TIM-47 scheduling).
+     */
+    public function scheduled(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'published',
+            'published_at' => now()->addDays(fake()->numberBetween(1, 30)),
+        ]);
+    }
 }

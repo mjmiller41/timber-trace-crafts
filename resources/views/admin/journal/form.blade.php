@@ -141,7 +141,7 @@
             class="admin-input"
             value="{{ old('published_at', isset($post) && $post->published_at ? $post->published_at->format('Y-m-d\TH:i') : '') }}"
         >
-        <p class="admin-hint">Leave blank to use the current time when publishing.</p>
+        <p class="admin-hint">Leave blank to use the current time when publishing. Set status to Published with a future date/time to schedule the post — it stays hidden until then.</p>
         @error('published_at') <p class="admin-error-text">{{ $message }}</p> @enderror
     </div>
 </div>

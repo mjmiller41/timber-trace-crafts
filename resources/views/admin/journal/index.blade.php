@@ -39,7 +39,9 @@
                         @endif
                     </td>
                     <td>
-                        @if($post->status === 'published')
+                        @if($post->isScheduled())
+                            <span class="admin-badge-warning">Scheduled</span>
+                        @elseif($post->status === 'published')
                             <span class="admin-badge-success">Published</span>
                         @else
                             <span class="admin-badge-neutral">Draft</span>

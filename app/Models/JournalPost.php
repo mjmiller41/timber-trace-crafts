@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,31 @@ class JournalPost extends Model
         return [
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Publicly visible posts: published and either undated or past their
+     * scheduled release time. A future `published_at` keeps a published post
+     * hidden until that moment, which is how scheduling works — see TIM-47.
+     */
+    public function scopeLive(Builder $query): void
+    {
+        $query->where('status', 'published')
+            ->where(function (Builder $q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
+    }
+
+    /**
+     * A published post whose release time is still in the future — awaiting
+     * its scheduled go-live. Used to surface a "Scheduled" badge in admin.
+     */
+    public function isScheduled(): bool
+    {
+        return $this->status === 'published'
+            && $this->published_at !== null
+            && $this->published_at->isFuture();
     }
 
     public function author(): BelongsTo

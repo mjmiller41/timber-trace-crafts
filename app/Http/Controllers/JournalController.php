@@ -12,7 +12,7 @@ class JournalController extends Controller
     public function index(): View
     {
         $posts = JournalPost::with('featuredImage')
-            ->where('status', 'published')
+            ->live()
             ->orderByDesc('published_at')
             ->paginate(12);
 
@@ -23,14 +23,14 @@ class JournalController extends Controller
     {
         $post = JournalPost::with(['featuredImage', 'tags', 'author'])
             ->where('slug', $slug)
-            ->where('status', 'published')
+            ->live()
             ->firstOrFail();
 
         $tagIds = $post->tags->pluck('id');
 
         $relatedPosts = $tagIds->isNotEmpty()
             ? JournalPost::with('featuredImage')
-                ->where('status', 'published')
+                ->live()
                 ->where('id', '!=', $post->id)
                 ->whereHas('tags', fn ($q) => $q->whereIn('tags.id', $tagIds))
                 ->orderByDesc('published_at')
@@ -44,7 +44,7 @@ class JournalController extends Controller
     public function tag(Tag $tag): View
     {
         $posts = JournalPost::with('featuredImage')
-            ->where('status', 'published')
+            ->live()
             ->whereHas('tags', fn ($q) => $q->where('tags.id', $tag->id))
             ->orderByDesc('published_at')
             ->paginate(12);
@@ -55,7 +55,7 @@ class JournalController extends Controller
     public function feed(): Response
     {
         $posts = JournalPost::with('author')
-            ->where('status', 'published')
+            ->live()
             ->orderByDesc('published_at')
             ->limit(20)
             ->get();

@@ -375,4 +375,112 @@ class JournalTest extends TestCase
             ->get(route('admin.journal.index'))
             ->assertForbidden();
     }
+
+    // ── Scheduling: future-dated posts stay hidden until release (TIM-47) ─────
+
+    public function test_journal_index_hides_scheduled_future_post(): void
+    {
+        JournalPost::factory()->published()->create(['title' => 'Live Now Post']);
+        JournalPost::factory()->scheduled()->create(['title' => 'Scheduled Later Post']);
+
+        $response = $this->get(route('journal.index'));
+
+        $response->assertOk();
+        $response->assertSee('Live Now Post');
+        $response->assertDontSee('Scheduled Later Post');
+    }
+
+    public function test_journal_show_returns_404_for_scheduled_future_post(): void
+    {
+        $post = JournalPost::factory()->scheduled()->create();
+
+        $this->get(route('journal.show', $post->slug))->assertNotFound();
+    }
+
+    public function test_rss_feed_excludes_scheduled_future_post(): void
+    {
+        JournalPost::factory()->published()->create(['title' => 'Feed Live Post']);
+        JournalPost::factory()->scheduled()->create(['title' => 'Feed Scheduled Post']);
+
+        $response = $this->get(route('journal.feed'));
+
+        $response->assertOk();
+        $response->assertSee('Feed Live Post');
+        $response->assertDontSee('Feed Scheduled Post');
+    }
+
+    public function test_sitemap_excludes_scheduled_future_post(): void
+    {
+        $live = JournalPost::factory()->published()->create();
+        $scheduled = JournalPost::factory()->scheduled()->create();
+
+        $response = $this->get(route('sitemap'));
+
+        $response->assertOk();
+        $response->assertSee($live->slug, false);
+        $response->assertDontSee($scheduled->slug, false);
+    }
+
+    public function test_live_scope_excludes_scheduled_and_draft_posts(): void
+    {
+        // HomeController and every public listing rely on this scope; assert it
+        // directly (the home view depends on an S3 disk not configured in tests).
+        $live = JournalPost::factory()->published()->create();
+        $scheduled = JournalPost::factory()->scheduled()->create();
+        $draft = JournalPost::factory()->create(['status' => 'draft']);
+
+        $ids = JournalPost::live()->pluck('id');
+
+        $this->assertTrue($ids->contains($live->id));
+        $this->assertFalse($ids->contains($scheduled->id));
+        $this->assertFalse($ids->contains($draft->id));
+    }
+
+    public function test_scheduled_post_becomes_visible_after_release_time(): void
+    {
+        $post = JournalPost::factory()->create([
+            'title' => 'Goes Live Soon',
+            'status' => 'published',
+            'published_at' => now()->addDays(5),
+        ]);
+
+        $this->get(route('journal.index'))->assertDontSee('Goes Live Soon');
+        $this->get(route('journal.show', $post->slug))->assertNotFound();
+
+        $this->travelTo(now()->addDays(6), function () use ($post) {
+            $this->get(route('journal.index'))->assertSee('Goes Live Soon');
+            $this->get(route('journal.show', $post->slug))->assertOk();
+        });
+    }
+
+    public function test_published_post_with_null_published_at_stays_visible(): void
+    {
+        // Backward compatibility: a published post without a date is not "scheduled".
+        JournalPost::factory()->create([
+            'title' => 'Dateless Published Post',
+            'status' => 'published',
+            'published_at' => null,
+        ]);
+
+        $this->get(route('journal.index'))->assertSee('Dateless Published Post');
+    }
+
+    public function test_is_scheduled_helper_only_true_for_future_published_posts(): void
+    {
+        $this->assertTrue(JournalPost::factory()->scheduled()->create()->isScheduled());
+        $this->assertFalse(JournalPost::factory()->published()->create()->isScheduled());
+        $this->assertFalse(JournalPost::factory()->create(['status' => 'draft'])->isScheduled());
+    }
+
+    public function test_admin_index_shows_scheduled_badge(): void
+    {
+        JournalPost::factory()->scheduled()->create(['title' => 'Pending Release']);
+
+        $response = $this->actingAs($this->adminUser())
+            ->get(route('admin.journal.index'));
+
+        $response->assertOk();
+        $response->assertSee('Scheduled');
+        $response->assertSee('Pending Release');
+    }
 }
