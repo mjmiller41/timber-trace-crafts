@@ -52,7 +52,7 @@
                 <picture>
                     <source srcset="{{ preg_replace('/\.(png|jpe?g)$/i', '.webp', $post->featuredImage->url()) }}" type="image/webp">
                     <img src="{{ $post->featuredImage->url() }}"
-                         alt="{{ $post->title }}"
+                         alt="{{ $post->featuredImage->alt_text ?: $post->title }}"
                          class="w-full aspect-video object-cover">
                 </picture>
             </div>
@@ -147,8 +147,26 @@
         $blogSchemaData['image'] = $post->featuredImage->url();
     }
     $blogSchema = json_encode($blogSchemaData);
+
+    // FAQPage: emitted only when the body actually contains a parseable FAQ block.
+    $faqs = \App\Support\FaqExtractor::fromHtml($post->body);
+    $faqSchema = null;
+    if (! empty($faqs)) {
+        $faqSchema = json_encode([
+            '@context'   => 'https://schema.org',
+            '@type'      => 'FAQPage',
+            'mainEntity' => array_map(fn ($faq) => [
+                '@type'          => 'Question',
+                'name'           => $faq['question'],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq['answer']],
+            ], $faqs),
+        ], JSON_UNESCAPED_SLASHES);
+    }
 @endphp
 <script type="application/ld+json">{!! $blogSchema !!}</script>
+@if($faqSchema)
+<script type="application/ld+json">{!! $faqSchema !!}</script>
+@endif
 @endpush
 
 @endsection
