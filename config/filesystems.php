@@ -57,6 +57,16 @@ return [
             'url' => env('R2_PUBLIC_URL'),
             'use_path_style_endpoint' => false,
             'throw' => false,
+            // Force IPv4 for the S3/R2 client. The Cloudflare R2 write token is
+            // IP-allowlisted to prod's IPv4 (5.183.10.138); prod egresses IPv6
+            // by default, which R2 rejects with 403 AccessDenied. Resolving to
+            // IPv4 makes requests originate from the allowlisted address so
+            // uploads succeed. See TIM-40.
+            'http' => [
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                ],
+            ],
         ],
 
         's3' => [
