@@ -26,6 +26,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="p:domain_verify" content="400dcd47df9251301752c1d8e227ec85"/>
 
+    {{-- Ahrefs Web Analytics --}}
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="RcP/pKU4uF9pqr9BnYJ1Rw" async></script>
+
+    {{-- Amplitude Analytics + Session Replay --}}
+    <script src="https://cdn.amplitude.com/script/5e5a674503b369e5bffa1fcb90e48518.js"></script>
+    <script>window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));window.amplitude.init('5e5a674503b369e5bffa1fcb90e48518', {"fetchRemoteConfig":true,"autocapture":true});</script>
+
     {{-- Dark-mode bootstrap: apply the stored/preferred theme before first paint
          to avoid a flash, and expose a global toggle used by the nav switch. --}}
     <script>
