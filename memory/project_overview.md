@@ -76,7 +76,7 @@ pending_payment → processing → in_production → shipped → delivered → r
 2. **Cookie consent / GDPR-CCPA banner** — legally required; show on first visit, persist choice
 3. **Email verification** — required per spec; verify it's wired in AuthController
 4. **Password strength rules** — require min length/complexity in register + reset
-5. **CAPTCHA** — on login, contact form, and checkout (prevent spam/fraud)
+5. ~~**CAPTCHA** — on login, contact form, and checkout (prevent spam/fraud)~~ — **BUILT** (`app/Services/RecaptchaService.php`)
 6. **About page content** — CMS page needs the real story: Michael J. Miller, disabled veteran, Desert Storm, Avon Park FL, one-person operation
 
 ### Medium priority (important UX / admin)
@@ -88,7 +88,7 @@ pending_payment → processing → in_production → shipped → delivered → r
 12. **Shop filter by tags** — tags exist in admin and on products; not exposed as shop filter
 13. **Social sharing buttons on product pages** — Facebook, Pinterest, Instagram
 14. **Reorder past items** — from My Account order history
-15. **Admin 2FA** — required per spec; can use TOTP (Laravel Fortify or custom)
+15. ~~**Admin 2FA** — required per spec; can use TOTP (Laravel Fortify or custom)~~ — **BUILT** (`app/Services/TwoFactorAuthService.php`)
 16. **Admin session expiry** — short idle timeout for admin routes
 17. **Audit log** — log important admin actions (order status changes, product edits, etc.)
 18. **Admin error log viewer** — view Laravel log from admin panel
@@ -104,7 +104,7 @@ pending_payment → processing → in_production → shipped → delivered → r
 26. **Customer file upload for custom engraving** — future product type; design upload field
 27. **SEO sitemap.xml + JSON-LD structured data** — auto-generated, linked from robots.txt
 28. **Abandoned cart emails** — defer post-launch
-29. **Gift cards** — defer post-launch
+29. ~~**Gift cards** — defer post-launch~~ — **BUILT** (`app/Services/GiftCardService.php`, `GiftCard` model)
 30. **Marketplace sync** (Etsy, eBay, Amazon Handmade) — Phase 3
 
 ## Phases

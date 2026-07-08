@@ -11,7 +11,7 @@ metadata:
 - **OAuth 2.0 + PKCE** — connect/disconnect flow, token refresh, shop ID stored in settings
 - **Webhook** — live on production; HMAC-SHA256 verification; handles `order.paid`, `order.canceled`, `order.shipped`, `order.delivered`
 - **Admin email on order.paid** — `EtsyNewOrderMail` sent to admin on new Etsy order
-- **Review sync** — `php artisan etsy:sync-reviews` pulls Etsy reviews into local DB
+- **Review sync** — `EtsyReviewSync` service (triggered from `app/Http/Controllers/Admin/EtsyController.php`, not an artisan command) pulls Etsy reviews into local DB
 - **Order sync** — `php artisan etsy:sync-orders` imports Etsy receipts as orders
 - **etsy:link** — maps local products to Etsy listing IDs, copies metadata (taxonomy, shipping profile)
 - **Individual product push** — "↑ Update on Etsy" / "↑ Create on Etsy" button on product edit page; PATCH for existing, POST for new

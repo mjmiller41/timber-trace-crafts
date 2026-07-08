@@ -13,7 +13,7 @@ Michael is the sole proprietor of Timber Trace Crafts (timbertracecrafts.com). H
 - Laravel is the agreed framework
 - Hostinger shared hosting business plan (LiteSpeed, PHP up to 8.5, MySQL)
 - Hostinger's built-in SMTP for transactional email
-- Square for payment processing (already uses it)
+- Stripe for payment processing (switched from Square)
 - Sender.net for marketing email (may switch if needed)
 - Umami.js for analytics
 - Pirate Ship for shipping labels (Phase 2)
