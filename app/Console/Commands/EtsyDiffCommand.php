@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\Setting;
 use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyListingDiff;
 use App\Services\Etsy\EtsyOAuthService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -66,54 +66,12 @@ class EtsyDiffCommand extends Command
 
     private function diffListings(): array
     {
-        $etsyListings = $this->fetchAllListings();
-        $this->line("  Found {$etsyListings->count()} listings on Etsy.");
+        $report = (new EtsyListingDiff($this->client))->diff();
 
-        $dbProducts = Product::whereNotNull('etsy_listing_id')->get()->keyBy('etsy_listing_id');
-        $etsyById = $etsyListings->keyBy('listing_id');
+        $found = count($report['etsyOnly']) + count($report['conflicts']) + $report['matched'];
+        $this->line("  Found {$found} listings on Etsy.");
 
-        $etsyOnly = [];
-        $conflicts = [];
-        $matched = 0;
-
-        foreach ($etsyListings as $listing) {
-            $id = (string) $listing['listing_id'];
-
-            if (! $dbProducts->has($id)) {
-                $etsyOnly[] = [
-                    'listing_id' => $id,
-                    'title' => $listing['title'],
-                    'state' => $listing['state'],
-                    'price' => $this->money($listing['price'] ?? null),
-                    'tags' => $listing['tags'] ?? [],
-                    'shop_section_id' => $listing['shop_section_id'],
-                ];
-
-                continue;
-            }
-
-            $product = $dbProducts->get($id);
-            $diff = $this->compareListingToProduct($listing, $product);
-
-            if (! empty($diff)) {
-                $conflicts[] = [
-                    'listing_id' => $id,
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'differences' => $diff,
-                ];
-            } else {
-                $matched++;
-            }
-        }
-
-        // DB products linked to Etsy but not found on Etsy
-        $dbOnly = $dbProducts->filter(fn ($p) => ! $etsyById->has($p->etsy_listing_id))
-            ->map(fn ($p) => ['product_id' => $p->id, 'name' => $p->name, 'etsy_listing_id' => $p->etsy_listing_id])
-            ->values()
-            ->toArray();
-
-        return compact('etsyOnly', 'conflicts', 'dbOnly', 'matched');
+        return $report;
     }
 
     private function diffOrders(): array
@@ -181,25 +139,6 @@ class EtsyDiffCommand extends Command
         ], $sections);
     }
 
-    private function fetchAllListings(): Collection
-    {
-        $all = collect();
-        $limit = 100;
-        $offset = 0;
-
-        do {
-            $response = $this->client->get("/application/shops/{$this->shopId}/listings", [
-                'limit' => $limit,
-                'offset' => $offset,
-            ]);
-            $results = $response['results'] ?? [];
-            $all = $all->merge($results);
-            $offset += $limit;
-        } while (count($results) === $limit);
-
-        return $all;
-    }
-
     private function fetchAllReceipts(): Collection
     {
         $all = collect();
@@ -217,35 +156,6 @@ class EtsyDiffCommand extends Command
         } while (count($results) === $limit);
 
         return $all;
-    }
-
-    private function compareListingToProduct(array $listing, Product $product): array
-    {
-        $diff = [];
-
-        $etsyPrice = $this->money($listing['price'] ?? null);
-        if ($etsyPrice !== null && (float) $product->price !== $etsyPrice) {
-            $diff['price'] = ['db' => (float) $product->price, 'etsy' => $etsyPrice];
-        }
-
-        // Etsy returns titles HTML-encoded; decode before comparing to DB text
-        $etsyTitle = isset($listing['title']) ? html_entity_decode($listing['title'], ENT_QUOTES | ENT_HTML5) : null;
-        if ($etsyTitle && $product->name !== $etsyTitle) {
-            $diff['title'] = ['db' => $product->name, 'etsy' => $etsyTitle];
-        }
-
-        $etsyState = $listing['state'] ?? null;
-        $dbStatus = $product->status;
-        $mappedState = match ($dbStatus) {
-            'published' => 'active',
-            'draft' => 'draft',
-            default => null,
-        };
-        if ($etsyState && $mappedState && $etsyState !== $mappedState) {
-            $diff['status'] = ['db' => $dbStatus, 'etsy' => $etsyState];
-        }
-
-        return $diff;
     }
 
     private function compareReceiptToOrder(array $receipt, Order $order): array
@@ -302,7 +212,9 @@ class EtsyDiffCommand extends Command
                 foreach ($l['conflicts'] as $c) {
                     $this->line("    [{$c['listing_id']}] {$c['product_name']}");
                     foreach ($c['differences'] as $field => $vals) {
-                        $this->line("      {$field}: DB=\"{$vals['db']}\" | Etsy=\"{$vals['etsy']}\"");
+                        $db = is_array($vals['db']) ? implode(', ', $vals['db']) : $vals['db'];
+                        $etsy = is_array($vals['etsy']) ? implode(', ', $vals['etsy']) : $vals['etsy'];
+                        $this->line("      {$field}: DB=\"{$db}\" | Etsy=\"{$etsy}\"");
                     }
                 }
             }

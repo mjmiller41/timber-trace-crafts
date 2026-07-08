@@ -260,6 +260,8 @@ Route::middleware(['auth', 'admin', 'admin.2fa', 'admin.idle', 'admin.audit'])->
     Route::post('/etsy/sync/inventory', [EtsyController::class, 'syncInventory'])->name('etsy.sync.inventory');
     Route::post('/etsy/sync/orders', [EtsyController::class, 'syncOrders'])->name('etsy.sync.orders');
     Route::post('/etsy/sync/reviews', [EtsyController::class, 'syncReviews'])->name('etsy.sync.reviews');
+    Route::post('/etsy/diff/products', [EtsyController::class, 'diffProducts'])->name('etsy.diff.products');
+    Route::post('/etsy/diff/resolve', [EtsyController::class, 'resolveDiff'])->name('etsy.diff.resolve');
     Route::get('/etsy/orders/badge', [EtsyController::class, 'ordersBadge'])->name('etsy.orders.badge');
     Route::get('/etsy/sections', [EtsyController::class, 'listSections'])->name('etsy.sections.index');
     Route::post('/etsy/sections', [EtsyController::class, 'createSection'])->name('etsy.sections.store');
