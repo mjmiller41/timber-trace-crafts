@@ -15,6 +15,7 @@ class ProductVariant extends Model
         'product_id',
         'variation_type_id',
         'sku',
+        'mpn',
         'label',
         'price',
         'is_enabled',
@@ -39,6 +40,26 @@ class ProductVariant extends Model
     public function isInStock(): bool
     {
         return $this->stock_qty > 0;
+    }
+
+    /**
+     * Stable manufacturer part number for this variant.
+     *
+     * Returns the persisted `mpn` when set, otherwise falls back to the
+     * variant SKU — never a bare auto-increment id. This is the single
+     * source consumed by the Product JSON-LD and the structured feeds.
+     */
+    public function resolvedMpn(): ?string
+    {
+        $mpn = $this->mpn !== null ? trim((string) $this->mpn) : '';
+
+        if ($mpn !== '') {
+            return $mpn;
+        }
+
+        $sku = $this->sku !== null ? trim((string) $this->sku) : '';
+
+        return $sku !== '' ? $sku : null;
     }
 
     public function isLowStock(): bool

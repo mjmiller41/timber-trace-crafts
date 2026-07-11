@@ -15,6 +15,7 @@ class ProductVariantFactory extends Factory
     {
         return [
             'sku' => strtoupper(Str::random(8)),
+            'mpn' => null,
             'label' => fake()->randomElement(['Small', 'Medium', 'Large', 'Natural', 'Dark Walnut']),
             'stock_qty' => fake()->numberBetween(0, 50),
             'low_stock_threshold' => 5,
@@ -25,5 +26,13 @@ class ProductVariantFactory extends Factory
     public function outOfStock(): static
     {
         return $this->state(['stock_qty' => 0]);
+    }
+
+    /**
+     * Give the variant an explicit manufacturer part number.
+     */
+    public function withMpn(string $mpn): static
+    {
+        return $this->state(['mpn' => $mpn]);
     }
 }

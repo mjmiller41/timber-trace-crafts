@@ -67,6 +67,9 @@ class Product extends Model
         'sort_order',
         'meta_title',
         'meta_description',
+        'specs',
+        'gtin13',
+        'identifier_exists',
     ];
 
     protected function casts(): array
@@ -93,6 +96,8 @@ class Product extends Model
             'etsy_last_synced_at' => 'datetime',
             'sort_order' => 'integer',
             'personalization_max_chars' => 'integer',
+            'specs' => 'array',
+            'identifier_exists' => 'boolean',
         ];
     }
 
