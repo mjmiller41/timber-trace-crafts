@@ -88,6 +88,15 @@ class ProductFeedPresenter
     }
 
     /**
+     * Google Merchant Center price string, formatted "N.NN USD" (A24) — the
+     * same canonical current price the ACP feed and product page render (A26).
+     */
+    public function priceWithCurrency(): string
+    {
+        return $this->price().' '.$this->currency();
+    }
+
+    /**
      * Feed availability token derived from the single stock helper. An
      * out-of-stock active product is surfaced (not omitted) as out_of_stock.
      */
@@ -170,6 +179,31 @@ class ProductFeedPresenter
             'enable_search' => true,
             'enable_checkout' => true,
             'target_countries' => ['US'],
+        ];
+    }
+
+    /**
+     * One item for the Google Merchant Center product feed (A24). Keys map to
+     * the RSS/`g:` elements the feed view emits: g:id, title, description,
+     * link, g:image_link, g:price ("N.NN USD"), g:availability, g:brand,
+     * g:mpn, g:condition. Derived from the same canonical accessors as the ACP
+     * feed, so there is no cross-surface price/availability contradiction.
+     *
+     * @return array<string, string>
+     */
+    public function merchantItem(): array
+    {
+        return [
+            'id' => $this->id(),
+            'title' => $this->title(),
+            'description' => $this->description(),
+            'link' => $this->url(),
+            'image_link' => $this->imageLink(),
+            'price' => $this->priceWithCurrency(),
+            'availability' => $this->availability(),
+            'brand' => $this->brand(),
+            'mpn' => $this->mpn(),
+            'condition' => 'new',
         ];
     }
 }

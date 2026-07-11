@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Support\ProductFeedPresenter;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class FeedController extends Controller
 {
@@ -33,6 +34,33 @@ class FeedController extends Controller
             'generated_at' => now()->toIso8601String(),
             'product_count' => count($items),
             'products' => $items,
+        ]);
+    }
+
+    /**
+     * Google Merchant Center product feed (RSS 2.0 XML, `g:` namespace).
+     *
+     * Built entirely from the live catalog model via {@see ProductFeedPresenter}
+     * — active products only, out-of-stock ones included as out_of_stock, no
+     * outbound HTTP. Every item carries the required Merchant fields (g:id,
+     * title, description, link, g:image_link, g:price "N.NN USD",
+     * g:availability, g:brand, g:mpn). (A24, A25, A26)
+     */
+    public function googleMerchant(): Response
+    {
+        $items = ProductFeedPresenter::activeProducts()
+            ->map(fn (Product $product) => ProductFeedPresenter::for($product)->merchantItem())
+            ->values()
+            ->all();
+
+        $content = view('feeds.google-merchant', [
+            'brand' => Product::BRAND,
+            'storeUrl' => url('/'),
+            'items' => $items,
+        ])->render();
+
+        return response($content, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
         ]);
     }
 }

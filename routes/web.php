@@ -48,6 +48,7 @@ Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 // Transactable product feeds (agentic commerce) — built from the live catalog
 Route::get('/feeds/openai-acp.json', [FeedController::class, 'acp'])->name('feeds.acp');
+Route::get('/feeds/google-merchant.xml', [FeedController::class, 'googleMerchant'])->name('feeds.google');
 
 // /about → /about-us permanent redirect
 Route::permanentRedirect('/about', '/about-us');
