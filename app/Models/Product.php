@@ -7,10 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
     use HasFactory;
+
+    /**
+     * Canonical brand name for structured data. The literal brand — NOT the
+     * settings-driven store name — so the Product JSON-LD brand is stable even
+     * if the `store.name` setting is changed. (A14)
+     */
+    public const BRAND = 'Timber Trace Crafts';
 
     protected $fillable = [
         'name',
@@ -169,6 +177,183 @@ class Product extends Model
         }
 
         return $this->price;
+    }
+
+    /**
+     * Product JSON-LD `offers` structure.
+     *
+     * When the product has variants, emits an AggregateOffer whose top-level
+     * `availability` is the single product-level state (A8) and whose nested
+     * `offers` carry each variant's stable mpn (A15 — resolvedMpn(), never a
+     * bare id) plus that variant's own price and availability. A product with
+     * no variants emits a single Offer.
+     */
+    public function jsonLdOffers(string $url): array
+    {
+        $currency = 'USD';
+        $sellerRef = ['@id' => url('/').'#organization'];
+        $priceValidUntil = now()->addYear()->toDateString();
+
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get();
+
+        $variantOffers = [];
+        $prices = [];
+
+        foreach ($variants as $variant) {
+            $price = $variant->price !== null
+                ? (float) $variant->price
+                : (float) $this->currentPrice();
+            $prices[] = $price;
+
+            $offer = [
+                '@type' => 'Offer',
+                'name' => $variant->label,
+                'url' => $url,
+                'priceCurrency' => $currency,
+                'price' => number_format($price, 2, '.', ''),
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'availability' => $variant->isInStock()
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock',
+                'seller' => $sellerRef,
+            ];
+
+            $mpn = $variant->resolvedMpn();
+            if ($mpn !== null) {
+                $offer['mpn'] = $mpn;
+            }
+
+            $variantOffers[] = $offer;
+        }
+
+        if (empty($variantOffers)) {
+            return [
+                '@type' => 'Offer',
+                'url' => $url,
+                'priceCurrency' => $currency,
+                'price' => number_format((float) $this->currentPrice(), 2, '.', ''),
+                'priceValidUntil' => $priceValidUntil,
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'availability' => $this->availabilitySchemaUrl(),
+                'seller' => $sellerRef,
+            ];
+        }
+
+        return [
+            '@type' => 'AggregateOffer',
+            'priceCurrency' => $currency,
+            'lowPrice' => number_format(min($prices), 2, '.', ''),
+            'highPrice' => number_format(max($prices), 2, '.', ''),
+            'offerCount' => count($variantOffers),
+            'priceValidUntil' => $priceValidUntil,
+            'itemCondition' => 'https://schema.org/NewCondition',
+            'availability' => $this->availabilitySchemaUrl(),
+            'seller' => $sellerRef,
+            'offers' => $variantOffers,
+        ];
+    }
+
+    /**
+     * Product JSON-LD spec fields derived from the structured `specs` column.
+     *
+     * Every spec becomes an `additionalProperty` PropertyValue (with unitText
+     * where a unit was given), and well-known keys are additionally mapped to
+     * top-level schema fields (`material`, `weight`, `size`). A product with no
+     * specs returns an empty array — no empty `additionalProperty`. (A12)
+     */
+    public function jsonLdSpecFields(): array
+    {
+        $specs = $this->specs;
+
+        if (! is_array($specs) || empty($specs)) {
+            return [];
+        }
+
+        $fields = [];
+        $additional = [];
+
+        foreach ($specs as $key => $spec) {
+            [$value, $unit] = $this->normalizeSpecValue($spec);
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $property = [
+                '@type' => 'PropertyValue',
+                'name' => Str::headline((string) $key),
+                'value' => $value,
+            ];
+            if ($unit !== null && $unit !== '') {
+                $property['unitText'] = $unit;
+            }
+            $additional[] = $property;
+
+            $normalizedKey = strtolower(trim((string) $key));
+
+            if ($normalizedKey === 'material') {
+                $fields['material'] = (string) $value;
+            } elseif ($normalizedKey === 'weight') {
+                $weight = ['@type' => 'QuantitativeValue', 'value' => $value];
+                if ($unit !== null && $unit !== '') {
+                    $weight['unitText'] = $unit;
+                }
+                $fields['weight'] = $weight;
+            } elseif (in_array($normalizedKey, ['size', 'dimensions'], true)) {
+                $fields['size'] = ($unit !== null && $unit !== '')
+                    ? trim($value.' '.$unit)
+                    : (string) $value;
+            }
+        }
+
+        if (! empty($additional)) {
+            $fields['additionalProperty'] = $additional;
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Splits a spec entry into [value, unit]. Entries are either a scalar
+     * (value only) or an array with `value` and optional `unit` keys.
+     *
+     * @param  mixed  $spec
+     * @return array{0: mixed, 1: ?string}
+     */
+    protected function normalizeSpecValue($spec): array
+    {
+        if (is_array($spec)) {
+            $value = $spec['value'] ?? null;
+            $unit = isset($spec['unit']) ? (string) $spec['unit'] : null;
+
+            return [$value, $unit];
+        }
+
+        return [$spec, null];
+    }
+
+    /**
+     * Product JSON-LD identifier fields.
+     *
+     * Emits `gtin13` when a known GTIN-13 is stored (tumbler-blank case), else
+     * emits `identifierExists` => false (a real JSON boolean) for a handmade
+     * product with no identifiers. The two never both appear. (A16)
+     */
+    public function jsonLdIdentifierFields(): array
+    {
+        $gtin = $this->gtin13 !== null ? trim((string) $this->gtin13) : '';
+
+        if ($gtin !== '') {
+            return ['gtin13' => $gtin];
+        }
+
+        if ($this->identifier_exists === false) {
+            return ['identifierExists' => false];
+        }
+
+        return [];
     }
 
     public function category(): BelongsTo

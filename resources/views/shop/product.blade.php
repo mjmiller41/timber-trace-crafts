@@ -80,26 +80,28 @@
 
 @push('schema')
 @php
-    $productSchema = [
+    $productSchema = array_merge([
         '@context'    => 'https://schema.org',
         '@type'       => 'Product',
         'name'        => $product->name,
-        'description' => Str::limit(strip_tags($product->description ?? ''), 500),
+        // Full strip-tagged description — no Str::limit truncation (A11).
+        'description' => trim(strip_tags($product->description ?? '')),
         'image'       => $images,
         'url'         => url()->current(),
         'sku'         => $product->sku ?? (string) $product->id,
-        'brand'       => ['@type' => 'Brand', 'name' => $siteName],
-        'offers'      => [
-            '@type'          => 'Offer',
-            'url'            => url()->current(),
-            'priceCurrency'  => 'USD',
-            'price'          => number_format($product->currentPrice(), 2, '.', ''),
-            'priceValidUntil' => now()->addYear()->toDateString(),
-            'itemCondition'  => 'https://schema.org/NewCondition',
-            'availability'   => $product->availabilitySchemaUrl(),
-            'seller'         => ['@id' => url('/').'#organization'],
-        ],
-    ];
+        // Literal brand, not the settings-driven store name (A14).
+        'brand'       => ['@type' => 'Brand', 'name' => \App\Models\Product::BRAND],
+    ],
+        // gtin13 XOR identifierExists (A16).
+        $product->jsonLdIdentifierFields(),
+        // material / weight / size + additionalProperty PropertyValues (A12).
+        $product->jsonLdSpecFields(),
+        [
+            // AggregateOffer w/ per-variant mpn offers (A15); top-level
+            // availability = product state (A8).
+            'offers' => $product->jsonLdOffers(url()->current()),
+        ]
+    );
     if ($reviewCount > 0) {
         $productSchema['aggregateRating'] = [
             '@type'       => 'AggregateRating',
