@@ -70,4 +70,10 @@ return [
         'novalidate_cert' => env('IMAP_NOVALIDATE_CERT', false),
     ],
 
+    'klaviyo' => [
+        'private_key' => env('KLAVIYO_PRIVATE_KEY'),
+        'newsletter_list_id' => env('KLAVIYO_NEWSLETTER_LIST_ID'),
+        'api_revision' => env('KLAVIYO_API_REVISION', '2024-10-15'),
+    ],
+
 ];

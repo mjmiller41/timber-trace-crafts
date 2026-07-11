@@ -71,8 +71,15 @@
                 {{-- Newsletter signup --}}
                 <p style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(244, 241, 234, 0.45); margin-bottom: 0.75rem;">Newsletter</p>
                 <p style="font-size: 0.8125rem; color: rgba(244,241,234,0.6); margin-bottom: 0.75rem; line-height: 1.6;">New pieces, studio updates, and quiet inspiration.</p>
+                @if (session('newsletter_success'))
+                    <p role="status" style="font-size: 0.8125rem; color: #F4F1EA; margin-bottom: 0.75rem; line-height: 1.6;">{{ session('newsletter_success') }}</p>
+                @endif
+                @error('email')
+                    <p role="alert" style="font-size: 0.8125rem; color: #E8B4A0; margin-bottom: 0.75rem; line-height: 1.6;">{{ $message }}</p>
+                @enderror
                 <form action="{{ route('newsletter.store') }}" method="POST" class="flex gap-0">
                     @csrf
+                    <x-honeypot />
                     <input
                         type="email"
                         name="email"
