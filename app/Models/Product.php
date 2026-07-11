@@ -160,6 +160,46 @@ class Product extends Model
     }
 
     /**
+     * Human-facing name of this product's variation axis, used as the
+     * variant-selector heading (e.g. "Wood", "Style", "Design"). Resolved
+     * from the product's real variation type — the first ProductVariationType
+     * record when present, otherwise the stored Etsy variation name — never a
+     * hardcoded "Wood". Falls back to a neutral "Option" when nothing is set.
+     */
+    public function variationTypeName(): string
+    {
+        $types = $this->relationLoaded('variationTypes')
+            ? $this->variationTypes
+            : $this->variationTypes()->get();
+
+        $name = optional($types->first())->name;
+
+        if (is_string($name) && trim($name) !== '') {
+            return trim($name);
+        }
+
+        if (is_string($this->etsy_variation_name) && trim($this->etsy_variation_name) !== '') {
+            return trim($this->etsy_variation_name);
+        }
+
+        return 'Option';
+    }
+
+    /**
+     * Whether the product page should render a variant selector at all.
+     * A selector only makes sense when there are at least two variants to
+     * choose between; a single-variant (or zero-variant) product renders none.
+     */
+    public function hasSelectableVariants(): bool
+    {
+        $count = $this->relationLoaded('variants')
+            ? $this->variants->count()
+            : $this->variants()->count();
+
+        return $count >= 2;
+    }
+
+    /**
      * schema.org availability URL derived from the single stock helper,
      * for use in Product / ItemList JSON-LD and structured feeds.
      */

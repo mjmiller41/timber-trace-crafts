@@ -292,10 +292,13 @@
             @endif
 
             {{-- ── Variant Selector ── --}}
-            @if($product->variants->isNotEmpty())
+            {{-- Only render a selector when there are ≥2 variants to choose
+                 between; the heading names the product's real variation axis
+                 (Wood / Style / Design / …), never a hardcoded "Select Wood". --}}
+            @if($product->hasSelectableVariants())
                 <div class="mb-8">
                     <div class="flex items-center justify-between mb-3">
-                        <p class="section-label">Select Wood</p>
+                        <p class="section-label">Select {{ $product->variationTypeName() }}</p>
                         <p class="section-label" x-text="selectedLabel ? selectedLabel : ''"></p>
                     </div>
 
