@@ -23,6 +23,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EtsyWebhookController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\GiftCardPurchaseController;
 use App\Http\Controllers\HomeController;
@@ -44,6 +45,9 @@ use Illuminate\Support\Facades\Route;
 // Sitemap & robots
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
+
+// Transactable product feeds (agentic commerce) — built from the live catalog
+Route::get('/feeds/openai-acp.json', [FeedController::class, 'acp'])->name('feeds.acp');
 
 // /about → /about-us permanent redirect
 Route::permanentRedirect('/about', '/about-us');
