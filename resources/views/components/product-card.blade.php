@@ -13,7 +13,7 @@
     $price        = is_array($product) ? ($product['price'] ?? null) : $product->price;
     $salePrice    = is_array($product) ? ($product['sale_price'] ?? null) : ($product->sale_price ?? null);
     $category     = is_array($product) ? ($product['category_name'] ?? null) : ($product->category?->name ?? null);
-    $outOfStock   = is_array($product) ? ($product['out_of_stock'] ?? false) : (method_exists($product, 'isOutOfStock') ? $product->isOutOfStock() : false);
+    $outOfStock   = is_array($product) ? ($product['out_of_stock'] ?? false) : $product->isOutOfStock();
     $productUrl   = url('/product/' . $slug);
     $onSale       = $salePrice && $salePrice < $price;
 @endphp

@@ -59,7 +59,7 @@
         'price'        => (float) $product->price,
         'sale_price'   => $product->sale_price !== null ? (float) $product->sale_price : null,
         'category'     => $product->category?->name,
-        'out_of_stock' => $product->variants->sum('stock_qty') <= 0,
+        'out_of_stock' => $product->isOutOfStock(),
     ];
 
     // Social sharing (Facebook + Pinterest use real web share intents;
@@ -96,9 +96,7 @@
             'price'          => number_format($product->currentPrice(), 2, '.', ''),
             'priceValidUntil' => now()->addYear()->toDateString(),
             'itemCondition'  => 'https://schema.org/NewCondition',
-            'availability'   => $product->variants->sum('stock_qty') > 0
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
+            'availability'   => $product->availabilitySchemaUrl(),
             'seller'         => ['@id' => url('/').'#organization'],
         ],
     ];

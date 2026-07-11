@@ -115,6 +115,48 @@ class Product extends Model
         return $this->sale_price !== null && (float) $this->sale_price < (float) $this->price;
     }
 
+    /**
+     * Total on-hand stock across every variant.
+     *
+     * Uses the already-loaded relation when available (avoids an extra query
+     * on pages that eager-load `variants`) and falls back to a DB aggregate.
+     * A product with zero variants totals 0.
+     */
+    public function totalStock(): int
+    {
+        return (int) ($this->relationLoaded('variants')
+            ? $this->variants->sum('stock_qty')
+            : $this->variants()->sum('stock_qty'));
+    }
+
+    /**
+     * Single source of truth for availability across every surface
+     * (product page, product card, shop ItemList, and the ACP + Merchant feeds).
+     *
+     * Out of stock when the variants' total stock is 0 — including the
+     * zero-variant edge case. In stock when any variant has stock.
+     */
+    public function isOutOfStock(): bool
+    {
+        return $this->totalStock() <= 0;
+    }
+
+    public function isInStock(): bool
+    {
+        return ! $this->isOutOfStock();
+    }
+
+    /**
+     * schema.org availability URL derived from the single stock helper,
+     * for use in Product / ItemList JSON-LD and structured feeds.
+     */
+    public function availabilitySchemaUrl(): string
+    {
+        return $this->isOutOfStock()
+            ? 'https://schema.org/OutOfStock'
+            : 'https://schema.org/InStock';
+    }
+
     public function currentPrice(): string
     {
         if ($this->isOnSale()) {
