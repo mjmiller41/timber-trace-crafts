@@ -296,6 +296,44 @@ class Product extends Model
     }
 
     /**
+     * One `ListItem` entry for the /shop `ItemList` JSON-LD (A17).
+     *
+     * Carries the product's name, canonical URL, current price + availability
+     * (derived from the single availability helper, A10) and its image when it
+     * has one. `$position` is the 1-based slot in the rendered listing.
+     */
+    public function jsonLdShopItem(int $position): array
+    {
+        $url = url('/product/'.$this->slug);
+
+        $item = [
+            '@type' => 'Product',
+            'name' => $this->name,
+            'url' => $url,
+        ];
+
+        if ($image = $this->primary_image_url) {
+            $item['image'] = $image;
+        }
+
+        $item['offers'] = [
+            '@type' => 'Offer',
+            'url' => $url,
+            'priceCurrency' => 'USD',
+            'price' => number_format((float) $this->currentPrice(), 2, '.', ''),
+            'availability' => $this->availabilitySchemaUrl(),
+        ];
+
+        return [
+            '@type' => 'ListItem',
+            'position' => $position,
+            'url' => $url,
+            'name' => $this->name,
+            'item' => $item,
+        ];
+    }
+
+    /**
      * Product JSON-LD spec fields derived from the structured `specs` column.
      *
      * Every spec becomes an `additionalProperty` PropertyValue (with unitText

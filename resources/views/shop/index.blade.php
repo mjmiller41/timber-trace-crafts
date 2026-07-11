@@ -6,6 +6,30 @@
 @section('content')
 
 {{-- ============================================================ --}}
+{{-- ItemList JSON-LD (A17) — one ListItem per active product rendered --}}
+{{-- on this page (respects category/tag/search/sale filters, since it --}}
+{{-- iterates the same $products the grid renders). No script at all when --}}
+{{-- the page has zero products, so no empty/malformed ItemList is emitted. --}}
+{{-- ============================================================ --}}
+@if($products->isNotEmpty())
+    @push('schema')
+    @php
+        $shopItemList = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'url' => url()->full(),
+            'numberOfItems' => $products->count(),
+            'itemListElement' => collect($products->items())
+                ->values()
+                ->map(fn ($product, $i) => $product->jsonLdShopItem($i + 1))
+                ->all(),
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($shopItemList) !!}</script>
+    @endpush
+@endif
+
+{{-- ============================================================ --}}
 {{-- PAGE HEADER --}}
 {{-- ============================================================ --}}
 <div class="border-b border-walnut/20 py-8">
