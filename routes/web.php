@@ -32,6 +32,7 @@ use App\Http\Controllers\OrderStatusController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RestockController;
+use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StripeWebhookController;
@@ -42,6 +43,7 @@ use Illuminate\Support\Facades\Route;
 
 // Sitemap & robots
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 // /about → /about-us permanent redirect
 Route::permanentRedirect('/about', '/about-us');

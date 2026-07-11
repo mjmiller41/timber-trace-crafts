@@ -1,3 +1,7 @@
+# Timber Trace Crafts — robots.txt
+# Served verbatim through the Laravel router (App\Http\Controllers\RobotsController)
+# from this same file, so the static file and the route never drift.
+
 User-agent: *
 Disallow: /admin
 Disallow: /cart
@@ -6,26 +10,84 @@ Disallow: /login
 Disallow: /register
 Disallow: /account
 
-# AI search crawlers — allowed for citation and search visibility
+# ── AI crawlers & training agents ────────────────────────────────────────────
+# Allowed to read the public catalog for citation and search visibility, but
+# never the transactional surfaces. robots.txt groups do NOT inherit rules from
+# "User-agent: *", so every named group repeats the six transactional Disallows.
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
+
 User-agent: GPTBot
 Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
 
 User-agent: ClaudeBot
 Allow: /
-
-User-agent: anthropic-ai
-Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
 
-# Training-data crawlers — blocked (content licensed, not donated)
+User-agent: Perplexity-User
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
+
+User-agent: cohere-ai
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /login
+Disallow: /register
+Disallow: /account
+
+# ── Training-data crawlers — blocked (content licensed, not donated) ──────────
 User-agent: CCBot
 Disallow: /
 
