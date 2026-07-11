@@ -251,21 +251,36 @@
                 </div>
             @endif
 
-            {{-- Price (reactive to the selected variant) --}}
-            <div class="flex items-baseline gap-3 mb-6">
-                <template x-if="onSale">
-                    <span class="font-body text-2xl font-600 text-mahogany" x-text="formatPrice(displayPrice)"></span>
-                </template>
-                <template x-if="onSale">
-                    <span class="font-body text-lg text-walnut line-through" x-text="formatPrice(compareAtPrice)"></span>
-                </template>
-                <template x-if="onSale">
-                    <span class="section-label bg-mahogany text-white px-2 py-0.5" style="font-size:0.625rem;">Sale</span>
-                </template>
-                <template x-if="!onSale">
-                    <span class="font-body text-2xl font-500 text-charcoal" x-text="formatPrice(displayPrice)"></span>
-                </template>
+            {{-- Price — server-rendered as static text so a no-JS/text-only agent can
+                 read the current price (and the struck-through original on sale);
+                 Alpine hydrates the SAME nodes and keeps them in sync with the
+                 selected variant. The price is intentionally OUTSIDE any in-stock
+                 gate, so it is never hidden on a sold-out product. --}}
+            @php
+                $isOnSale = $product->isOnSale();
+                $fmtCurrent = '$'.number_format((float) $product->currentPrice(), 2);
+                $fmtRegular = '$'.number_format((float) $product->price, 2);
+            @endphp
+            <div class="flex items-baseline gap-3 mb-4">
+                {{-- Sale price + struck-through original (shown when the product is on sale). --}}
+                <span x-show="onSale" @unless($isOnSale) style="display:none;" @endunless
+                      class="font-body text-2xl font-600 text-mahogany"
+                      x-text="formatPrice(displayPrice)">{{ $fmtCurrent }}</span>
+                <span x-show="onSale" @unless($isOnSale) style="display:none;" @endunless
+                      class="font-body text-lg text-walnut line-through"
+                      x-text="formatPrice(compareAtPrice)">{{ $fmtRegular }}</span>
+                <span x-show="onSale" class="section-label bg-mahogany text-white px-2 py-0.5"
+                      style="font-size:0.625rem;{{ $isOnSale ? '' : 'display:none;' }}">Sale</span>
+                {{-- Regular price (shown when not on sale). --}}
+                <span x-show="!onSale" @if($isOnSale) style="display:none;" @endif
+                      class="font-body text-2xl font-500 text-charcoal"
+                      x-text="formatPrice(displayPrice)">{{ $fmtCurrent }}</span>
             </div>
+
+            {{-- Availability — server-rendered stock state (never hidden on OOS);
+                 Alpine refines it to the selected variant on hydration. --}}
+            <p class="section-label mb-6 {{ $product->isOutOfStock() ? 'text-mahogany' : 'text-forest-green' }}"
+               x-text="inStock ? (lowStock ? 'Low Stock' : 'In Stock') : 'Out of Stock'">{{ $product->isOutOfStock() ? 'Out of Stock' : 'In Stock' }}</p>
 
             {{-- Short description --}}
             @if($product->description)
@@ -282,26 +297,39 @@
                         <p class="section-label" x-text="selectedLabel ? selectedLabel : ''"></p>
                     </div>
 
+                    {{-- Each variant button is server-rendered (label + stock state as
+                         static text) so a text-only agent can read per-variant
+                         availability without executing Alpine. Alpine hydrates the SAME
+                         nodes: selection ring, disabled state, and hover styling stay
+                         reactive via the bindings below, keyed to each variant's id. --}}
                     <div class="flex flex-wrap gap-2">
-                        <template x-for="variant in variants" :key="variant.id">
+                        @foreach($product->variants as $variant)
+                            @php
+                                $vOut = $variant->stock_qty <= 0;
+                                $vLow = ! $vOut && $variant->stock_qty <= ($variant->low_stock_threshold ?? 5);
+                                $vIdx = $loop->index;
+                            @endphp
                             <button
-                                @click="selectVariant(variant)"
-                                :disabled="variant.stock_qty === 0"
+                                @click="selectVariant(variants[{{ $vIdx }}])"
+                                :disabled="variants[{{ $vIdx }}].stock_qty === 0"
+                                @if($vOut) disabled @endif
                                 class="relative px-4 py-2 font-body text-sm tracking-wide border transition-all duration-150"
                                 :class="{
-                                    'border-forest-green text-forest-green ring-1 ring-forest-green': selectedId === variant.id,
-                                    'border-walnut/40 text-walnut hover:border-charcoal hover:text-charcoal': selectedId !== variant.id && variant.stock_qty > 0,
-                                    'opacity-40 cursor-not-allowed border-walnut/20 text-walnut/40': variant.stock_qty === 0
+                                    'border-forest-green text-forest-green ring-1 ring-forest-green': selectedId === {{ $variant->id }},
+                                    'border-walnut/40 text-walnut hover:border-charcoal hover:text-charcoal': selectedId !== {{ $variant->id }} && variants[{{ $vIdx }}].stock_qty > 0,
+                                    'opacity-40 cursor-not-allowed border-walnut/20 text-walnut/40': variants[{{ $vIdx }}].stock_qty === 0
                                 }">
-                                <span :class="variant.stock_qty === 0 ? 'line-through' : ''" x-text="variant.label"></span>
-                                <template x-if="variant.stock_qty > 0 && variant.stock_qty <= variant.low_stock_threshold">
-                                    <span class="ml-1 text-xs text-mahogany font-600">Low Stock</span>
-                                </template>
-                                <template x-if="variant.stock_qty === 0">
+                                <span :class="variants[{{ $vIdx }}].stock_qty === 0 ? 'line-through' : ''"
+                                      class="{{ $vOut ? 'line-through' : '' }}">{{ $variant->label }}</span>
+                                @if($vOut)
                                     <span class="ml-1 text-xs">· Out of Stock</span>
-                                </template>
+                                @elseif($vLow)
+                                    <span class="ml-1 text-xs text-mahogany font-600">In Stock · Low Stock</span>
+                                @else
+                                    <span class="ml-1 text-xs text-forest-green">In Stock</span>
+                                @endif
                             </button>
-                        </template>
+                        @endforeach
                     </div>
                 </div>
             @endif
