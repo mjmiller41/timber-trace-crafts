@@ -39,3 +39,5 @@ notes.jsonc
 /public/etsy-schema-map.html
 .mission/
 .secrets/
+# local-only Claude Code settings
+.claude/settings.local.json
