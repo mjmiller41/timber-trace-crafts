@@ -68,7 +68,12 @@ env_has_drift() {
 }
 
 load_key() {
-    [ -f "$KEY_FILE" ] || die "Missing $KEY_FILE — cannot encrypt/deploy. Mirror it from the server: ssh -p $SSH_PORT $SSH_HOST 'cat ~/.secrets/ttc-env-key' > $KEY_FILE && chmod 600 $KEY_FILE"
+    # Prefer the home copy; fall back to the gitignored in-repo copy so a deleted
+    # ~/.secrets/ttc-env-key doesn't block a deploy (the durable copy lives in-repo).
+    if [ ! -f "$KEY_FILE" ] && [ -f "$REPO_ROOT/.secrets/ttc-env-key" ]; then
+        KEY_FILE="$REPO_ROOT/.secrets/ttc-env-key"
+    fi
+    [ -f "$KEY_FILE" ] || die "Missing key at ~/.secrets/ttc-env-key and $REPO_ROOT/.secrets/ttc-env-key. Mirror from server: ssh -p $SSH_PORT $SSH_HOST 'cat ~/.secrets/ttc-env-key' > \$HOME/.secrets/ttc-env-key && chmod 600 \$HOME/.secrets/ttc-env-key"
     KEY="$(cat "$KEY_FILE")"
     [ -n "$KEY" ] || die "$KEY_FILE is empty."
 }
