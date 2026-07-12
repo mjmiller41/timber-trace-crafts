@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Listing Playbook — Timber Trace Crafts</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Etsy Listing Playbook — Timber Trace Crafts</span>
+      <span class="src">listing-playbook.md</span>
+    </div>
+    <main>
+<h1 id="etsy-listing-playbook-timber-trace-crafts">Etsy Listing Playbook — Timber Trace Crafts</h1>
+<p><strong>Owner:</strong> Founding Engineer · <strong>Status:</strong> living doc · <strong>Last updated:</strong> 2026-07-04 (TIM-4)</p>
+<p>The repeatable, low-effort workflow for taking a laser-engraved product from idea to a<br>
+live, search-optimized Etsy listing. The technical sync machinery already exists (see<br>
+<a href="../superpowers/specs/2026-06-24-etsy-sync-design.md">Etsy sync design</a> and the<br>
+<code>etsy:*</code> artisan commands); this doc is the <strong>content + process</strong> layer that makes each<br>
+new listing cheap and consistent.</p>
+<p>Etsy is the <strong>source of truth</strong> for a listing's title, description, tags, and stock.<br>
+The local store mirrors it. Write the listing content here first (using the template<br>
+below), get founder confirmation, then create it — either directly in Etsy's editor or<br>
+by seeding the local product and running the push commands.</p>
+<hr>
+<h2 id="1-the-8-part-listing-template">1. The 8-part listing template</h2>
+<p>Every new listing is authored by filling in these 8 slots. Copy the block in<br>
+<a href="#6-copy-paste-fill-in-template">§6 Fill-in template</a> for each product.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Slot</th>
+<th>Rule of thumb</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Title</strong></td>
+<td>Front-load the strongest keyword. Etsy weights the first ~40 chars and the whole title (max 140). Use <code>\|</code> pipes to stack keyword phrases.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Tags (13)</strong></td>
+<td>All 13, every time. Multi-word long-tail phrases, ≤20 chars each. Mirror how a gift buyer searches, not how a maker describes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Description</strong></td>
+<td>Benefit-first opening line, then the story, then a scannable <strong>Item Details</strong> block, then personalization + gift framing, then the Avon Park signature.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Photos (10 slots)</strong></td>
+<td>Hero on white → in-use/styled → scale/size → detail/engraving → variation grid → personalization example → packaging → back/interior → sizing chart/graphic → lifestyle.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Variations</strong></td>
+<td>Wood species / color / size / personalization text. Each combination = a variant SKU with its own price + stock.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Pricing</strong></td>
+<td>Placeholder only — <strong>founder confirms</strong> (materials + labor + Etsy fees). Anchor to current catalog: earrings $15, tumbler $25, keepsake box $40.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Category / attributes</strong></td>
+<td>Taxonomy ID + shop section + made-to-order vs ready-to-ship readiness state.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Shipping profile</strong></td>
+<td>Reuse an existing profile (<code>etsy.shipping_profile_id = 303514857493</code>) unless size/weight differs materially.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-title-formula">2. Title formula</h2>
+<pre><code>[Primary keyword / product] | [Material or style qualifier] | [Occasion / gift angle] | [Audience or bonus keyword]
+</code></pre>
+<p>Proven live examples (keep this voice):</p>
+<ul>
+<li><code>Personalized Heart Jewelry Box | Laser-Cut Wooden Keepsake Box | Wedding, Anniversary, or Valentine's Gift</code></li>
+<li><code>Solid Hardwood Butterfly Earrings | Laser-Cut Dangle Jewelry | Natural Boho | Eco-Friendly Gift</code></li>
+<li><code>Laser Etched Stainless Steel Travel Mug, 1776-2026 Eagle Patriotic Cup</code> (occasion-led)</li>
+</ul>
+<p>Rules:<br>
+- First 2–4 words carry the search. "Personalized", "Custom", "Handmade", "Laser-Cut",<br>
+  "Solid Hardwood" are high-intent openers when true.<br>
+- Name the <strong>occasion</strong> ("Wedding", "Anniversary", "Valentine's", "Bridesmaid",<br>
+  "Housewarming") — gift buyers search occasions.<br>
+- No keyword stuffing past readability; Etsy penalizes and buyers bounce.</p>
+<hr>
+<h2 id="3-the-13-tag-strategy">3. The 13-tag strategy</h2>
+<p>Etsy gives every listing 13 tags — <strong>use all 13</strong>, it is the single biggest free ranking<br>
+lever. Guidelines:</p>
+<ul>
+<li><strong>Multi-word, long-tail.</strong> "wooden jewelry box" beats "jewelry". Each tag ≤ 20 chars.</li>
+<li><strong>Cover 4 buckets:</strong> (a) what it is, (b) material/style, (c) occasion/recipient,<br>
+  (d) long-tail buyer phrases.</li>
+<li>Don't repeat a single word across many tags — vary the phrasing to widen the net.</li>
+<li>Tags should echo the title but not just duplicate it word-for-word.</li>
+</ul>
+<p>Reusable tag bank by product family (pick/adjust 13):</p>
+<ul>
+<li><strong>Wood jewelry:</strong> <code>wooden earrings</code>, <code>laser cut earrings</code>, <code>boho jewelry</code>,<br>
+<code>lightweight earrings</code>, <code>natural wood jewelry</code>, <code>eco friendly gift</code>,<br>
+<code>dangle earrings</code>, <code>gift for her</code>, <code>handmade jewelry</code>, <code>hardwood earrings</code>.</li>
+<li><strong>Keepsake / boxes:</strong> <code>wooden keepsake box</code>, <code>personalized jewelry box</code>,<br>
+<code>custom wood box</code>, <code>anniversary gift</code>, <code>wedding keepsake</code>, <code>ring box</code>,<br>
+<code>engraved wood box</code>, <code>valentines gift</code>, <code>bridesmaid gift</code>.</li>
+<li><strong>Drinkware:</strong> <code>engraved tumbler</code>, <code>personalized travel mug</code>, <code>laser etched cup</code>,<br>
+<code>stainless steel mug</code>, <code>patriotic gift</code>, <code>coffee lover gift</code>, <code>custom tumbler</code>.</li>
+<li><strong>Home / signs:</strong> <code>personalized sign</code>, <code>custom wood sign</code>, <code>housewarming gift</code>,<br>
+<code>wall decor</code>, <code>wedding sign</code>, <code>family name sign</code>, <code>engraved wood sign</code>.</li>
+</ul>
+<blockquote>
+<p><strong>Resolved (TIM-10):</strong> the launch catalog now stores <code>etsy_tags</code> <strong>and</strong> <code>etsy_materials</code><br>
+locally, and <code>etsy:sync-products</code> pushes both (<code>buildListingPayload</code> emits <code>tags</code> +<br>
+<code>materials</code>). New products carry them from creation via the admin editor — <strong>Etsy Tags</strong>,<br>
+<strong>Materials</strong>, and <strong>Storefront Tags</strong> fields on the product form. The one-time backfill<br>
+for the first 6 products lives in <code>etsy:backfill-materials</code> (idempotent, data-only; run<br>
+with <code>--apply</code>). After backfilling materials, a prod <code>etsy:sync-products</code> run pushes them<br>
+to the live listings.</p>
+</blockquote>
+<hr>
+<h2 id="4-description-skeleton">4. Description skeleton</h2>
+<p>Match the established Timber Trace voice (benefit-led, warm, specific, lightly emoji-accented):</p>
+<pre><code>[One-line hook: the benefit / feeling, not the specs.]
+
+[1–2 sentences of story: what it is, how it's made, why it's special.]
+
+Item Details:
+* Material: [exact — e.g. 3mm Baltic Birch Plywood / 3mm Solid Hardwood / stainless steel]
+* Finish: [e.g. Tried &amp; True Danish Oil — 100% natural, zero-VOC, skin-safe]
+* Size: [dimensions]
+* Design: [what the laser does — engraved / cut / etched]
+* Personalization: [what the buyer provides, if any — name, date, short phrase]
+
+[Gift framing: name 2–3 occasions this suits.]
+
+Designed and crafted with care at Timber Trace Crafts in Avon Park, Florida. 🌲
+</code></pre>
+<p>Keep the <strong>Item Details</strong> block — it scans well on mobile and feeds Etsy's attributes.</p>
+<hr>
+<h2 id="5-photo-mockup-slots-10">5. Photo &amp; mockup slots (10)</h2>
+<p>Etsy allows 10 images + 1 video. Prioritize the first 3 (they drive click-through):</p>
+<ol>
+<li><strong>Hero</strong> — product on clean white/neutral, fills frame.</li>
+<li><strong>In use / styled</strong> — worn, on a table, held.</li>
+<li><strong>Scale</strong> — next to a hand/coin/common object.</li>
+<li><strong>Detail</strong> — close-up of the engraving/cut quality.</li>
+<li><strong>Variations</strong> — grid of wood species / colors offered.</li>
+<li><strong>Personalization example</strong> — a sample engraved name/date.</li>
+<li><strong>Packaging</strong> — how it arrives (gift-ready sells).</li>
+<li><strong>Alternate angle</strong> — back, interior (box), or reverse.</li>
+<li><strong>Info graphic</strong> — dimensions / care / "what you get" text overlay.</li>
+<li><strong>Lifestyle</strong> — in a giftable context (bridal, holiday, desk).</li>
+</ol>
+<p>Mockup/personalization images can be <strong>generated</strong> rather than photographed — this is the<br>
+job of the design/mockup pipeline (TIM-5). Slots 6 and 9 especially are template-driven.</p>
+<hr>
+<h2 id="6-copy-paste-fill-in-template">6. Copy-paste fill-in template</h2>
+<pre><code class="language-md">### [Product working name]
+
+**Title:** …
+**Price (placeholder — founder confirms):** $…
+**Category / taxonomy_id:** …    **Readiness:** made_to_order | ready_to_ship
+**Variations:** [dimension: options] …
+
+**Tags (13):**
+1. …  2. …  3. …  4. …  5. …  6. …  7. …
+8. …  9. …  10. …  11. …  12. …  13. …
+
+**Description:**
+[hook]
+
+[story]
+
+Item Details:
+* Material: …
+* Finish: …
+* Size: …
+* Design: …
+* Personalization: …
+
+[gift framing]
+
+Designed and crafted with care at Timber Trace Crafts in Avon Park, Florida. 🌲
+
+**Photo shot list:** hero · styled · scale · detail · variations · personalization example · packaging · alt angle · info graphic · lifestyle
+</code></pre>
+<hr>
+<h2 id="7-publish-workflow-mechanical-steps">7. Publish workflow (mechanical steps)</h2>
+<p>Two paths. <strong>Prefer Path A</strong> for the first listings; move to Path B once a product is<br>
+also sold on the own-store.</p>
+<h3 id="path-a-author-directly-in-etsy-fastest-no-local-seeding">Path A — author directly in Etsy (fastest, no local seeding)</h3>
+<ol>
+<li>Fill the §6 template; get founder confirmation on concept + price.</li>
+<li>In Etsy: <strong>Add a listing</strong> → paste title, description, all 13 tags, upload the 10 photos.</li>
+<li>Set price, quantity, variations, category, and shipping profile.</li>
+<li>Publish. Then run <code>php artisan etsy:sync-orders</code> / rely on the live webhook for orders.</li>
+<li>To mirror into the own-store later, run <code>php artisan etsy:link</code> to map it to a local product.</li>
+</ol>
+<h3 id="path-b-seed-locally-push-to-etsy-for-cross-channel-products">Path B — seed locally, push to Etsy (for cross-channel products)</h3>
+<ol>
+<li>Create the product locally (admin panel or seeder) with description, price, variants,<br>
+   media, <strong><code>etsy_taxonomy_id</code>, <code>etsy_shipping_profile_id</code>, <code>etsy_readiness_state_id</code></strong>,<br>
+   and <code>etsy_materials</code> + tags.</li>
+<li><code>php artisan etsy:link</code> — copies taxonomy/shipping/readiness metadata from Etsy where linked.</li>
+<li><code>php artisan etsy:sync-products</code> — creates/updates the listing (POST new / PATCH existing).</li>
+<li><code>php artisan etsy:sync-images</code> — uploads photos (skips manually-uploaded unless <code>--force</code>).</li>
+<li><code>php artisan etsy:sync-inventory</code> — pushes local price/stock (⚠️ local overwrites live).</li>
+<li><code>php artisan etsy:diff</code> — verify local matches live.</li>
+</ol>
+<blockquote>
+<p>⚠️ <strong>Token warning (see <code>memory/etsy-integration.md</code>):</strong> local and prod share ONE Etsy<br>
+connection and Etsy rotates the refresh token on every use. <strong>Prod owns the live token.</strong><br>
+Do not run token-refreshing Etsy commands locally during normal ops, or you invalidate<br>
+prod's connection (which the order webhooks depend on).</p>
+</blockquote>
+<h3 id="readiness-states-etsy">Readiness states (Etsy)</h3>
+<ul>
+<li><code>1488822641920</code> = made_to_order, 1–3 days (personalized items, e.g. keepsake box)</li>
+<li><code>1478211423469</code> = ready_to_ship, 1–2 days (stocked items, e.g. earrings, tumbler)</li>
+</ul>
+<hr>
+<h2 id="8-definition-of-done-for-a-new-listing">8. Definition of done for a new listing</h2>
+<ul>
+<li>[ ] Title ≤140 chars, keyword front-loaded</li>
+<li>[ ] All 13 tags set, multi-word, ≤20 chars each</li>
+<li>[ ] Description has hook + Item Details block + gift framing + Avon Park signature</li>
+<li>[ ] ≥5 photos (hero + at least styled/scale/detail/variations)</li>
+<li>[ ] Variations + per-variant price/stock set</li>
+<li>[ ] Category, readiness state, shipping profile set</li>
+<li>[ ] <strong>Founder confirmed concept + price</strong></li>
+<li>[ ] <code>etsy:diff</code> clean (Path B) or listing published (Path A)<br>
+```</li>
+</ul>
+    </main>
+    <div class="doc-foot">house-style · converted from listing-playbook.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

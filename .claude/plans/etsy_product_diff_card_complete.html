@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Product Diff — Admin Card with Per-Field Conflict Resolution</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Etsy Product Diff — Admin Card with Per-Field Conflict Resolution</span>
+      <span class="src">etsy_product_diff_card_complete.md</span>
+    </div>
+    <main>
+<h1 id="etsy-product-diff-admin-card-with-per-field-conflict-resolution">Etsy Product Diff — Admin Card with Per-Field Conflict Resolution</h1>
+<p><strong>Completed:</strong> 2026-07-07</p>
+<h2 id="task-checklist">Task Checklist</h2>
+<ul>
+<li>[x] Extract listing-diff logic into <code>app/Services/Etsy/EtsyListingDiff.php</code> (expanded field set: title, description, price, quantity, tags, status) <em>(done 2026-07-07)</em></li>
+<li>[x] Refactor <code>EtsyDiffCommand</code> to use the new service for listings (orders/sections stay in the command); fix the <code>published</code>→<code>active</code> status-mapping bug <em>(done 2026-07-07)</em></li>
+<li>[x] Add <code>EtsyController::diffProducts()</code> — run diff, cache report 1h, redirect back <em>(done 2026-07-07)</em></li>
+<li>[x] Pass cached <code>diffReport</code> from <code>EtsyController::index()</code> to the view <em>(done 2026-07-07)</em></li>
+<li>[x] Add <code>EtsyController::resolveDiff()</code> — validate per-field choices, apply Etsy→DB quietly, push merged product DB→Etsy when any "keep website" chosen, prune resolved conflicts from cache <em>(done 2026-07-07)</em></li>
+<li>[x] Add routes <code>admin.etsy.diff.products</code> (POST) and <code>admin.etsy.diff.resolve</code> (POST) <em>(done 2026-07-07)</em></li>
+<li>[x] Add "Product Diff" card + conflict-resolution results section to <code>resources/views/admin/etsy/index.blade.php</code> <em>(done 2026-07-07)</em></li>
+<li>[x] Feature tests: <code>tests/Feature/EtsyDiffAdminTest.php</code> (diff run, keep-etsy apply, keep-website push, auth guard) — 14 tests / 46 assertions passing <em>(done 2026-07-07)</em></li>
+<li>[x] Verify existing <code>EtsyDiffCommandTest</code> still passes after refactor; run <code>vendor/bin/pint --dirty --format agent</code> <em>(done 2026-07-07)</em></li>
+</ul>
+<hr>
+<h2 id="context">Context</h2>
+<p>The store syncs products bidirectionally with Etsy, but data drifts (manual edits on Etsy, failed syncs). A CLI diff exists (<code>php artisan etsy:diff</code>) that reports drift, but it's terminal-only, compares only price/title/status, and offers no way to resolve differences. This feature surfaces the product diff on the <strong>Admin → Etsy</strong> page as a new card matching the existing sync-card format, focuses the output on conflicts, and lets the admin pick — per field — whether the website or Etsy value wins.</p>
+<h2 id="existing-code-to-reuse">Existing code to reuse</h2>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diff + pagination + money logic</td>
+<td><code>app/Console/Commands/EtsyDiffCommand.php</code> (<code>diffListings</code>, <code>fetchAllListings</code>, <code>compareListingToProduct</code>, <code>money</code>) — extract, don't duplicate</td>
+</tr>
+<tr>
+<td>DB → Etsy push</td>
+<td><code>app/Services/Etsy/EtsyProductSync::syncProduct()</code> (handles PATCH + inventory endpoint for price/stock + stale-listing recovery)</td>
+</tr>
+<tr>
+<td>Card layout &amp; flash messages</td>
+<td><code>resources/views/admin/etsy/index.blade.php</code> (<code>admin-card</code> grid, POST + <code>admin-btn-secondary</code> buttons)</td>
+</tr>
+<tr>
+<td>Controller error pattern</td>
+<td><code>EtsyController::syncProducts()</code> — try/catch → redirect with <code>success</code>/<code>error</code> flash</td>
+</tr>
+<tr>
+<td>Test patterns</td>
+<td><code>tests/Feature/EtsyAdminTest.php</code>, <code>tests/Feature/EtsyDiffCommandTest.php</code> (Http::fake of Etsy endpoints)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="design">Design</h2>
+<h3 id="1-appservicesetsyetsylistingdiffphp-new">1. <code>app/Services/Etsy/EtsyListingDiff.php</code> (new)</h3>
+<p>Constructor takes <code>EtsyClient</code> (same convention as other <code>Etsy/*</code> services).</p>
+<ul>
+<li><code>diff(): array</code> — fetches all listings for the shop (move <code>fetchAllListings()</code> pagination here), keys DB products by <code>etsy_listing_id</code>, returns:<br>
+<code>php
+  [
+    'generated_at' =&gt; ISO string,
+    'etsyOnly'  =&gt; [...],   // listings with no linked product
+    'dbOnly'    =&gt; [...],   // products whose etsy_listing_id vanished from Etsy
+    'conflicts' =&gt; [        // both exist, fields differ
+      ['listing_id', 'product_id', 'product_name',
+       'differences' =&gt; ['price' =&gt; ['db' =&gt; 24.0, 'etsy' =&gt; 26.0], ...]]
+    ],
+    'matched'   =&gt; int,
+  ]</code></li>
+<li>Compared fields (expanded set — mirrors what <code>EtsyProductSync::buildListingPayload()</code> actually pushes):</li>
+<li><strong>title</strong> — <code>html_entity_decode</code> Etsy title vs <code>$product-&gt;name</code></li>
+<li><strong>description</strong> — Etsy plain text vs <code>strip_tags($product-&gt;description ?? $product-&gt;short_description ?? '')</code>, whitespace-normalized before compare</li>
+<li><strong>price</strong> — <code>money($listing['price'])</code> vs <code>(float) ($product-&gt;sale_price ?? $product-&gt;price)</code> (the effective price the push uses)</li>
+<li><strong>quantity</strong> — <code>$listing['quantity']</code> vs <code>$product-&gt;variants-&gt;sum('stock_qty')</code></li>
+<li><strong>tags</strong> — <code>$listing['tags']</code> vs <code>$product-&gt;etsy_tags ?? []</code>, order-insensitive compare</li>
+<li><strong>status</strong> — Etsy <code>state</code> vs mapped DB status: <code>active</code>→<code>active</code>, <code>draft</code>→<code>draft</code>, skip <code>archived</code>. <strong>Note:</strong> the CLI currently maps <code>published</code>→<code>active</code>, but the products enum is <code>['active','draft','archived']</code> — <code>published</code> never occurs. Fix during extraction.</li>
+<li>Eager-load <code>variants</code> on the product query to avoid N+1 on quantity compare.</li>
+</ul>
+<p>Refactor <code>EtsyDiffCommand::diffListings()</code> to delegate to this service; orders/sections diffing stays in the command untouched.</p>
+<h3 id="2-controller-apphttpcontrollersadminetsycontrollerphp">2. Controller — <code>app/Http/Controllers/Admin/EtsyController.php</code></h3>
+<ul>
+<li><code>diffProducts(): RedirectResponse</code> (POST) — runs <code>EtsyListingDiff::diff()</code> inline (same as the other sync buttons), <code>Cache::put('etsy.product_diff', $report, now()-&gt;addHour())</code>, redirect with success flash. Try/catch → error flash, matching <code>syncProducts()</code>.</li>
+<li><code>index()</code> — add <code>'diffReport' =&gt; Cache::get('etsy.product_diff')</code> to the view data.</li>
+<li><code>resolveDiff(Request $request): RedirectResponse</code> (POST) — input shape:<br>
+<code>resolutions[&lt;product_id&gt;][&lt;field&gt;] = 'db' | 'etsy'</code><br>
+  Validate: product ids exist, fields in the allowed set, values <code>in:db,etsy</code>. Per product:<br>
+  1. Look up the product's conflict entry in the cached report (source of the Etsy values — no re-fetch). If a product isn't in the cached report, skip it.<br>
+  2. Apply every <code>'etsy'</code> choice to the DB via <strong><code>updateQuietly()</code></strong> (must not re-fire <code>ProductObserver</code> → <code>SyncProductToEtsy</code>):<ul>
+<li>title → <code>name</code> · description → <code>description</code> · tags → <code>etsy_tags</code> · status → <code>status</code> (mapped back)</li>
+<li>price → <code>sale_price</code> if currently set, else <code>price</code> (write to the effective column)</li>
+<li>quantity → single-variant products only: write the variant's <code>stock_qty</code>; multi-variant products get keep-website only (UI disables the Etsy option for that field)<br>
+  3. If any field for that product chose <code>'db'</code>, push once via <code>EtsyProductSync::syncProduct($product)</code> — because Etsy-side merges were applied first, the single push converges both sides on the chosen merged state.<br>
+  4. Remove resolved conflict entries from the cached report and re-cache, so the page reflects progress without a full re-fetch.</li>
+</ul>
+</li>
+</ul>
+<p>Redirect with a summary flash (<code>N field(s) resolved across M product(s)</code>).</p>
+<h3 id="3-routes-routeswebphp-inside-the-existing-admin-etsy-group-after-line-262">3. Routes — <code>routes/web.php</code> (inside the existing admin etsy group, after line 262)</h3>
+<pre><code class="language-php">Route::post('/etsy/diff/products', [EtsyController::class, 'diffProducts'])-&gt;name('etsy.diff.products');
+Route::post('/etsy/diff/resolve', [EtsyController::class, 'resolveDiff'])-&gt;name('etsy.diff.resolve');
+</code></pre>
+<h3 id="4-view-resourcesviewsadminetsyindexbladephp">4. View — <code>resources/views/admin/etsy/index.blade.php</code></h3>
+<ul>
+<li><strong>New card</strong> in the existing grid (same markup pattern as Products/Inventory cards): title "Product Diff", blurb "Compare Etsy listing data against website products and resolve differences.", POST form to <code>admin.etsy.diff.products</code>, button "Run Diff". If a cached report exists, show "Last run: {generated_at diffForHumans}" like the Orders card does.</li>
+<li><strong>Results section</strong> below the grid, rendered only when <code>$diffReport</code> is set:</li>
+<li>Summary line: <code>X conflicts · Y Etsy-only · Z website-only · N matched</code>.</li>
+<li><strong>Conflicts (the focus)</strong>: one <code>&lt;form&gt;</code> POSTing to <code>admin.etsy.diff.resolve</code>. Per conflicting product, a block showing the product name (linked to <code>admin.products.edit</code>) and per differing field a row: field name, website value, Etsy value, and two radios (<code>Keep website</code> / <code>Keep Etsy</code>) named <code>resolutions[{product_id}][{field}]</code>. Long values (description) truncated with <code>Str::limit</code>. Quantity on multi-variant products: Etsy radio disabled with a hint. Single "Apply selected" submit button at the bottom.</li>
+<li><strong>Etsy-only / website-only</strong>: read-only collapsible lists (informational — importing/removing listings is already covered by the existing sync buttons; out of scope here).</li>
+<li>Inline styles, no new CSS/JS build needed — matches the page's current style-attribute approach, so no <code>npm run build</code> required.</li>
+</ul>
+<h3 id="5-tests-testsfeatureetsydiffadmintestphp-new">5. Tests — <code>tests/Feature/EtsyDiffAdminTest.php</code> (new)</h3>
+<p>Use <code>Http::fake</code> for <code>api.etsy.com</code> endpoints and the connected-state setup from <code>EtsyAdminTest</code> / <code>EtsyDiffCommandTest</code>:</p>
+<ul>
+<li><code>admin_can_run_a_product_diff</code> — fake one listing that differs in price+title from a factory product; POST diff route; assert cache populated and page renders both values.</li>
+<li><code>resolve_keep_etsy_updates_the_product_quietly</code> — seed cached report; POST resolve with <code>etsy</code> choices; assert DB updated (<code>name</code>, <code>price</code>) and <strong>no</strong> outbound Etsy HTTP call was made.</li>
+<li><code>resolve_keep_website_pushes_to_etsy</code> — POST resolve with a <code>db</code> choice; assert a PATCH to the listing endpoint was sent (Http::fake assertion).</li>
+<li><code>mixed_resolution_merges_then_pushes_once</code> — one product, <code>etsy</code> for title + <code>db</code> for price; assert DB name updated and exactly one push.</li>
+<li><code>non_admin_cannot_access_diff_routes</code> — 403.</li>
+<li>Re-run <code>tests/Feature/EtsyDiffCommandTest.php</code> to confirm the command refactor is behavior-neutral.</li>
+</ul>
+<h2 id="out-of-scope">Out of scope</h2>
+<ul>
+<li>Importing Etsy-only listings / deleting DB-only products from the diff UI (existing sync buttons cover creation; deletion is destructive and stays manual).</li>
+<li>Diffing orders/sections in the UI (command keeps that).</li>
+<li>Queued/background diff runs — inline like every other button on this page.</li>
+<li>Image diffing.</li>
+</ul>
+<h2 id="verification">Verification</h2>
+<ol>
+<li><code>php artisan test --compact tests/Feature/EtsyDiffAdminTest.php tests/Feature/EtsyDiffCommandTest.php tests/Feature/EtsyAdminTest.php</code></li>
+<li><code>vendor/bin/pint --dirty --format agent</code></li>
+<li>Manual: local stack (<code>composer run dev</code>), visit <code>/admin/etsy</code>, run diff against the connected shop, resolve one field each direction, re-run diff and confirm it reports matched. <strong>Caution:</strong> local artisan/web hits the PROD MySQL DB — treat manual resolution clicks as production writes; prefer verifying via the test suite first.</li>
+</ol>
+    </main>
+    <div class="doc-foot">house-style · converted from etsy_product_diff_card_complete.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

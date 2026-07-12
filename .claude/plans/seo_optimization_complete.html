@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEO Optimization Plan — Timber Trace Crafts</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> SEO Optimization Plan — Timber Trace Crafts</span>
+      <span class="src">seo_optimization_complete.md</span>
+    </div>
+    <main>
+<h1 id="seo-optimization-plan-timber-trace-crafts">SEO Optimization Plan — Timber Trace Crafts</h1>
+<p><strong>Completed:</strong> 2026-06-25</p>
+<p><strong>Goal:</strong> Bring timbertracecrafts.com from 40/100 to 75+/100 SEO health by fixing all critical bugs, adding structured data, hardening technical SEO, and improving on-page signals.</p>
+<p><strong>Tech Stack:</strong> Laravel 13, PHP 8.3, Blade templates, Tailwind v4, Alpine.js v3</p>
+<hr>
+<h2 id="task-checklist">Task Checklist</h2>
+<ul>
+<li>[x] Task 1: Fix page title bug — <code>@yield('title')</code> in layout <em>(done 2026-06-25)</em></li>
+<li>[x] Task 2: Fix review filter bug — <code>status</code> column, not <code>approved</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Task 3: Add default canonical tags + noindex on private pages <em>(done 2026-06-25)</em></li>
+<li>[x] Task 4: XML sitemap at <code>/sitemap.xml</code> + harden <code>robots.txt</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Task 5: OG / Twitter Card meta tags with per-page overrides <em>(done 2026-06-25)</em></li>
+<li>[x] Task 6: Structured data JSON-LD — Organization, WebSite, Product, Offer, AggregateRating, BreadcrumbList, BlogPosting <em>(done 2026-06-25)</em></li>
+<li>[x] Task 7: Hero image — convert <code>lifestyle-1.png</code> → WebP, upload to R2, set R2 cache headers, update <code>&lt;img&gt;</code> src + <code>@push('preload')</code> href, run <code>npm run build</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Task 8: SecurityHeaders middleware — HSTS, nosniff, X-Frame-Options, public cache for guests <em>(done 2026-06-25)</em></li>
+<li>[x] Task 9: Async Google Fonts — trim from 9 to 5 weights, non-render-blocking <em>(done 2026-06-25)</em></li>
+<li>[x] Task 10: Remove <code>Str::limit(400)</code> from product description <em>(done 2026-06-25)</em></li>
+<li>[x] Task 11: 301 redirect <code>/about</code> → <code>/about-us</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Task 12: Update homepage title to keyword-bearing string <em>(done 2026-06-25)</em></li>
+<li>[x] Task 13: Fix newsletter 404 — create <code>/newsletter</code> POST route and controller <em>(done 2026-06-25)</em></li>
+<li>[x] Task 14: Replace inline <code>onmouseover</code> handlers in footer with CSS hover classes <em>(done 2026-06-25)</em></li>
+<li>[x] Task 15: Create <code>/public/llms.txt</code> for AI crawler brand fact sheet <em>(done 2026-06-25)</em></li>
+<li>[x] Task 16: Add author byline to journal post pages <em>(done 2026-06-25)</em></li>
+<li>[x] Task 17: Hide journal section on homepage when no published posts <em>(done 2026-06-25)</em></li>
+<li>[x] Task 18: Wire homepage newsletter form to <code>/newsletter</code> route <em>(done 2026-06-25)</em></li>
+<li>[x] Task 19: Set 1-year <code>Cache-Control</code> on Vite-fingerprinted static assets <em>(done 2026-06-25)</em></li>
+</ul>
+<hr>
+<h2 id="remaining-task-7-manual-steps">⚠️ Remaining: Task 7 Manual Steps</h2>
+<p>The code (preconnect, preload slot, <code>fetchpriority</code>, logo alt + dimensions) is done. These steps require manual action outside the codebase:</p>
+<ol>
+<li>~~Convert <code>lifestyle-1.png</code> → WebP~~ <em>(file is already WebP despite .png extension)</em></li>
+<li>~~Upload to R2~~ <em>(in progress 2026-06-25)</em></li>
+<li>Set <code>Cache-Control: public, max-age=31536000, immutable</code> on all R2 image objects (Cloudflare R2 dashboard or <code>wrangler r2 object put</code>)</li>
+<li>Update <code>resources/views/home/index.blade.php</code> — change hero <code>&lt;img src&gt;</code> and <code>@push('preload')</code> href to point to the R2 URL</li>
+<li>Run <code>npm run build</code> to compile updated footer CSS classes</li>
+</ol>
+<hr>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>PHP 8.3, Laravel 13 — use <code>php artisan make:</code> for new files</li>
+<li>Run <code>vendor/bin/pint --dirty --format agent</code> after every PHP file change</li>
+<li>Run <code>php artisan test --compact</code> after tasks that touch controllers/models</li>
+<li>All routes must be named; use <code>route()</code> helper, not <code>url()</code></li>
+<li>No new npm/composer dependencies without approval</li>
+</ul>
+<hr>
+<h2 id="priority-order-summary">Priority Order Summary</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Task</th>
+<th>Impact</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Title bug fix</td>
+<td>Critical</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Review filter bug</td>
+<td>Critical</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>3</td>
+<td>www 301 redirect</td>
+<td>Critical</td>
+<td>✅ Done (Hostinger config)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Canonical tags + noindex</td>
+<td>Critical</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>5</td>
+<td>XML sitemap + robots.txt</td>
+<td>Critical</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OG / Twitter Card tags</td>
+<td>High</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Structured data JSON-LD</td>
+<td>Critical</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Hero image WebP + R2 cache</td>
+<td>Critical</td>
+<td>⚠️ Partial — manual steps remain</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Security headers</td>
+<td>High</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Async Google Fonts</td>
+<td>High</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Remove product description truncation</td>
+<td>High</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>12</td>
+<td>/about redirect</td>
+<td>Medium</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Homepage title keyword</td>
+<td>Medium</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Fix newsletter 404</td>
+<td>Medium</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Replace footer inline handlers</td>
+<td>Low</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Create llms.txt</td>
+<td>High</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Author byline on journal</td>
+<td>Medium</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Hide empty journal section</td>
+<td>Low</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Fix homepage newsletter form</td>
+<td>Medium</td>
+<td>✅ Done</td>
+</tr>
+<tr>
+<td>20</td>
+<td>CSS 1-year cache</td>
+<td>Low</td>
+<td>✅ Done</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="task-detail">Task Detail</h2>
+<h3 id="task-1-fix-page-title-bug-c-1">Task 1: Fix page title bug (C-1)</h3>
+<p><code>@stack('title', 'Home')</code> only renders <code>@push</code> content — every template uses <code>@section('title', ...)</code> which <code>@stack</code> silently ignores.</p>
+<p><strong>Fix:</strong> <code>resources/views/layouts/app.blade.php:6</code></p>
+<pre><code class="language-blade">{{-- Before --}}
+&lt;title&gt;@stack('title', 'Home') | Timber Trace Crafts&lt;/title&gt;
+
+{{-- After --}}
+&lt;title&gt;@yield('title', 'Home') | Timber Trace Crafts&lt;/title&gt;
+</code></pre>
+<hr>
+<h3 id="task-2-fix-review-filter-bug-c-6">Task 2: Fix review filter bug (C-6)</h3>
+<p>Controller loads reviews <code>where('status', 'approved')</code> correctly. View re-filters using <code>-&gt;where('approved', true)</code> — column is <code>status</code>, not <code>approved</code>. Drops every review.</p>
+<p><strong>Fix:</strong> <code>resources/views/shop/product.blade.php:33-34,322</code></p>
+<pre><code class="language-blade">{{-- Before --}}
+$avgRating = $product-&gt;reviews-&gt;where('approved', true)-&gt;avg('rating');
+$reviewCount = $product-&gt;reviews-&gt;where('approved', true)-&gt;count();
+
+{{-- After --}}
+$avgRating = $product-&gt;reviews-&gt;where('status', 'approved')-&gt;avg('rating');
+$reviewCount = $product-&gt;reviews-&gt;where('status', 'approved')-&gt;count();
+</code></pre>
+<hr>
+<h3 id="task-3-canonical-tags-noindex-c-3-m-4-m-5">Task 3: Canonical tags + noindex (C-3, M-4, M-5)</h3>
+<p><strong>Fix:</strong> <code>resources/views/layouts/app.blade.php:7-9</code></p>
+<pre><code class="language-blade">{{-- After --}}
+&lt;link rel=&quot;canonical&quot; href=&quot;@yield('canonical', url()-&gt;current())&quot;&gt;
+&lt;meta name=&quot;robots&quot; content=&quot;@yield('robots', 'index, follow')&quot;&gt;
+</code></pre>
+<p>Add <code>@section('robots', 'noindex, follow')</code> to: cart, checkout, login, register views.</p>
+<hr>
+<h3 id="task-4-xml-sitemap-robotstxt-c-4">Task 4: XML sitemap + robots.txt (C-4)</h3>
+<ul>
+<li><code>app/Http/Controllers/SitemapController.php</code> — renders products + journal posts</li>
+<li><code>resources/views/sitemap.blade.php</code> — XML template</li>
+<li><code>routes/web.php</code> — <code>GET /sitemap.xml</code></li>
+<li><code>public/robots.txt</code> — disallow admin/cart/checkout/auth + Sitemap directive</li>
+</ul>
+<hr>
+<h3 id="task-5-og-twitter-card-meta-tags-h-3">Task 5: OG / Twitter Card meta tags (H-3)</h3>
+<p>Added to <code>layouts/app.blade.php</code> with per-page <code>@yield</code> overrides. Product view sets <code>og:type=product</code>, journal show sets <code>og:type=article</code>.</p>
+<hr>
+<h3 id="task-6-structured-data-json-ld-c-5">Task 6: Structured data JSON-LD (C-5)</h3>
+<ul>
+<li><strong>Organization + WebSite</strong>: in <code>layouts/app.blade.php</code> before <code>&lt;/head&gt;</code></li>
+<li><strong>Product + Offer + AggregateRating + BreadcrumbList</strong>: <code>@push('schema')</code> in <code>shop/product.blade.php</code></li>
+<li><strong>BlogPosting</strong>: <code>@push('schema')</code> in <code>journal/show.blade.php</code></li>
+</ul>
+<hr>
+<h3 id="task-7-hero-image-optimization-c-7-partial">Task 7: Hero image optimization (C-7) — ⚠️ PARTIAL</h3>
+<p><strong>Code done:</strong><br>
+- R2 CDN preconnect in layout<br>
+- <code>@stack('preload')</code> slot in layout<br>
+- <code>@push('preload')</code> with <code>fetchpriority="high"</code> in homepage view<br>
+- Logo <code>&lt;img&gt;</code> tags: alt text + width/height attributes</p>
+<p><strong>Manual steps still needed</strong> — see "Remaining" section above.</p>
+<hr>
+<h3 id="task-8-security-headers-h-5">Task 8: Security headers (H-5)</h3>
+<p><code>app/Http/Middleware/SecurityHeaders.php</code> — sets <code>X-Content-Type-Options</code>, <code>X-Frame-Options</code>, <code>Referrer-Policy</code>, <code>Strict-Transport-Security</code> (on HTTPS), removes <code>X-Powered-By</code>, sets <code>public, s-maxage=60</code> cache for guest HTML responses. Registered in <code>bootstrap/app.php</code>.</p>
+<hr>
+<h3 id="tasks-919">Tasks 9–19</h3>
+<p>All completed 2026-06-25. See Task Checklist for summary. Full implementation details were in the original plan.</p>
+<hr>
+<h3 id="content-gaps-editorial-no-code-required">Content Gaps (Editorial — no code required)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Gap</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>No care instructions for wood jewelry</td>
+<td>Add to product pages and/or a journal post</td>
+</tr>
+<tr>
+<td>2</td>
+<td>No waterproof/durability guidance</td>
+<td>Add to product FAQ or description</td>
+</tr>
+<tr>
+<td>3</td>
+<td>No hypoallergenic hardware info</td>
+<td>Add to earring product descriptions</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Material education (wood vs resin)</td>
+<td>Publish journal post</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Personalization flow unclear</td>
+<td>Add "How to Customize" section to product pages</td>
+</tr>
+<tr>
+<td>6</td>
+<td>America 250 Tumbler lacks bicentennial context</td>
+<td>Update product description</td>
+</tr>
+<tr>
+<td>7</td>
+<td>No shipping timeline on product pages</td>
+<td>Add estimated ship time to product view</td>
+</tr>
+<tr>
+<td>8</td>
+<td>No gift wrapping / gift message info</td>
+<td>Add to checkout or product pages</td>
+</tr>
+</tbody>
+</table>
+    </main>
+    <div class="doc-foot">house-style · converted from seo_optimization_complete.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

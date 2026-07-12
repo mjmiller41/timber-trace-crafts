@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full SEO Audit — 2026-06-25</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Full SEO Audit — 2026-06-25</span>
+      <span class="src">2026-06-25_full-audit.md</span>
+    </div>
+    <main>
+<h1 id="full-seo-audit-2026-06-25">Full SEO Audit — 2026-06-25</h1>
+<p><strong>Tool:</strong> claude-seo v2.2.0 (10 parallel subagents)<br>
+<strong>URL / Scope:</strong> https://timbertracecrafts.com (full site)<br>
+<strong>Score:</strong> 40/100<br>
+<strong>Previous score:</strong> first run</p>
+<hr>
+<h1 id="timber-trace-crafts-full-seo-audit-report">Timber Trace Crafts — Full SEO Audit Report</h1>
+<p><strong>URL:</strong> https://timbertracecrafts.com | <strong>Date:</strong> 2026-06-25 | <strong>Stack:</strong> Laravel 13, PHP 8.3<br>
+<strong>Plugin:</strong> claude-seo v2.2.0 (agricidaniel) | <strong>Agents run:</strong> 10 parallel subagents</p>
+<h2 id="seo-health-score-40-100">SEO Health Score: 40 / 100</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Weight</th>
+<th>Score</th>
+<th>Weighted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Technical SEO</td>
+<td>22%</td>
+<td>48/100</td>
+<td>10.6</td>
+</tr>
+<tr>
+<td>Content Quality</td>
+<td>23%</td>
+<td>61/100</td>
+<td>14.0</td>
+</tr>
+<tr>
+<td>On-Page SEO</td>
+<td>20%</td>
+<td>30/100</td>
+<td>6.0</td>
+</tr>
+<tr>
+<td>Schema / Structured Data</td>
+<td>10%</td>
+<td>0/100</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>Performance (CWV)</td>
+<td>10%</td>
+<td>35/100</td>
+<td>3.5</td>
+</tr>
+<tr>
+<td>AI Search Readiness</td>
+<td>10%</td>
+<td>34/100</td>
+<td>3.4</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>5%</td>
+<td>45/100</td>
+<td>2.3</td>
+</tr>
+<tr>
+<td><strong>TOTAL</strong></td>
+<td></td>
+<td></td>
+<td><strong>40/100</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="critical-fix-immediately">CRITICAL — Fix Immediately</h2>
+<h3 id="c-1-stack-vs-yield-title-bug-all-pages-show-home-timber-trace-crafts">C-1: <code>@stack</code> vs <code>@yield</code> Title Bug — ALL Pages Show "Home | Timber Trace Crafts"</h3>
+<ul>
+<li><code>layouts/app.blade.php</code> line 6 uses <code>@stack('title', 'Home')</code> but every template uses <code>@section('title', ...)</code></li>
+<li><code>@stack</code> only renders <code>@push</code> content — <code>@section</code> is ignored, so every page title is "Home | Timber Trace Crafts"</li>
+<li><strong>Fix (2 min):</strong> Change to <code>@yield('title', 'Home')</code> in <code>layouts/app.blade.php</code></li>
+<li><strong>Verify:</strong> Browser devtools → <code>&lt;title&gt;</code> on any product page</li>
+</ul>
+<h3 id="c-2-wwwnon-www-duplicate-site-pagerank-split">C-2: www/Non-www Duplicate Site — PageRank Split</h3>
+<ul>
+<li><code>https://www.timbertracecrafts.com</code> returns HTTP 200 with full content (not redirected)</li>
+<li>Two live copies of every URL, splitting all PageRank and crawl budget</li>
+<li><strong>Fix:</strong> 301 redirect <code>https://www.*</code> → <code>https://*</code> at Hostinger hPanel/DNS level</li>
+<li><strong>Verify:</strong> <code>curl -I https://www.timbertracecrafts.com</code> should return 301</li>
+</ul>
+<h3 id="c-3-no-canonical-tags-on-any-page">C-3: No Canonical Tags on Any Page</h3>
+<ul>
+<li>Layout has <code>@hasSection('canonical')</code> but no template ever sets <code>@section('canonical', ...)</code></li>
+<li>Shop filter URLs (<code>?category=jewelry</code>, <code>?sort=newest</code>, <code>?page=2</code>) all crawlable with no canonical</li>
+<li><strong>Fix:</strong> Add default self-referencing canonical to <code>layouts/app.blade.php</code> head</li>
+</ul>
+<h3 id="c-4-no-xml-sitemap">C-4: No XML Sitemap</h3>
+<ul>
+<li><code>/sitemap.xml</code> returns 404, no <code>Sitemap:</code> directive in <code>robots.txt</code></li>
+<li>Six product pages + content pages discovery-dependent on link crawling only</li>
+<li><strong>Fix:</strong> Add <code>SitemapController</code> route at <code>/sitemap.xml</code>, update <code>public/robots.txt</code></li>
+</ul>
+<h3 id="c-5-zero-structured-data-no-rich-results-no-google-shopping-no-ai-citations">C-5: Zero Structured Data — No Rich Results, No Google Shopping, No AI Citations</h3>
+<ul>
+<li>Not a single <code>&lt;script type="application/ld+json"&gt;</code> block exists on any page</li>
+<li>Blocks Product rich results, Google Shopping free listings, AI Overview eligibility</li>
+</ul>
+<h3 id="c-6-review-filter-bug-zero-reviews-ever-display">C-6: Review Filter Bug — Zero Reviews Ever Display</h3>
+<ul>
+<li><code>product.blade.php</code> re-filters with <code>-&gt;where('approved', true)</code> but column is <code>status</code>, not <code>approved</code></li>
+<li>Controller correctly loads <code>where('status', 'approved')</code> but view drops all results</li>
+</ul>
+<h3 id="c-7-hero-image-256-mb-png-lcp-killer">C-7: Hero Image 2.56 MB PNG — LCP Killer</h3>
+<ul>
+<li><code>lifestyle-1.png</code> on R2 CDN: 2.56 MB, no WebP, no <code>fetchpriority="high"</code>, no <code>&lt;link rel="preload"&gt;</code></li>
+<li>R2 serves ALL product images with zero <code>Cache-Control</code> headers</li>
+</ul>
+<hr>
+<h2 id="high-fix-within-1-week">HIGH — Fix Within 1 Week</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+<th>File</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H-1</td>
+<td>Product description truncated at 400 chars</td>
+<td><code>shop/product.blade.php</code> line 179</td>
+<td>Remove <code>Str::limit($product-&gt;description, 400)</code></td>
+</tr>
+<tr>
+<td>H-2</td>
+<td>No indexable category pages — only <code>?category=</code> query strings</td>
+<td>Routes</td>
+<td>Create <code>/collections/jewelry</code>, <code>/collections/jewelry-boxes</code>, <code>/collections/tumblers</code></td>
+</tr>
+<tr>
+<td>H-3</td>
+<td>No OG/Twitter Card meta tags</td>
+<td><code>layouts/app.blade.php</code></td>
+<td>Add <code>og:title</code>, <code>og:description</code>, <code>og:image</code>, <code>og:type</code></td>
+</tr>
+<tr>
+<td>H-4</td>
+<td>Google Fonts synchronous render-blocking</td>
+<td><code>layouts/app.blade.php</code> line 15</td>
+<td>Self-host via Fontsource or async load; trim from 9 weights to 4</td>
+</tr>
+<tr>
+<td>H-5</td>
+<td>Missing security headers + PHP version exposed</td>
+<td>Hostinger hPanel / middleware</td>
+<td>Add HSTS, X-Content-Type-Options, X-Frame-Options</td>
+</tr>
+<tr>
+<td>H-5b</td>
+<td><code>Cache-Control: no-cache, private</code> on all public HTML</td>
+<td>Laravel middleware</td>
+<td>Set <code>Cache-Control: public, s-maxage=60</code> for guest responses</td>
+</tr>
+<tr>
+<td>H-6</td>
+<td>No <code>llms.txt</code> file</td>
+<td><code>/public/llms.txt</code></td>
+<td>Create with brand facts, founder bio, product list, content permissions</td>
+</tr>
+<tr>
+<td>H-7</td>
+<td>Etsy sync creates drafts only — listings never live</td>
+<td><code>EtsyProductSync.php</code></td>
+<td>Change <code>'state' =&gt; 'draft'</code> to <code>'state' =&gt; 'active'</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="medium-fix-within-1-month">MEDIUM — Fix Within 1 Month</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M-1</td>
+<td>Homepage title "Home" → keyword-bearing string</td>
+</tr>
+<tr>
+<td>M-2</td>
+<td>Wood species inconsistency across pages</td>
+</tr>
+<tr>
+<td>M-3</td>
+<td><code>/about</code> returns 404 — add redirect to <code>/about-us</code></td>
+</tr>
+<tr>
+<td>M-4</td>
+<td>Cart/login/register need <code>&lt;meta name="robots" content="noindex, follow"&gt;</code></td>
+</tr>
+<tr>
+<td>M-5</td>
+<td>Shop <code>?tag=</code> filter URLs crawlable with no canonical</td>
+</tr>
+<tr>
+<td>M-6</td>
+<td>No author byline on journal posts</td>
+</tr>
+<tr>
+<td>M-7</td>
+<td>No physical address/phone in footer in crawlable format</td>
+</tr>
+<tr>
+<td>M-8</td>
+<td>Etsy seller rating not surfaced on product pages</td>
+</tr>
+<tr>
+<td>M-9</td>
+<td>America 250 Tumbler underpriced — $20 vs $28–45 Etsy median</td>
+</tr>
+<tr>
+<td>M-10</td>
+<td>No YouTube presence</td>
+</tr>
+<tr>
+<td>M-11</td>
+<td><code>/newsletter</code> route referenced in footer but doesn't exist</td>
+</tr>
+<tr>
+<td>M-12</td>
+<td>Product gallery image alt text identical for all images</td>
+</tr>
+<tr>
+<td>M-13</td>
+<td>No <code>width</code>/<code>height</code> on hero image or logo — CLS risk</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="low-backlog">LOW — Backlog</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L-1</td>
+<td><code>X-Powered-By: PHP/8.3.30</code> exposed</td>
+</tr>
+<tr>
+<td>L-2</td>
+<td>Logo <code>alt=""</code> across 3 instances</td>
+</tr>
+<tr>
+<td>L-3</td>
+<td>No founding year on About page</td>
+</tr>
+<tr>
+<td>L-4</td>
+<td><code>priceValidUntil</code> on sale prices needs <code>sale_price_ends_at</code> DB column</td>
+</tr>
+<tr>
+<td>L-5</td>
+<td>CSS bundle cached only 7 days — safe to set 1-year cache</td>
+</tr>
+<tr>
+<td>L-6</td>
+<td>IndexNow not implemented</td>
+</tr>
+<tr>
+<td>L-7</td>
+<td>Inline <code>onmouseover</code>/<code>onmouseout</code> handlers in footer</td>
+</tr>
+<tr>
+<td>L-8</td>
+<td>Journal section on homepage should be hidden when zero posts exist</td>
+</tr>
+<tr>
+<td>L-9</td>
+<td>Duplicate newsletter form — homepage version uses <code>action="#"</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="sub-agent-scores">Sub-Agent Scores</h2>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>seo-technical</td>
+<td>48/100</td>
+</tr>
+<tr>
+<td>seo-content (E-E-A-T)</td>
+<td>61/100</td>
+</tr>
+<tr>
+<td>seo-schema</td>
+<td>0/100</td>
+</tr>
+<tr>
+<td>seo-sitemap</td>
+<td>Critical — no sitemap exists</td>
+</tr>
+<tr>
+<td>seo-performance</td>
+<td>~35/100</td>
+</tr>
+<tr>
+<td>seo-geo</td>
+<td>34/100</td>
+</tr>
+<tr>
+<td>seo-sxo</td>
+<td>38/100</td>
+</tr>
+<tr>
+<td>seo-ecommerce</td>
+<td>42/100</td>
+</tr>
+<tr>
+<td>seo-backlinks</td>
+<td>0 links confirmed</td>
+</tr>
+<tr>
+<td>seo-cluster</td>
+<td>5 clusters, 12 posts, greenfield</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="status-as-of-2026-06-25">Status as of 2026-06-25</h2>
+<p>All 19 items from the seo_optimization plan were completed this date.<br>
+See <code>.claude/plans/seo_optimization_complete.md</code> for the full remediation record.</p>
+    </main>
+    <div class="doc-foot">house-style · converted from 2026-06-25_full-audit.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

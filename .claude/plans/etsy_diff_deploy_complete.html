@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy Plan — Etsy Product Diff (feature/etsy-product-diff → prod)</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Deploy Plan — Etsy Product Diff (feature/etsy-product-diff → prod)</span>
+      <span class="src">etsy_diff_deploy_complete.md</span>
+    </div>
+    <main>
+<p><strong>Completed:</strong> 2026-07-08</p>
+<h1 id="deploy-plan-etsy-product-diff-featureetsy-product-diff-prod">Deploy Plan — Etsy Product Diff (feature/etsy-product-diff → prod)</h1>
+<h2 id="task-checklist">Task Checklist</h2>
+<ul>
+<li>[x] Run full test suite on the feature branch (<code>php artisan test --compact</code>, ~225 tests) — must be green</li>
+<li>[x] Merge to main: <code>git checkout main &amp;&amp; git merge --no-ff feature/etsy-product-diff &amp;&amp; git branch -d feature/etsy-product-diff</code></li>
+<li>[x] Confirm the batch is ONLY this feature: <code>git log --oneline origin/main..main</code> (expect merge commit + f1c5936, nothing else)</li>
+<li>[x] Verify prod env is in sync before shipping (false-drift gotcha): <code>php artisan env:decrypt --env=production --filename=.env.production.check</code>, diff CRLF/order-normalized vs <code>.env.production</code>, delete the check file</li>
+<li>[x] Get explicit go for the deploy (ship.sh runs <code>migrate --force</code> on the LIVE DB — a no-op this time, zero migrations, but authorization is per-deploy)</li>
+<li>[x] Deploy: <code>./ship.sh</code> from repo root on <code>main</code></li>
+<li>[x] Verify: server HEAD == pushed full SHA; smoke test 200; <code>php artisan migrate:status</code> over SSH shows no pending</li>
+<li>[x] Functional check on prod: /admin/etsy loads, "Run Diff" card present, run one diff and eyeball the report (do NOT click Apply as a "test" — resolutions are real prod + Etsy writes)</li>
+<li>[x] Tag the release: <code>git tag -a vX.Y.Z -m "Etsy product diff card" &amp;&amp; git push origin --tags</code></li>
+<li>[x] Mark this plan complete</li>
+</ul>
+<hr>
+<h2 id="context">Context</h2>
+<p>Ship commit <code>f1c5936</code> (Etsy product diff card with per-field conflict resolution) to production on Hostinger. Code-only change: no migrations, no new env vars, no queue-worker dependency (diff runs inline), no frontend build changes required (view is inline-styled Blade — though ship.sh runs <code>npm run build</code> regardless; a no-diff build commits nothing).</p>
+<h2 id="pipeline-facts-from-docsdeployment-handoffmd-deployment-memory">Pipeline facts (from docs/DEPLOYMENT-HANDOFF.md / deployment memory)</h2>
+<ul>
+<li><strong>One command</strong>: <code>./ship.sh</code> on <code>main</code> — encrypt-on-drift → <code>npm run build</code> + commit <code>public/build/</code> → push (<code>TTC_SHIP=1</code> stands down the pre-push hook) → poll Hostinger <code>public_html</code> HEAD until it equals the pushed SHA (480s) → SSH <code>bash deploy.sh</code> (composer, env:decrypt, <code>migrate --force</code>, cache warms) → curl smoke test.</li>
+<li><strong>Batch release</strong>: ship.sh deploys ALL of <code>origin/main..main</code>. Verified today: backlog is empty, so this deploys exactly this feature.</li>
+<li><strong>False drift is expected</strong>: ship.sh always prints "Production env drifted — re-encrypting". Benign <em>if</em> local <code>.env.production</code> matches the committed ciphertext — hence the pre-ship sync check above. If the diff shows real differences, STOP: that deploy would change prod secrets.</li>
+<li><strong>Shared worktree</strong>: ship.sh requires <code>main</code> and pushes the shared tree — don't run while any sibling agent is mid-flight on another branch.</li>
+<li>If ship.sh's poll times out, re-run remote steps with a FULL 40-char SHA: <code>./ship.sh --remote-only $(git rev-parse origin/main)</code>.</li>
+</ul>
+<h2 id="risk-assessment">Risk assessment</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Level</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DB migrations</td>
+<td>None</td>
+<td>Feature adds no migrations; <code>migrate --force</code> is a no-op</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>Low</td>
+<td>No env changes; re-encrypt is ciphertext-only if sync check passes</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Low</td>
+<td>New routes are admin-gated POSTs; existing pages untouched except additive Blade on /admin/etsy</td>
+</tr>
+<tr>
+<td>Etsy API</td>
+<td>Low</td>
+<td>Diff is read-only against Etsy; writes only happen on explicit "Apply Selected"</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rollback">Rollback</h2>
+<p>Code-only, so rollback = redeploy previous main: <code>git revert -m 1 &lt;merge-sha&gt;</code> on main, then <code>./ship.sh</code> again (or reset to the previous tag). No schema to unwind.</p>
+<h2 id="post-deploy-functional-verification-prod">Post-deploy functional verification (prod)</h2>
+<ol>
+<li><code>/admin/etsy</code> → 200, "Product Diff" card renders.</li>
+<li>Click <strong>Run Diff</strong> — expect a results card with conflict/Etsy-only/website-only/matched counts and "Last run: …" on the card.</li>
+<li>Sanity-check a couple of reported conflicts against Etsy's seller dashboard.</li>
+<li>Leave <strong>Apply Selected</strong> alone unless resolving real drift intentionally — every apply writes prod DB and/or pushes to the live Etsy shop.</li>
+</ol>
+    </main>
+    <div class="doc-foot">house-style · converted from etsy_diff_deploy_complete.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

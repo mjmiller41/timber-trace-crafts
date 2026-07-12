@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit Findings 2026-07-01 — Remediation Plan</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Audit Findings 2026-07-01 — Remediation Plan</span>
+      <span class="src">audit_findings_2026_07_01.md</span>
+    </div>
+    <main>
+<h1 id="audit-findings-2026-07-01-remediation-plan">Audit Findings 2026-07-01 — Remediation Plan</h1>
+<p><strong>Source:</strong> <code>TASKS.md</code> → section "## Audit findings — 2026-07-01" (30 items, numbered 2–32).<br>
+<strong>Branch/worktree:</strong> <code>claude/goofy-clarke-822732</code>, caught up to <code>main</code> @ <code>3bac1c0</code>.<br>
+<strong>Out of scope here:</strong> #1 (checkout capture-then-fail; feeds #28, tracked separately) and #16 (media R2 <code>put()</code> failure — merged into the Active "Investigate prod R2 <code>put()</code> failure" task).</p>
+<h2 id="context">Context</h2>
+<p>A code audit dated 2026-07-01 surfaced 30 security and correctness defects across five subsystems. Several are launch-blocking: the storefront purchase path can be manipulated to pay the wrong price or ship free, and the Etsy sync can silently drop orders or brick its own connection. The findings carry precise <code>file:line</code> references and one (finding #2 in <code>CartController.php</code>) was spot-verified as accurate before planning, so the audit's locations are treated as trustworthy.</p>
+<p>Goal: close every finding with a minimal, convention-matching fix and a test that locks in the corrected behavior, sequenced so the highest-risk purchase-path and Etsy defects land first. Each fix reuses existing patterns (<code>throttle:</code> middleware, <code>Product::currentPrice()</code>/variant price precedence, <code>SyncResult</code>, observer <code>quiet</code> saves, signed routes) rather than introducing new abstractions.</p>
+<h2 id="task-checklist">Task Checklist</h2>
+<h3 id="phase-1-storefront-purchase-path-highest-risk-launch-blocking">Phase 1 — Storefront purchase path (highest risk; launch-blocking)</h3>
+<ul>
+<li>[x] #2 [High] Reject cart variant that doesn't belong to the product (<code>CartController@add</code>) <em>(done 2026-07-02)</em></li>
+<li>[x] #10 [Med] Block draft/archived products and disabled variants from the purchase path <em>(done 2026-07-02)</em></li>
+<li>[x] #9 [Med] Revalidate cart line prices at checkout instead of trusting the add-time snapshot <em>(done 2026-07-02)</em></li>
+<li>[x] #7 [Med] Reject inactive shipping method id instead of defaulting to free shipping <em>(done 2026-07-02)</em></li>
+<li>[x] #8 [Med] Fix inert guest-email validation in checkout <em>(done 2026-07-02)</em></li>
+<li>[x] #28 [Low] Sort cart lines by <code>variant_id</code> before locking to avoid deadlock <em>(done 2026-07-02)</em></li>
+<li>[x] #22 [Low] Clamp percent coupons to <code>max:100</code> + clamp discount to subtotal <em>(done 2026-07-02)</em></li>
+<li>[x] #23 [Low] Uppercase coupon code on save so lookups match <em>(done 2026-07-02)</em></li>
+<li>[x] #29 [Low] Document/normalize tax <code>rate_percent</code> semantics + uppercase state list <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-2-etsy-sync-robustness-needs-queue-worker">Phase 2 — Etsy sync robustness (needs queue worker)</h3>
+<ul>
+<li>[x] #3 [High] Make Etsy order import transactional + retry-idempotent <em>(done 2026-07-02)</em></li>
+<li>[x] #4 [High] Only advance <code>orders_last_synced_at</code> on a successful fetch <em>(done 2026-07-02)</em></li>
+<li>[x] #5 [High] Lock OAuth token refresh to prevent concurrent-refresh brick <em>(done 2026-07-02)</em></li>
+<li>[x] #11 [Med] Use quiet saves in <code>EtsyProductSync</code> + add <code>ShouldBeUnique</code> to <code>SyncProductToEtsy</code> <em>(done 2026-07-02)</em></li>
+<li>[x] #12 [Med] Add 429/5xx retry to <code>EtsyClient</code>, prevent overlapping scheduled syncs, set job timeouts <em>(done 2026-07-02)</em></li>
+<li>[x] #13 [Med] Stop swallowing Etsy webhook status events (queue them; NACK on failure) <em>(done 2026-07-02)</em></li>
+<li>[x] #14 [Med] Log + fail loudly when <code>ImportEtsyOrder</code> gets an empty receipt payload <em>(done 2026-07-02)</em></li>
+<li>[x] #30 [Low] Populate <code>etsy_transaction_id</code> on imported order items <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-3-auth-session-security-headers">Phase 3 — Auth, session &amp; security headers</h3>
+<ul>
+<li>[x] #6 [Med] Add rate limits to coupon/forgot/reset/contact/register/newsletter/restock POSTs <em>(done 2026-07-02)</em></li>
+<li>[x] #20 [Med] Set <code>SESSION_SECURE_COOKIE=true</code> in production config/env <em>(done 2026-07-02 — defaults true when APP_ENV=production, self-healing even if the env var is never set on the server)</em></li>
+<li>[x] #21 [Med] Add tests for account-order ownership + admin <code>updateStatus</code>/<code>addShipment</code> <em>(done 2026-07-02)</em></li>
+<li>[x] #24 [Low] Require <code>current_password</code> when the account email changes <em>(done 2026-07-02)</em></li>
+<li>[x] #25 [Low] Regenerate session after registration login <em>(done 2026-07-02)</em></li>
+<li>[x] #26 [Low] Expire order-tracking signed links (90-day temporary signed routes) <em>(done 2026-07-02)</em></li>
+<li>[x] #27 [Low] Add a Content-Security-Policy header (report-only to start) <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-4-admin-inbox-mail">Phase 4 — Admin inbox / mail</h3>
+<ul>
+<li>[x] #15 [Med] Harden <code>ImapService</code> against malformed <code>Date:</code>/charset so one bad email can't brick the inbox <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-5-ops-infra-config-hygiene">Phase 5 — Ops, infra &amp; config hygiene</h3>
+<ul>
+<li>[x] #17 [Med] <code>db:import-hostinger</code>: wrap in transaction + backup, exclude remote <code>jobs</code> table <em>(done 2026-07-02)</em></li>
+<li>[x] #18 [Med] Move prod DB host/name/user out of VCS defaults into env <em>(done 2026-07-02)</em></li>
+<li>[x] #19 [Med] Fix deploy/setup build step so <code>npm run build</code> has its dev tooling <em>(done 2026-07-02 — removed the broken build step entirely; assets ship via the pre-push hook, Node isn't on the server)</em></li>
+<li>[x] #31 [Low] Harden media console commands (webp dupes, delete-before-update, dead-URL abort) <em>(done 2026-07-02)</em></li>
+<li>[x] #32 [Low] Repo/config hygiene: dedupe skills dir, drop unused sanctum, fix <code>.mcp.json</code> path, refresh <code>.env.production</code> <em>(partial 2026-07-02 — symlinked the two duplicated skill dirs, fixed <code>.mcp.json</code>'s stale path. NOT done: removing <code>laravel/sanctum</code> is a dependency change requiring approval per project guidelines; <code>.env.production</code> lives only on the live server, unreachable from this repo — both flagged for the operator.)</em></li>
+</ul>
+<hr>
+<h2 id="full-plan">Full Plan</h2>
+<p>Conventions for every fix: run <code>vendor/bin/pint --dirty --format agent</code> after PHP edits; add/extend a PHPUnit <strong>feature</strong> test (unit where it's pure logic) and run it with <code>php artisan test --compact --filter=…</code>; commit per subsystem group, not per file. Tests run on sqlite <code>:memory:</code> with <code>sync</code> queue — no external services needed.</p>
+<h3 id="phase-1-storefront-purchase-path">Phase 1 — Storefront purchase path</h3>
+<p><strong>#2 [High] Cross-product variant price manipulation</strong> — <code>app/Http/Controllers/CartController.php:27-35,55</code>.<br>
+Fix: after loading the variant, assert <code>$variant-&gt;product_id === $product-&gt;id</code>; abort/redirect back with an error otherwise. Do it before pricing at line 55. Test: <code>CartTest</code> — POST product A + variant B → 422/redirect with error, cart unchanged.</p>
+<p><strong>#10 [Med] Draft/archived products &amp; disabled variants purchasable</strong> — same controller, add path.<br>
+Fix: reject when <code>$product-&gt;status</code> is not the purchasable state or <code>$variant-&gt;is_enabled</code> is false. Reuse whatever storefront listing uses for <code>status</code>. Test: disabled variant and non-active product each rejected.</p>
+<p><strong>#9 [Med] Cart price snapshot never revalidated</strong> — <code>CartController.php:55</code>, <code>CheckoutController.php:126</code>.<br>
+Fix: at checkout, recompute each line's authoritative price (<code>$variant-&gt;price ?? $product-&gt;currentPrice()</code>) and reject/repri­ce if the snapshot diverges. Keep <code>price_snapshot</code> for display but never charge from it. Test: change a product price after add-to-cart → checkout uses the new price.</p>
+<p><strong>#7 [Med] Inactive shipping method → free shipping</strong> — <code>app/Http/Controllers/CheckoutController.php:62-65,120-123</code>.<br>
+Fix: replace bare <code>exists:</code> with a lookup constrained to active methods; when null, fail validation instead of falling through to <code>$shippingAmount = 0.0</code>. Test: POST an inactive shipping method id → rejected, not zero-rated.</p>
+<p><strong>#8 [Med] Guest email validation inert</strong> — <code>CheckoutController.php:89,134</code>.<br>
+Fix: correct the <code>required_if</code> to reference the real auth state (guest = unauthenticated), guard the array key to avoid the post-capture 500. Test: guest checkout with empty/omitted email → validation error before payment.</p>
+<p><strong>#28 [Low] Checkout lock-ordering deadlock</strong> — <code>CheckoutController.php:165-179</code>.<br>
+Fix: sort cart lines by <code>variant_id</code> before the locking loop so concurrent checkouts acquire locks in a consistent order. Test: unit-order the lines and assert deterministic lock sequence.</p>
+<p><strong>#22 [Low] Percent coupon &gt;100 → negative total</strong> — <code>app/Http/Controllers/Admin/CouponController.php:30,52</code>.<br>
+Fix: <code>max:100</code> validation for <code>percent</code> type; clamp computed discount to subtotal in checkout. Test: admin can't save 150% percent coupon; a 100% coupon floors total at 0.</p>
+<p><strong>#23 [Low] Coupon casing mismatch</strong> — <code>CartController.php:89</code> uppercases lookups; admin saves as typed.<br>
+Fix: uppercase <code>code</code> on save in <code>CouponController</code>. Test: mixed-case admin code matches an uppercased apply.</p>
+<p><strong>#29 [Low] Tax config footguns</strong> — <code>app/Services/TaxService.php:12-26</code>.<br>
+Fix: document that <code>rate_percent</code> stores a fraction (or rename accessor), and uppercase/normalize the configured state list so <code>'fl'</code> matches. Test: <code>TaxServiceTest</code> — lowercase state still taxes; fraction interpreted correctly.</p>
+<h3 id="phase-2-etsy-sync-robustness">Phase 2 — Etsy sync robustness</h3>
+<p><strong>#3 [High] Order import not transactional / retry not idempotent</strong> — <code>app/Services/Etsy/EtsyOrderSync.php:90-129</code>, <code>app/Jobs/ImportEtsyOrder.php:25</code>.<br>
+Fix: wrap order + items in <code>DB::transaction</code>; make import idempotent via <code>updateOrCreate</code> on <code>etsy_receipt_id</code> so a retry after partial failure heals instead of tripping the unique index. Test: simulate mid-loop failure → no itemless order; re-run → single complete order.</p>
+<p><strong>#4 [High] Watermark advances on failure</strong> — <code>EtsyOrderSync.php:69</code>.<br>
+Fix: only set <code>orders_last_synced_at = now()</code> after a successful receipts fetch/import; on failure, leave it so the window retries. Test: failed fetch leaves watermark unchanged.</p>
+<p><strong>#5 [High] Unlocked OAuth refresh race</strong> — <code>app/Services/Etsy/EtsyOAuthService.php:80-116</code>.<br>
+Fix: guard the refresh with <code>Cache::lock</code> (atomic); re-read the stored token inside the lock so a concurrent caller uses the freshly rotated token. Test: two concurrent refresh calls → one network refresh, both end with the valid token.</p>
+<p><strong>#11 [Med] Observer echo + no uniqueness guard</strong> — <code>app/Services/Etsy/EtsyProductSync.php:31-44</code>, <code>app/Observers/ProductObserver.php:22</code>, <code>app/Jobs/SyncProductToEtsy.php</code>.<br>
+Fix: use <code>saveQuietly()</code>/<code>updateQuietly()</code> (or <code>Model::withoutEvents</code>) in the sync writes so importing doesn't re-queue a push; add <code>ShouldBeUnique</code> to <code>SyncProductToEtsy</code>. Test: import a listing → no <code>SyncProductToEtsy</code> queued; unique key set correctly.</p>
+<p><strong>#12 [Med] No 429/5xx retry; overlapping syncs; no job timeouts</strong> — <code>app/Services/Etsy/EtsyClient.php:45-57</code>, <code>routes/console.php:11-13</code>.<br>
+Fix: add retry with backoff on 429/5xx in <code>EtsyClient</code>; add <code>-&gt;withoutOverlapping()</code> to the scheduled sync commands; set <code>$timeout</code> on the Etsy jobs. Test: mocked 429-then-200 succeeds; assert schedule uses withoutOverlapping.</p>
+<p><strong>#13 [Med] Webhook status events swallowed</strong> — <code>app/Http/Controllers/EtsyWebhookController.php:39-47,125-159</code>.<br>
+Fix: queue <code>order.canceled/shipped/delivered</code> handling like <code>order.paid</code>, and return non-2xx on genuine failure so Etsy redelivers (keep 200 only for verified-and-accepted). Test: handler failure → non-2xx response; success path queues a job.</p>
+<p><strong>#14 [Med] Silent success on empty receipt payload</strong> — <code>EtsyOrderSync.php:74-84</code>.<br>
+Fix: treat empty/<code>null</code> body as an error — log it and don't mark the receipt imported. Test: empty-body fetch logs and does not create/complete an order.</p>
+<p><strong>#30 [Low] Missing <code>etsy_transaction_id</code> on items</strong> — <code>EtsyOrderSync.php:121-128</code>.<br>
+Fix: populate from <code>$transaction['transaction_id']</code> so the dedup unique index is live. Test: imported item carries the transaction id.</p>
+<h3 id="phase-3-auth-session-security-headers_1">Phase 3 — Auth, session &amp; security headers</h3>
+<p><strong>#6 [Med] Missing rate limits on public POSTs</strong> — <code>routes/web.php:51,82,95,97</code> + <code>/register</code>, <code>/newsletter</code>, <code>/restock-request</code>.<br>
+Fix: add <code>throttle:</code> to each per existing patterns (login <code>5,1</code>, checkout <code>60,1</code>). Suggested: coupon <code>10,1</code>, forgot/reset <code>6,1</code>, contact <code>5,1</code>, register <code>5,1</code>, newsletter/restock <code>10,1</code>. Test: exceeding the limit returns 429.</p>
+<p><strong>#20 [Med] Session cookie missing <code>Secure</code></strong> — <code>config/session.php:172</code>.<br>
+Fix: set <code>SESSION_SECURE_COOKIE=true</code> in <code>.env.production</code> (and document in <code>.env.example</code>). Verify prod config resolves true.</p>
+<p><strong>#21 [Med] No tests for order ownership</strong> — <code>app/Http/Controllers/AccountController.php:32-42</code>; admin <code>updateStatus</code>/<code>addShipment</code>.<br>
+Fix: add <code>AccountTest</code> cases — a user can't view another user's order (403/404); cover admin status/shipment endpoints. Test: the new cases pass.</p>
+<p><strong>#24 [Low] Email change without re-confirmation</strong> — <code>AccountController.php:153-175</code>.<br>
+Fix: require <code>current_password</code> (validated with the <code>current_password</code> rule) when <code>email</code> changes. Test: email change without correct password rejected.</p>
+<p><strong>#25 [Low] Session not regenerated on registration</strong> — <code>app/Http/Controllers/AuthController.php:67</code>.<br>
+Fix: call <code>$request-&gt;session()-&gt;regenerate()</code> after <code>Auth::login()</code>, mirroring login at <code>:32</code>. Test: session id changes across register.</p>
+<p><strong>#26 [Low] Order-tracking signed links never expire</strong> — <code>resources/views/emails/order-confirmation.blade.php:95</code> (+ shipped/status emails).<br>
+Fix: generate links with <code>URL::temporarySignedRoute(..., now()-&gt;addDays(90))</code>; ensure the route uses <code>signed</code>/valid-signature middleware. Test: expired link rejected, fresh link accepted.</p>
+<p><strong>#27 [Low] No CSP header</strong> — <code>app/Http/Middleware/SecurityHeaders.php:15-22</code>.<br>
+Fix: add a <code>Content-Security-Policy-Report-Only</code> header allowing <code>js.stripe.com</code> and the R2 host; tighten to enforcing later. Test: response carries the CSP header.</p>
+<h3 id="phase-4-admin-inbox-mail_1">Phase 4 — Admin inbox / mail</h3>
+<p><strong>#15 [Med] One malformed email bricks the inbox</strong> — <code>app/Services/ImapService.php:63-71,168-171</code>.<br>
+Fix: wrap <code>Carbon::parse</code> on the <code>Date:</code> header and <code>mb_convert_encoding</code> in guards (try/catch + charset fallback) so a single bad message degrades gracefully and stays deletable. Test: a message with a garbage date/unknown charset still lists and can be removed.</p>
+<h3 id="phase-5-ops-infra-config-hygiene_1">Phase 5 — Ops, infra &amp; config hygiene</h3>
+<p><strong>#17 [Med] <code>db:import-hostinger</code> destructive</strong> — <code>app/Console/Commands/ImportFromHostinger.php:47,126-133</code>.<br>
+Fix: take a local backup + wrap the import in a transaction; exclude the remote <code>jobs</code> table so it can't clobber the live queue. Test: command unit — jobs table skipped; abort path restores.</p>
+<p><strong>#18 [Med] Prod DB creds in VCS</strong> — <code>ExportToHostinger.php:14-17</code>, <code>ImportFromHostinger.php:12-15</code>, <code>memory/project_infra.md:11-12</code>.<br>
+Fix: move host/name/user to env/config defaults (no hardcoded prod values in command signatures); scrub the committed endpoint. Verify commands still resolve from env.</p>
+<p><strong>#19 [Med] Deploy/setup build step can't work</strong> — <code>deploy.sh:19-20</code>, <code>setup.sh:43-44</code>.<br>
+Fix: since <code>npm ci --omit=dev</code> strips vite/tailwind, either drop <code>--omit=dev</code> for the build stage or rely solely on the pre-push hook's committed <code>public/build/</code> and remove the failing build line. Verify <code>deploy.sh</code> runs to completion in a dry run.</p>
+<p><strong>#31 [Low] Media console command gaps</strong> — <code>SyncMediaFromStorage.php:24</code>, <code>media:migrate-products</code>, <code>media:backfill-webp</code>.<br>
+Fix: skip <code>.webp</code> siblings when syncing (no dup records); update DB before deleting source in migrate; make backfill continue past a dead URL instead of aborting. Test: sync doesn't create webp dupes.</p>
+<p><strong>#32 [Low] Repo/config hygiene.</strong><br>
+Fix: dedupe <code>.agents/skills/</code> vs <code>.claude/skills/</code> (keep one, symlink the other); remove unused <code>laravel/sanctum</code> (confirm no usage first); repoint <code>.mcp.json</code> at the real artisan path; refresh <code>.env.production</code> (correct <code>LOG_LEVEL</code>, <code>FILESYSTEM_DISK=r2</code>, current <code>AWS_*</code>/<code>ETSY_*</code>/<code>IMAP_*</code>/<code>STRIPE_WEBHOOK_SECRET</code>). Verify Boost MCP server starts and the suite still passes.</p>
+<h2 id="verification-end-to-end">Verification (end-to-end)</h2>
+<ol>
+<li>Per fix: <code>php artisan test --compact --filter=&lt;TestName&gt;</code>.</li>
+<li>Per phase: run the subsystem's test files (e.g. <code>tests/Feature/CartTest.php</code>, <code>CheckoutTest.php</code>, Etsy feature tests, <code>AccountTest.php</code>, <code>TaxServiceTest.php</code>).</li>
+<li>Before finalizing: <code>vendor/bin/pint --dirty --format agent</code>, then full suite <code>php artisan test --compact</code> (ask before running the entire suite per project convention).</li>
+<li>Mirror each completed item back to <code>TASKS.md</code> (check its box + <code>(done 2026-07-02)</code>), and check it off in this plan file.</li>
+<li>Do not hand-edit <code>public/build/</code>; the pre-push hook rebuilds assets.</li>
+</ol>
+    </main>
+    <div class="doc-foot">house-style · converted from audit_findings_2026_07_01.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>

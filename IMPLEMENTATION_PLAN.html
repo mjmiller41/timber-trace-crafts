@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timber Trace Crafts — Implementation Plan</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  html,body{margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
+  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
+    padding:26px 18px 80px;font-size:14.5px}
+  .wrap{max-width:800px;margin:0 auto}
+  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
+  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint)}
+  .doc-mast .eyebrow b{color:var(--brass)}
+  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
+  main h1{font-size:26px;margin:.2em 0 .5em}
+  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
+  main h3{font-size:16px;margin:1.4em 0 .4em}
+  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  main p{margin:.7em 0;color:var(--text)}
+  main a{color:var(--brass);text-decoration:none}
+  main a:hover{text-decoration:underline}
+  main strong{color:#fff}
+  main ul,main ol{margin:.6em 0;padding-left:1.4em}
+  main li{margin:.28em 0}
+  main li::marker{color:var(--faint)}
+  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
+    padding:1px 5px;border-radius:4px}
+  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
+    padding:13px 15px;overflow:auto;line-height:1.5}
+  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
+  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
+    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
+  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
+  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  main tr:hover td{background:var(--ink2)}
+  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
+  main img{max-width:100%;border-radius:var(--r-md)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
+  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
+    font-family:var(--mono);font-size:10px;color:var(--faint)}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="doc-mast">
+      <span class="eyebrow"><b>▸</b> Timber Trace Crafts — Implementation Plan</span>
+      <span class="src">IMPLEMENTATION_PLAN.md</span>
+    </div>
+    <main>
+<h1 id="timber-trace-crafts-implementation-plan">Timber Trace Crafts — Implementation Plan</h1>
+<h2 id="decisions-made-from-your-answers-defaults-for-gaps">Decisions Made (from your answers + defaults for gaps)</h2>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework</td>
+<td>Laravel 11 (PHP 8.2–8.5)</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>Blade templates + Tailwind CSS + Alpine.js (minimal)</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MySQL 8.x</td>
+</tr>
+<tr>
+<td>Payments</td>
+<td>Square Web Payments SDK + Square Payments API</td>
+</tr>
+<tr>
+<td>Transactional email</td>
+<td>Hostinger built-in SMTP via Laravel Mail</td>
+</tr>
+<tr>
+<td>Marketing email</td>
+<td>Sender.net API</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Umami.js (cloud-hosted)</td>
+</tr>
+<tr>
+<td>Caching</td>
+<td>LiteSpeed Cache (LSCache) via response headers in Laravel middleware</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>Hostinger Git auto-pull on push to <code>main</code></td>
+</tr>
+<tr>
+<td>Domain</td>
+<td>timbertracecrafts.com (transferring to Hostinger)</td>
+</tr>
+<tr>
+<td>Tax</td>
+<td>Florida-only manual rate in admin settings; hooks ready for TaxJar later</td>
+</tr>
+<tr>
+<td>Shipping labels</td>
+<td>Manual tracking entry in admin → Pirate Ship integration in Phase 2</td>
+</tr>
+<tr>
+<td>Marketplace sync</td>
+<td>Phase 3 (Etsy, eBay, Amazon Handmade)</td>
+</tr>
+<tr>
+<td>Admin roles</td>
+<td>Single admin role (sole proprietor); expandable later</td>
+</tr>
+<tr>
+<td>Sales reports</td>
+<td>Basic dashboard: revenue by period, top products, order counts</td>
+</tr>
+<tr>
+<td>Low stock alerts</td>
+<td>Email to admin when variant stock falls below configurable threshold</td>
+</tr>
+<tr>
+<td>Media library</td>
+<td>Full shared library; images/videos uploaded once, attached to products</td>
+</tr>
+<tr>
+<td>Customer messaging</td>
+<td>Contact form submissions visible in admin inbox; replies via external email</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="technology-stack">Technology Stack</h2>
+<pre><code>Laravel 11
+├── Blade (server-rendered templates — no SPA, no React)
+├── Tailwind CSS (compiled, design system tokens as CSS variables)
+├── Alpine.js (image gallery, cart qty controls, mobile menu, dropdowns only)
+├── MySQL 8.x
+├── Square PHP SDK (payments)
+├── Laravel Mail + Hostinger SMTP
+├── Sender.net API client (Phase 2)
+└── LiteSpeed Cache headers (middleware)
+</code></pre>
+<p><strong>Why Laravel over the existing custom MVC:</strong> Laravel gives you Eloquent ORM, migrations, queues (for email), form validation, file storage, artisan commands, and a mature ecosystem — all things the custom MVC would have to rebuild. It runs cleanly on Hostinger shared hosting.</p>
+<hr>
+<h2 id="database-schema">Database Schema</h2>
+<h3 id="users-auth">Users &amp; Auth</h3>
+<pre><code class="language-sql">users               (id, name, email, password, role[customer|admin], email_verified_at, remember_token, created_at)
+password_reset_tokens (email, token, created_at)
+addresses           (id, user_id, label, first_name, last_name, line1, line2, city, state, zip, country, phone, is_default)
+</code></pre>
+<h3 id="catalog">Catalog</h3>
+<pre><code class="language-sql">categories          (id, parent_id, name, slug, description, image_id, sort_order, meta_title, meta_description)
+tags                (id, name, slug, type[wood_species|style|other])
+products            (id, name, slug, sku_base, description, short_description, category_id,
+                     price, sale_price, personalization_type[none|included|addon],
+                     personalization_price, personalization_prompt, personalization_max_chars,
+                     status[active|draft|archived], featured, sort_order,
+                     meta_title, meta_description, created_at)
+product_tags        (product_id, tag_id)
+product_variants    (id, product_id, sku, label, material_code, stock_qty,
+                     low_stock_threshold, sort_order)
+product_media       (id, product_id, variant_id[nullable], media_id, sort_order, is_primary)
+</code></pre>
+<h3 id="media">Media</h3>
+<pre><code class="language-sql">media               (id, filename, original_name, disk, path, mime_type, size_bytes,
+                     alt_text, uploaded_by, created_at)
+</code></pre>
+<h3 id="reviews">Reviews</h3>
+<pre><code class="language-sql">product_reviews     (id, product_id, order_item_id[nullable], user_id[nullable], guest_name,
+                     guest_email, rating[1-5], title, body,
+                     status[pending|approved|rejected], admin_note, created_at)
+</code></pre>
+<h3 id="wishlists-restock">Wishlists &amp; Restock</h3>
+<pre><code class="language-sql">wishlists           (id, user_id, product_variant_id, created_at)
+restock_requests    (id, product_variant_id, email, notified_at, created_at)
+</code></pre>
+<h3 id="coupons">Coupons</h3>
+<pre><code class="language-sql">coupons             (id, code, description, type[percent|fixed], value,
+                     min_order_amount, max_uses[nullable], used_count,
+                     applies_to[all|category|product],
+                     category_id[nullable], product_id[nullable],
+                     starts_at[nullable], expires_at[nullable], active)
+</code></pre>
+<h3 id="orders">Orders</h3>
+<pre><code class="language-sql">orders              (id, user_id[nullable], guest_email, status[pending_payment|processing|
+                     in_production|shipped|delivered|refunded|cancelled],
+                     subtotal, discount_amount, shipping_amount, tax_amount, total,
+                     coupon_id[nullable], coupon_code_snapshot,
+                     square_payment_id, square_order_id,
+                     shipping_method, gift_message,
+                     shipping_first_name, shipping_last_name, shipping_line1,
+                     shipping_line2, shipping_city, shipping_state, shipping_zip,
+                     shipping_country, shipping_phone,
+                     billing_first_name, billing_last_name, billing_line1,
+                     billing_line2, billing_city, billing_state, billing_zip,
+                     billing_country, ip_address, notes, created_at)
+order_items         (id, order_id, product_id, variant_id, sku_snapshot, name_snapshot,
+                     variant_label_snapshot, personalization_text,
+                     price_snapshot, qty, subtotal)
+order_status_history (id, order_id, status, note, created_by[nullable], created_at)
+shipments           (id, order_id, carrier, service, tracking_number, shipped_at,
+                     estimated_delivery, label_url[nullable])
+</code></pre>
+<h3 id="shipping">Shipping</h3>
+<pre><code class="language-sql">shipping_methods    (id, name, carrier[usps], service_code, description,
+                     price_override[nullable], is_free_base, sort_order, active)
+-- Seed: USPS Ground (free), USPS Priority (+$X), USPS Priority Express (+$X)
+-- Prices set in admin settings
+</code></pre>
+<h3 id="tax">Tax</h3>
+<pre><code class="language-sql">tax_rates           (id, state_code, rate_percent, label, active)
+-- Seed: FL = 6% (configurable in admin)
+</code></pre>
+<h3 id="journal">Journal</h3>
+<pre><code class="language-sql">journal_posts       (id, user_id, title, slug, excerpt, body, featured_image_id[nullable],
+                     status[draft|published], published_at, meta_title, meta_description)
+journal_post_tags   (post_id, tag_id)
+</code></pre>
+<h3 id="cms-static-pages">CMS / Static Pages</h3>
+<pre><code class="language-sql">pages               (id, title, slug, body, meta_title, meta_description, updated_at)
+-- Seeds: faq, privacy-policy, terms-and-conditions, return-policy, about-us
+</code></pre>
+<h3 id="settings">Settings</h3>
+<pre><code class="language-sql">settings            (key VARCHAR(100) PK, value TEXT, group, label, updated_at)
+-- Examples: store.name, store.email, social.instagram_url, tax.fl_rate,
+--           shipping.priority_upcharge, shipping.priority_express_upcharge,
+--           email.order_confirmation_subject, low_stock.alert_threshold_default
+</code></pre>
+<h3 id="contact">Contact</h3>
+<pre><code class="language-sql">contact_submissions (id, name, email, subject, message, status[new|read|replied],
+                     admin_note, created_at)
+</code></pre>
+<hr>
+<h2 id="url-structure">URL Structure</h2>
+<h3 id="public">Public</h3>
+<pre><code>/                           Home / Landing
+/shop                       Shop (all products)
+/shop?category=jewelry      Filtered by category
+/shop?tag=cherry            Filtered by tag (wood species)
+/product/{slug}             Product detail
+/cart                       Cart
+/checkout                   Checkout
+/checkout/confirmation/{id} Order confirmation
+/order-status               No-login order tracking form
+/journal                    Journal list
+/journal/{slug}             Journal post
+/about                      About Us
+/contact                    Contact
+/faq                        FAQ
+/privacy-policy             Privacy Policy
+/terms-and-conditions       Terms &amp; Conditions
+/return-policy              Return Policy
+/account                    My Account (requires login)
+/account/orders             My Orders
+/account/orders/{id}        Order Detail
+/account/wishlist           My Wishlist
+/account/addresses          Saved Addresses
+/account/profile            Profile &amp; Password
+/login                      Login
+/register                   Register
+/forgot-password            Password Reset
+</code></pre>
+<h3 id="admin-all-require-admin-role">Admin (all require admin role)</h3>
+<pre><code>/admin                      Dashboard
+/admin/orders               Orders list
+/admin/orders/{id}          Order detail + status management
+/admin/orders/{id}/packing-slip  Print packing slip
+/admin/products             Products list
+/admin/products/create      New product
+/admin/products/{id}/edit   Edit product
+/admin/categories           Categories &amp; Tags
+/admin/media                Media library
+/admin/coupons              Coupons
+/admin/customers            Customers list
+/admin/customers/{id}       Customer detail
+/admin/reviews              Review approval queue
+/admin/restock              Restock requests
+/admin/journal              Journal posts list
+/admin/journal/create       New post
+/admin/journal/{id}/edit    Edit post
+/admin/messages             Contact form inbox
+/admin/pages                Static page editor list
+/admin/pages/{slug}/edit    Edit static page
+/admin/reports              Sales reports
+/admin/settings             Store settings
+</code></pre>
+<hr>
+<h2 id="feature-specifications">Feature Specifications</h2>
+<h3 id="product-variants-personalization">Product Variants &amp; Personalization</h3>
+<ul>
+<li>Each product has a <code>personalization_type</code>:</li>
+<li><code>none</code> — no personalization field shown</li>
+<li><code>included</code> — text field shown, no extra charge</li>
+<li><code>addon</code> — text field shown, <code>personalization_price</code> added to cart total</li>
+<li><code>personalization_prompt</code> is the label shown to the customer (e.g., "What name would you like engraved?")</li>
+<li><code>personalization_max_chars</code> limits input length</li>
+<li>Variant selected via swatches (material/wood species label, e.g., "Cherry" "Walnut")</li>
+<li>Selecting an out-of-stock variant hides Add to Cart, shows restock request form</li>
+</ul>
+<h3 id="cart">Cart</h3>
+<ul>
+<li>Session-based for guests, database-persisted for logged-in users</li>
+<li>Merges session cart into account cart on login</li>
+<li>Line items: product, variant, qty, personalization text, price</li>
+<li>Coupon code field with live validation</li>
+<li>Gift message textarea</li>
+<li>Shipping method selector (shown with pricing)</li>
+<li>Real-time subtotal / discount / tax / total calculation (Alpine.js, no AJAX — recalculate on form submit)</li>
+</ul>
+<h3 id="checkout">Checkout</h3>
+<ul>
+<li>Step 1: Contact info (if guest) + shipping address</li>
+<li>Step 2: Shipping method selection</li>
+<li>Step 3: Review order + payment (Square Web Payments Card element)</li>
+<li>Single page with Alpine.js step visibility (no full-page reloads between steps)</li>
+<li>On payment success: create order record, clear cart, redirect to confirmation</li>
+<li>Florida tax: apply FL rate if shipping to FL, otherwise 0% (expandable later)</li>
+</ul>
+<h3 id="square-integration">Square Integration</h3>
+<ul>
+<li>Frontend: Square Web Payments SDK card tokenization</li>
+<li>Backend: Square Payments API <code>CreatePayment</code> with card nonce</li>
+<li>Order amount sent to Square matches server-calculated total (never trust client)</li>
+<li>Webhook endpoint for payment events (capture failures, refunds)</li>
+</ul>
+<h3 id="shipping-method-selection">Shipping Method Selection</h3>
+<ul>
+<li>Three methods seeded: USPS Ground (free), USPS Priority, USPS Priority Express</li>
+<li>Priority and Priority Express upcharges set in admin settings</li>
+<li>All three always available (no weight/zone calculation)</li>
+</ul>
+<h3 id="email-notifications-hostinger-smtp">Email Notifications (Hostinger SMTP)</h3>
+<p>Triggered events:<br>
+1. Order placed → customer order confirmation<br>
+2. Order status changed → customer notification (configurable per status)<br>
+3. Order shipped → customer shipping notification with tracking number<br>
+4. Review submitted → admin notification<br>
+5. Contact form submitted → admin notification<br>
+6. Low stock threshold hit → admin notification<br>
+7. Restock request fulfilled → customer notification (Phase 2, Sender.net batch)</p>
+<p>Templates are Blade views with inline CSS (email-safe).</p>
+<h3 id="media-library">Media Library</h3>
+<ul>
+<li>Supports JPEG, PNG, WebP, MP4</li>
+<li>Uploads stored in <code>storage/app/public/media/</code> (symlinked to <code>public/storage/</code>)</li>
+<li>Product editor has drag-and-drop gallery builder</li>
+<li>Videos show inline player on product page (HTML5 <code>&lt;video&gt;</code>)</li>
+<li>Image lightbox on product page (Alpine.js, no heavy library)</li>
+</ul>
+<h3 id="litespeed-cache-strategy">LiteSpeed Cache Strategy</h3>
+<ul>
+<li>Public product pages: <code>Cache-Control: public, max-age=3600</code> + LSCache tag headers</li>
+<li>Cart, checkout, account pages: <code>Cache-Control: no-store</code></li>
+<li>Admin: <code>Cache-Control: no-store</code></li>
+<li>Cache purge on product/price update via artisan command called in admin save hooks</li>
+</ul>
+<h3 id="seo-phase-2-but-schema-in-place-from-phase-1">SEO (Phase 2, but schema in place from Phase 1)</h3>
+<ul>
+<li><code>&lt;title&gt;</code>, <code>&lt;meta name="description"&gt;</code>, <code>&lt;link rel="canonical"&gt;</code> on every page</li>
+<li>Open Graph + Twitter Card tags</li>
+<li><code>sitemap.xml</code> generated via artisan command (scheduled weekly)</li>
+<li>JSON-LD <code>Product</code> schema on product pages</li>
+<li>JSON-LD <code>Article</code> schema on journal posts</li>
+<li>JSON-LD <code>Organization</code> + <code>LocalBusiness</code> on home page</li>
+</ul>
+<hr>
+<h2 id="admin-features">Admin Features</h2>
+<h3 id="dashboard-widgets">Dashboard Widgets</h3>
+<ul>
+<li>Revenue today / this week / this month / this year</li>
+<li>Orders by status (counts)</li>
+<li>Low stock alerts (variants below threshold)</li>
+<li>Pending reviews count</li>
+<li>Unread contact messages count</li>
+<li>Last 10 orders table</li>
+</ul>
+<h3 id="order-management">Order Management</h3>
+<ul>
+<li>Filter by: status, date range, search (name, email, order #)</li>
+<li>Bulk action: mark as processing</li>
+<li>Order detail: line items, customer, addresses, payment info, status timeline, shipment tracking entry, internal notes, print packing slip button</li>
+<li>Status change dropdown with optional note → logged to <code>order_status_history</code> → triggers customer email</li>
+</ul>
+<h3 id="product-editor">Product Editor</h3>
+<ul>
+<li>Name, slug (auto-generated), category, tags</li>
+<li>Short description (used in shop grid), full description (rich text)</li>
+<li>Price, sale price (optional)</li>
+<li>Personalization config (type, price, prompt, max chars)</li>
+<li>Variant builder: add/remove/reorder variants (label, SKU, stock qty, low-stock threshold)</li>
+<li>Media gallery: drag images from media library or upload directly; drag to reorder; mark primary; attach video; optionally link to specific variant</li>
+<li>SEO fields (meta title, meta description — with character count)</li>
+<li>Status (active / draft / archived)</li>
+<li>Featured toggle</li>
+</ul>
+<h3 id="reports-phase-2-detail-but-basic-in-phase-1">Reports (Phase 2 detail, but basic in Phase 1)</h3>
+<ul>
+<li>Phase 1: Revenue table by month, top 10 products by revenue</li>
+<li>Phase 2: Charts (Chart.js), category breakdown, coupon usage report</li>
+</ul>
+<hr>
+<h2 id="deployment-pipeline">Deployment Pipeline</h2>
+<h3 id="repository-structure">Repository Structure</h3>
+<pre><code>timbertracecrafts/
+├── app/
+│   ├── Http/Controllers/   (Admin/, Auth/, Shop/, Api/)
+│   ├── Models/
+│   ├── Mail/
+│   ├── Services/           (SquareService, CartService, TaxService, etc.)
+│   └── Middleware/         (AdminMiddleware, LiteSpeedCacheMiddleware)
+├── config/
+├── database/
+│   ├── migrations/
+│   └── seeders/            (ShippingMethodSeeder, SettingsSeeder, PageSeeder)
+├── public/                 ← Hostinger document root
+│   ├── index.php
+│   └── storage/            ← symlink to ../storage/app/public
+├── resources/
+│   ├── views/
+│   │   ├── layouts/        (app.blade.php, admin.blade.php, email.blade.php)
+│   │   ├── shop/
+│   │   ├── account/
+│   │   ├── admin/
+│   │   ├── emails/
+│   │   └── pages/
+│   └── css/ js/
+├── routes/
+│   ├── web.php
+│   └── admin.php
+├── storage/
+├── .env.example            (committed; .env never committed)
+├── .gitignore
+└── composer.json
+</code></pre>
+<h3 id="hostinger-setup-one-time">Hostinger Setup (one-time)</h3>
+<ol>
+<li>SSH into Hostinger, set document root to <code>public/</code></li>
+<li>Clone repo from GitHub</li>
+<li><code>composer install --no-dev --optimize-autoloader</code></li>
+<li>Copy <code>.env.example</code> to <code>.env</code>, fill in credentials</li>
+<li><code>php artisan migrate --seed</code></li>
+<li><code>php artisan storage:link</code></li>
+<li>Set up Hostinger Git deployment webhook pointing to <code>main</code> branch</li>
+</ol>
+<h3 id="deploy-on-push-to-main">Deploy on Push to <code>main</code></h3>
+<p>Hostinger auto-pulls → post-pull script runs:</p>
+<pre><code class="language-bash">composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+</code></pre>
+<hr>
+<h2 id="phase-1-build-order">Phase 1 Build Order</h2>
+<ol>
+<li><strong>Foundation</strong>: Laravel install, Tailwind + Alpine.js setup, design tokens as CSS variables, base layouts (public + admin), auth scaffolding</li>
+<li><strong>Database</strong>: All migrations, seeders (settings, shipping methods, static pages)</li>
+<li><strong>Media Library</strong>: Upload, list, delete — reused across all admin editors</li>
+<li><strong>Catalog</strong>: Category/tag CRUD, product editor with variants + media, product list admin</li>
+<li><strong>Shop Pages</strong>: Home, shop grid (filter/sort/paginate), product detail (gallery, variant selector, personalization, add to cart)</li>
+<li><strong>Cart</strong>: Session/DB cart, coupon field stub (logic in Phase 2), gift message, shipping method selection</li>
+<li><strong>Checkout</strong>: Multi-step form, Square payment integration, order creation, confirmation page</li>
+<li><strong>Order Management Admin</strong>: List, detail, status change, tracking entry, packing slip print view</li>
+<li><strong>Customer Emails</strong>: Order confirmation, shipping notification, status change notifications</li>
+<li><strong>Customer Account</strong>: My orders, order detail, saved addresses, profile/password</li>
+<li><strong>Public Static Pages</strong>: About, Contact, FAQ, Privacy, T&amp;C, Return Policy (all editable via admin page editor)</li>
+<li><strong>Order Status Lookup</strong>: No-login form</li>
+<li><strong>Admin Dashboard</strong>: Widgets, low stock alerts, recent orders</li>
+<li><strong>Settings Admin</strong>: Store info, SMTP config, shipping upcharges, FL tax rate</li>
+</ol>
+<h2 id="phase-2-build-order">Phase 2 Build Order</h2>
+<ol>
+<li>Coupon/discount system (apply at cart, validate server-side at checkout)</li>
+<li>Product reviews (form on product page, approval queue in admin)</li>
+<li>Wishlist (heart icon on product cards + dedicated account page)</li>
+<li>Restock request form + admin batch-notify feature</li>
+<li>Journal/blog (admin editor, public list + post pages)</li>
+<li>Sender.net integration (newsletter signup widget, triggered campaigns)</li>
+<li>Umami analytics snippet</li>
+<li>SEO: sitemap generation, JSON-LD, full meta audit</li>
+<li>LiteSpeed cache header tuning</li>
+<li>Pirate Ship API: generate label from order detail in admin</li>
+<li>Admin reports: revenue charts, top products, category breakdown</li>
+</ol>
+<h2 id="phase-3-build-order">Phase 3 Build Order</h2>
+<ol>
+<li>Etsy API sync (list products, update inventory)</li>
+<li>eBay API sync</li>
+<li>Amazon Handmade (manual CSV export as fallback; API if available)</li>
+<li>Gift cards</li>
+<li>Promotions automation (scheduled sales, countdown timers)</li>
+</ol>
+<hr>
+<h2 id="open-questions-to-resolve-before-building">Open Questions (to resolve before building)</h2>
+<ul>
+<li><strong>Square credentials</strong>: You'll need a Square developer account, sandbox + production keys. Do you already have these, or do we set them up as part of Phase 1?</li>
+<li><strong>Unanswered Q25–28</strong> (defaulted above):</li>
+<li>Reports: Basic revenue table + top products (Phase 1), charts (Phase 2) ✓</li>
+<li>Low stock alerts: Email to admin at configurable per-variant threshold ✓</li>
+<li>Media library: Full shared library ✓</li>
+<li>Customer messaging: Admin can view contact submissions; replies via external email ✓</li>
+<li><strong>Priority/Priority Express pricing</strong>: What are the upcharge amounts you want to start with?</li>
+<li><strong>Pirate Ship</strong>: Is Phase 2 timing acceptable, or do you need label generation at launch?</li>
+</ul>
+<hr>
+<h2 id="what-this-will-not-include-scope-boundaries">What This Will NOT Include (scope boundaries)</h2>
+<ul>
+<li>No live chat widget (contact form only)</li>
+<li>No loyalty/rewards program</li>
+<li>No gift wrapping</li>
+<li>No real-time shipping rate calculation (flat upcharges only)</li>
+<li>No multi-currency (USD only)</li>
+<li>No multi-language</li>
+<li>No Swoole/async server mode — Hostinger shared hosting uses LiteSpeed/FPM only</li>
+</ul>
+    </main>
+    <div class="doc-foot">house-style · converted from IMPLEMENTATION_PLAN.md · self-contained · bin/md2html.py</div>
+  </div>
+</body>
+</html>
