@@ -30,210 +30,144 @@
   --content-max:645px; --wide-max:1340px;
 }
 
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
   *{box-sizing:border-box}
-  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
-  ::-webkit-scrollbar{width:10px;height:10px}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
   ::-webkit-scrollbar-track{background:var(--ink)}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
-  html,body{margin:0;background:var(--ink);color:var(--text);
-    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
-  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
-    padding:26px 18px 80px;font-size:14.5px}
-  .wrap{max-width:800px;margin:0 auto}
-  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
-  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--faint)}
-  .doc-mast .eyebrow b{color:var(--brass)}
-  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
-  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
-  main h1{font-size:26px;margin:.2em 0 .5em}
-  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
-  main h3{font-size:16px;margin:1.4em 0 .4em}
-  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  main p{margin:.7em 0;color:var(--text)}
-  main a{color:var(--brass);text-decoration:none}
-  main a:hover{text-decoration:underline}
-  main strong{color:#fff}
-  main ul,main ol{margin:.6em 0;padding-left:1.4em}
-  main li{margin:.28em 0}
-  main li::marker{color:var(--faint)}
-  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
-    padding:1px 5px;border-radius:4px}
-  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:13px 15px;overflow:auto;line-height:1.5}
-  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
-  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
-    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
-  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
-  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-  main tr:hover td{background:var(--ink2)}
-  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
-  main img{max-width:100%;border-radius:var(--r-md)}
-  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
-  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
-    font-family:var(--mono);font-size:10px;color:var(--faint)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
 
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="doc-mast">
-      <span class="eyebrow"><b>▸</b> Pinterest SOP — Timber Trace Crafts</span>
-      <span class="src">pinterest-sop.md</span>
-    </div>
-    <main>
-<h1 id="pinterest-sop-timber-trace-crafts">Pinterest SOP — Timber Trace Crafts</h1>
-<p><strong>Account:</strong> https://www.pinterest.com/TimberTraceCrafts/<br>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PINTEREST</div>
+      <h1 class="title">Pinterest SOP — Timber Trace Crafts</h1>
+      <p class="standfirst"><strong>Account:</strong> https://www.pinterest.com/TimberTraceCrafts/<br>
 <strong>Login:</strong> marketer@timbertracecrafts.com (credentials in Paperclip Secrets)<br>
 <strong>Maintainer:</strong> Growth &amp; Content Marketer agent</p>
+      <div class="meta"><span>7 sections</span><span class="dot">·</span><span class="read">~2 min read</span><span class="dot">·</span><span>pinterest-sop.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#boards"><span class="n">01</span><span>Boards</span></a><a href="#image-spec"><span class="n">02</span><span>Image spec</span></a><a href="#caption-formula"><span class="n">03</span><span>Caption formula</span></a><a href="#link-format"><span class="n">04</span><span>Link format</span></a><a href="#pin-every-post-workflow"><span class="n">05</span><span>Pin-every-post workflow</span></a><a href="#rich-pins-one-time-setup"><span class="n">06</span><span>Rich Pins (one-time setup)</span></a><a href="#first-run-board-pin-setup"><span class="n">07</span><span>First-run board + pin setup</span></a></nav></details>
+    <main>
+
 <hr>
 <h2 id="boards">Boards</h2>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Board name</th>
 <th>Category</th>
 <th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Laser-Cut Wood Earrings</td>
-<td>Women's Fashion</td>
-<td>All earring products and earring-adjacent content</td>
-</tr>
-<tr>
-<td>Jewelry &amp; Keepsake Boxes</td>
-<td>Design</td>
-<td>Box products, personalization, wedding/anniversary</td>
-</tr>
-<tr>
-<td>Engraved Tumblers &amp; Drinkware</td>
-<td>Food and Drinks</td>
-<td>Tumbler products, seasonal drinkware</td>
-</tr>
-<tr>
-<td>Handmade Gift Ideas</td>
-<td>Gifts</td>
-<td>Blog gift guides, cross-product gift context</td>
-</tr>
-<tr>
-<td>Behind the Studio</td>
-<td>Design</td>
-<td>Process shots, maker story, studio photos</td>
-</tr>
-<tr>
-<td>Woodworking &amp; Craft Tips</td>
-<td>DIY and Crafts</td>
-<td>How-it's-made journal posts, laser/wood craft tips</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="image-spec">Image spec</h2>
-<ul>
-<li><strong>Ratio:</strong> 2:3 (1000 × 1500 px recommended)</li>
-<li><strong>Format:</strong> JPG or PNG, ≤10 MB</li>
-<li><strong>Source:</strong> Use the R2 product hero photo for product pins. For blog pins, use the post's cover image or og:image.</li>
-<li><strong>Branding:</strong> No logo overlay required — product photos already carry the Timber Trace Crafts brand.</li>
-<li><strong>Alt text:</strong> Fill the "alt text" field on every pin for accessibility and search indexing.</li>
-</ul>
-<hr>
-<h2 id="caption-formula">Caption formula</h2>
-<pre><code>[Lead benefit or emotional hook]. [1–2 product detail sentences]. [CTA or occasion]. Handmade in Avon Park, FL.
-</code></pre>
-<p><strong>Examples:</strong></p>
-<blockquote>
-<p><em>Solid-hardwood teardrop earrings, laser-cut for airy everyday wear. Feather-light, eco-friendly, 3mm hardwood. Great boho gift. Handmade in Avon Park, FL.</em></p>
-<p><em>Celebrate America's 250th with a laser-etched stainless steel travel mug — 1776–2026 eagle design. Keeps drinks cold 20+ hrs. Perfect patriotic gift. Handmade in Avon Park, FL.</em></p>
-</blockquote>
-<p><strong>Length:</strong> 100–150 characters preferred; Pinterest shows a preview of ~100 chars, longer text is readable on expand.</p>
-<hr>
-<h2 id="link-format">Link format</h2>
-<table>
-<thead>
-<tr>
-<th>Pin type</th>
-<th>Link target</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Product pin</td>
-<td><code>https://timbertracecrafts.com/product/{slug}</code></td>
-</tr>
-<tr>
-<td>Blog/journal pin</td>
-<td><code>https://timbertracecrafts.com/journal/{slug}</code></td>
-</tr>
-<tr>
-<td>General brand</td>
-<td><code>https://timbertracecrafts.com/</code></td>
-</tr>
-</tbody>
-</table>
-<p>Always use the canonical <code>/product/</code> or <code>/journal/</code> URL — never an admin or Etsy URL.</p>
-<hr>
-<h2 id="pin-every-post-workflow">Pin-every-post workflow</h2>
-<p><strong>Target: pin within 24 hours of publish.</strong></p>
-<ol>
-<li>New journal post or product goes live at <code>/journal/{slug}</code> or <code>/product/{slug}</code>.</li>
-<li>Marketer agent drafts the pin batch (title, description, board, link) as a comment on the active TIM issue or a new child issue.</li>
-<li>Execute: log in as marketer@timbertracecrafts.com → Profile → <strong>+</strong> Create pin → upload image → fill title, description, alt text, link → choose board → Publish.</li>
-<li>Confirm published URL in the issue thread.</li>
-</ol>
-<p><strong>Board routing by content type:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Content</th>
-<th>Board</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Earring product</td>
-<td>Laser-Cut Wood Earrings</td>
-</tr>
-<tr>
-<td>Box/keepsake product</td>
-<td>Jewelry &amp; Keepsake Boxes</td>
-</tr>
-<tr>
-<td>Tumbler product</td>
-<td>Engraved Tumblers &amp; Drinkware</td>
-</tr>
-<tr>
-<td>Gift guide / evergreen blog</td>
-<td>Handmade Gift Ideas</td>
-</tr>
-<tr>
-<td>How-it's-made / process blog</td>
-<td>Behind the Studio or Woodworking &amp; Craft Tips</td>
-</tr>
-<tr>
-<td>Cross-category gift occasion</td>
-<td>Handmade Gift Ideas</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="rich-pins-one-time-setup">Rich Pins (one-time setup)</h2>
-<p>After boards and first pins exist:</p>
-<ol>
-<li>Open https://developers.pinterest.com/tools/url-debugger/</li>
-<li>Enter any product URL (e.g. <code>/product/solid-hardwood-teardrop-earrings-…</code>)</li>
-<li>Click <strong>Validate</strong> — this reads the OG meta tags and activates Rich Pins for the domain.</li>
-<li>All product pins will then auto-pull price, availability, and description from page meta.</li>
-</ol>
-<p>Note: product pins will show <code>og-default.jpg</code> until the Founding Engineer wires per-product <code>og:image</code> (tracked in TIM-30).</p>
-<hr>
-<h2 id="first-run-board-pin-setup">First-run board + pin setup</h2>
-<p>See the companion setup script at <code>outputs/timber-trace/marketing/pinterest-board-setup-script.md</code> for the full one-time execution guide (6 boards + 7 first pins with exact copy ready to paste).</p>
-    </main>
-    <div class="doc-foot">house-style · converted from pinterest-sop.md · self-contained · bin/md2html.py</div>
-  </div>
-</body>
-</html>
+</tr

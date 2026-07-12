@@ -30,66 +30,140 @@
   --content-max:645px; --wide-max:1340px;
 }
 
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
   *{box-sizing:border-box}
-  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
-  ::-webkit-scrollbar{width:10px;height:10px}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
   ::-webkit-scrollbar-track{background:var(--ink)}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
-  html,body{margin:0;background:var(--ink);color:var(--text);
-    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
-  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
-    padding:26px 18px 80px;font-size:14.5px}
-  .wrap{max-width:800px;margin:0 auto}
-  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
-  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--faint)}
-  .doc-mast .eyebrow b{color:var(--brass)}
-  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
-  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
-  main h1{font-size:26px;margin:.2em 0 .5em}
-  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
-  main h3{font-size:16px;margin:1.4em 0 .4em}
-  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  main p{margin:.7em 0;color:var(--text)}
-  main a{color:var(--brass);text-decoration:none}
-  main a:hover{text-decoration:underline}
-  main strong{color:#fff}
-  main ul,main ol{margin:.6em 0;padding-left:1.4em}
-  main li{margin:.28em 0}
-  main li::marker{color:var(--faint)}
-  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
-    padding:1px 5px;border-radius:4px}
-  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:13px 15px;overflow:auto;line-height:1.5}
-  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
-  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
-    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
-  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
-  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-  main tr:hover td{background:var(--ink2)}
-  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
-  main img{max-width:100%;border-radius:var(--r-md)}
-  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
-  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
-    font-family:var(--mono);font-size:10px;color:var(--faint)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
 
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="doc-mast">
-      <span class="eyebrow"><b>▸</b> Timber Trace Crafts — Editorial Calendar &amp; Content Engine</span>
-      <span class="src">editorial-calendar.md</span>
-    </div>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">CONTENT</div>
+      <h1 class="title">Timber Trace Crafts — Editorial Calendar &amp; Content Engine</h1>
+      <p class="standfirst"><em>Owner: Growth &amp; Content Marketer. Source of truth for the organic-growth content program (issue TIM-16, parent TIM-11). Aligned to <code>TASKS.md</code> "Someday" content plan and the company goal: $1,000/mo revenue by end of 2026, grown organically.</em></p>
+      <div class="meta"><span>8 sections</span><span class="dot">·</span><span class="read">~4 min read</span><span class="dot">·</span><span>editorial-calendar.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#1-strategy-in-one-paragraph"><span class="n">01</span><span>1. Strategy in one paragraph</span></a><a href="#2-content-clusters-hub-spokes"><span class="n">02</span><span>2. Content clusters (hub → spokes)</span></a><a href="#3-internal-link-architecture-real-urls-route-is-singular-productslug"><span class="n">03</span><span>3. Internal-link architecture (real URLs — route is singular /product/{slug})</span></a><a href="#4-answer-first-rotation-per-the-tasksmd-publish-spec"><span class="n">04</span><span>4. Answer-first rotation (per the TASKS.md publish spec)</span></a><a href="#5-publishing-pipeline-how-a-post-actually-goes-live"><span class="n">05</span><span>5. Publishing pipeline (how a post actually goes live)</span></a><a href="#6-monthly-ai-citation-tracking-10-target-queries"><span class="n">06</span><span>6. Monthly AI-citation tracking (10 target queries)</span></a><a href="#7-distribution-per-post-compounding-reach"><span class="n">07</span><span>7. Distribution per post (compounding reach)</span></a><a href="#8-schedule"><span class="n">08</span><span>8. Schedule</span></a></nav></details>
     <main>
-<h1 id="timber-trace-crafts-editorial-calendar-content-engine">Timber Trace Crafts — Editorial Calendar &amp; Content Engine</h1>
-<p><em>Owner: Growth &amp; Content Marketer. Source of truth for the organic-growth content program (issue TIM-16, parent TIM-11). Aligned to <code>TASKS.md</code> "Someday" content plan and the company goal: $1,000/mo revenue by end of 2026, grown organically.</em></p>
+
 <h2 id="1-strategy-in-one-paragraph">1. Strategy in one paragraph</h2>
 <p>Build <strong>topic authority</strong> around personalized laser-engraved wood gifts using a hub-and-spoke model: a few deep <strong>pillar</strong> posts (evergreen, 2,500–3,500 words) each surrounded by shorter <strong>spoke</strong> posts (buying guides, FAQs, comparisons) that link up to their pillar and across to real product pages. Every post is written <strong>answer-first</strong> (a 40–60 word factual opener under each H2) so it ranks in Google <em>and</em> gets cited by AI answer engines (ChatGPT, Perplexity, Google AI Overviews). We measure the funnel (impressions → clicks → sessions → add-to-cart) and AI-citation appearances monthly, then adjust angle.</p>
 <h2 id="2-content-clusters-hub-spokes">2. Content clusters (hub → spokes)</h2>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Cluster</th>
@@ -130,60 +204,6 @@
 <td>All</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <h2 id="3-internal-link-architecture-real-urls-route-is-singular-productslug">3. Internal-link architecture (real URLs — route is singular <code>/product/{slug}</code>)</h2>
-<p>Every post links to its pillar, 1–2 sibling spokes, and 2–4 product pages. Canonical targets:</p>
-<ul>
-<li>Jewelry box → <code>/product/personalized-heart-jewelry-box-laser-cut-wooden-keepsake-box-wedding-anniversary-or-valentines-gift</code></li>
-<li>Butterfly earrings → <code>/product/solid-hardwood-butterfly-earrings-laser-cut-dangle-jewelry-natural-boho-eco-friendly-gift</code> (variants <code>-2</code>, <code>-3</code>)</li>
-<li>Teardrop earrings → <code>/product/solid-hardwood-teardrop-earrings-laser-cut-dangle-jewelry-natural-boho-eco-friendly-gift</code></li>
-<li>Tumbler → <code>/product/america-250-tumbler-laser-etched-stainless-steel-travel-mug-1776-2026-eagle-patriotic-cup</code></li>
-<li>Shop all → <code>/</code> · Journal hub → <code>/journal</code> · Care guide → <code>/care-guide</code></li>
-<li>Published pillar spoke → <code>/journal/best-handmade-gifts-for-women</code></li>
-</ul>
-<blockquote>
-<p>Do NOT use <code>/products/...</code> (plural) or short invented slugs — they 404. Always the singular <code>/product/</code> + the full real slug above.</p>
-</blockquote>
-<h2 id="4-answer-first-rotation-per-the-tasksmd-publish-spec">4. Answer-first rotation (per the TASKS.md publish spec)</h2>
-<p>To vary structure across the Month-1 batch and cover multiple AI-citation formats:<br>
-1. <strong>Post 1</strong> — 40–60 word factual opener under every H2 (definitional, citation-friendly).<br>
-2. <strong>Post 2</strong> — includes a data table / comparison (tables get pulled into AI Overviews and featured snippets).<br>
-3. <strong>Post 3</strong> — question-based H2s throughout ("How does…", "What is…") for AEO/People-Also-Ask capture.</p>
-<h2 id="5-publishing-pipeline-how-a-post-actually-goes-live">5. Publishing pipeline (how a post actually goes live)</h2>
-<ol>
-<li>Draft markdown → <code>.claude/blog/posts/{slug}.md</code> with frontmatter (<code>title, slug, excerpt, meta_title, meta_description, tags: [..], status, published_at</code>). H1 is auto-rendered from <code>title</code> — do <strong>not</strong> add an H1 in the body.</li>
-<li>Run <strong><code>/blog analyze</code></strong> → must score <strong>80+</strong> before publish. Iterate if under.</li>
-<li>Commit on a content branch (path-scoped, never <code>-A</code>/<code>-a</code> — shared working tree).</li>
-<li>Founding Engineer merges to <code>main</code> + deploys; admin <strong>Journal → Import</strong> ingests the draft (auto-creates tags), then attaches the <strong>featured image</strong> from the Media Library and sets status/published_at.</li>
-<li>Post-publish: pin to Pinterest w/ cover image + excerpt; repurpose (see §7); add to AI-citation tracker (§6).</li>
-</ol>
-<h2 id="6-monthly-ai-citation-tracking-10-target-queries">6. Monthly AI-citation tracking (10 target queries)</h2>
-<p>Run on ~the 1st of each month in <strong>ChatGPT</strong> and <strong>Perplexity</strong> (free tiers); log whether timbertracecrafts.com is cited/linked, and which competitors are. Template: <code>docs/content/ai-citation-tracker.md</code>.</p>
-<p>Target queries:<br>
-1. best personalized laser engraved gifts<br>
-2. are wood earrings hypoallergenic<br>
-3. wood vs metal earrings for sensitive ears<br>
-4. how does laser engraving personalization work<br>
-5. what materials can be laser engraved<br>
-6. laser engraving vs laser cutting difference<br>
-7. best handmade gifts for women who appreciate details<br>
-8. how are wood earrings made<br>
-9. personalized wooden jewelry box ideas<br>
-10. are laser engraved tumblers dishwasher safe</p>
-<p>Action loop: if we're not cited on a query our content targets → check passage-level citability (crisp 40–60w definitional answer, named stat + source, clear entity naming "Timber Trace Crafts"), then rewrite the weak passage and request re-index.</p>
-<h2 id="7-distribution-per-post-compounding-reach">7. Distribution per post (compounding reach)</h2>
-<p>On publish day, every post → Pinterest pin (cover + excerpt) → 1 Twitter/X thread OR LinkedIn post → newsletter mention. Pillars additionally → a Reddit value-first comment/post where relevant (r/woodworking, r/crafts — never a link drop) and a YouTube short/process clip when footage exists. Use <code>/blog repurpose</code>.</p>
-<h2 id="8-schedule">8. Schedule</h2>
-<p><strong>Month 1 (batch — TIM-16, publish together):</strong><br>
-- P1 · Pillar A — <em>Ultimate Guide to Personalized Laser-Engraved Gifts</em> — answer-first openers<br>
-- P2 · Pillar B — <em>The Complete Guide to Wood Earrings</em> — data table/comparison<br>
-- P3 · Pillar C — <em>How Laser Cutting &amp; Engraving Works</em> — question-based H2s</p>
-<p><em>(Pillar D spoke "Best Handmade Gifts for Women" is already LIVE and seeds cluster D.)</em></p>
-<p><strong>Month 2:</strong> Gift Guide Hub (Pillar D) + next seasonal spoke; Wood-earrings spokes (hypoallergenic; wood vs. metal); brand story.<br>
-<strong>Month 3:</strong> Personalization spokes (how it works; what can/can't be engraved; cut vs. engrave); FAQ spokes (shower, dishwasher); comparison posts. Refresh Month-1 pillars (30-day freshness signal for AI citation).</p>
-<p><strong>Cadence:</strong> ~1 post/week. Every post passes the gate in §5.2 (score 80+, real sourced stats, internal links, tags, SEO meta).</p>
-    </main>
-    <div class="doc-foot">house-style · converted from editorial-calendar.md · self-contained · bin/md2html.py</div>
-  </div>
-</body>
-</html>
+<p>Every post links to its pillar, 1–2 sibli

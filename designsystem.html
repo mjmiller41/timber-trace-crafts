@@ -1,0 +1,530 @@
+<!--
+  TimberTrace Crafts — Design System (single-file reference)
+  Derived from the live repo, NOT invented:
+    - resources/css/app.css           (Tailwind v4 @theme tokens, components, dark-mode swap)
+    - resources/css/admin.css         (admin surface tokens & components)
+    - .claude/timber_trace_crafts_design_plan/{DESIGN.md,theme.json,style.css}
+    - resources/views/components/{nav,product-card,footer}.blade.php, home/index.blade.php
+
+  REAL FONTS (self-hosted variable woff2 in production, see public/fonts):
+    - Headings: 'Fraunces'      (serif; variable, opsz/SOFT/WONK axes). Legacy plan used Playfair Display.
+    - Body:     'Inter Tight'   (sans-serif; variable). Legacy plan used Montserrat.
+    - Mono:     'Source Code Pro' (design-plan only)
+  This file is offline/self-contained: NO web fonts, NO CDN, NO external CSS/JS.
+  System stacks below only APPROXIMATE the real faces for offline preview.
+-->
+<title>TimberTrace Crafts · Design System</title>
+<style>
+/* ============================================================
+   TOKENS — copied from resources/css/app.css @theme (light)
+   ============================================================ */
+:root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+/* html.dark swap — the site redefines the SAME named tokens (app.css) */
+html.dark{
+  color-scheme:dark;
+  --color-oak-sand:#1b1712;
+  --color-surface:#241e18;
+  --color-charcoal:#ece6dc;
+  --color-walnut:#ad9c8b;
+  --color-mahogany:#c68a5b;
+  --color-forest-green:#3e6650;
+  --color-error:#e5534b;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  background:var(--color-oak-sand);
+  color:var(--color-charcoal);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,h5,h6{font-family:var(--font-heading);font-weight:400;line-height:1.2;margin:0}
+h1,h2{font-weight:380;letter-spacing:-.015em}
+h3{font-weight:500}
+h4,h5,h6{font-weight:560}
+img{max-width:100%;height:auto}
+a{color:inherit;text-decoration:none}
+code{font-family:var(--font-mono);font-size:.85em}
+
+/* ---- layout scaffold for THIS reference page ---- */
+.wrap{max-width:var(--wide-max);margin:0 auto;padding:0 1rem}
+@media(min-width:640px){.wrap{padding:0 1.5rem}}
+@media(min-width:1024px){.wrap{padding:0 2rem}}
+.masthead{background:var(--color-forest-green);color:#F4F1EA;padding:var(--s-xl) 0}
+.masthead .kicker{font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,234,.6);margin:0 0 .9rem}
+.masthead h1{color:#F4F1EA;font-size:clamp(2rem,5vw,3.25rem);margin:0 0 1rem}
+.masthead .note{max-width:60ch;color:rgba(244,241,234,.82);font-size:1.05rem;font-weight:300;line-height:1.6}
+.masthead .stack{margin-top:1.4rem;display:flex;flex-wrap:wrap;gap:.5rem}
+.masthead .chip{font-family:var(--font-body);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(244,241,234,.3);color:rgba(244,241,234,.85);padding:.35rem .7rem;border-radius:var(--r-full)}
+
+section.block{padding:var(--s-lg) 0;border-bottom:1px solid rgb(140 123 108 / .25)}
+.eyebrow{font-family:var(--font-body);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--color-walnut);margin:0 0 .4rem}
+.h-sec{font-size:clamp(1.6rem,3.5vw,2.3rem);margin:0 0 .5rem}
+.lede{color:var(--color-walnut);max-width:70ch;margin:0 0 2rem;font-size:.98rem}
+
+/* ---- color swatches ---- */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.sw{border:1px solid rgb(140 123 108 / .3);background:var(--color-surface);overflow:hidden}
+html.dark .sw{background:var(--color-surface);border-color:rgb(173 156 139 / .25)}
+.sw .chipc{height:96px;border-bottom:1px solid rgb(140 123 108 / .2)}
+.sw .meta{padding:.7rem .8rem}
+.sw .nm{font-size:.85rem;font-weight:600}
+.sw .vr{font-family:var(--font-mono);font-size:.72rem;color:var(--color-walnut);margin-top:.15rem;word-break:break-all}
+.sw .use{font-size:.72rem;color:var(--color-walnut);margin-top:.35rem;line-height:1.4}
+
+/* ---- type specimens ---- */
+.specimen{border:1px solid rgb(140 123 108 / .25);padding:1.2rem 1.4rem;margin-bottom:.85rem;background:var(--color-surface)}
+html.dark .specimen{background:var(--color-surface);border-color:rgb(173 156 139 / .2)}
+.specimen .tag{font-family:var(--font-mono);font-size:.68rem;color:var(--color-walnut);display:block;margin-bottom:.5rem}
+.scale-row{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;padding:.55rem 0;border-bottom:1px dashed rgb(140 123 108 / .2)}
+.scale-row:last-child{border-bottom:none}
+.scale-row .lbl{font-family:var(--font-mono);font-size:.68rem;color:var(--color-walnut);min-width:150px}
+
+/* ---- token grids ---- */
+.tok{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem}
+.tok .t{border:1px solid rgb(140 123 108 / .25);padding:.75rem;background:var(--color-surface);font-size:.78rem}
+html.dark .tok .t{background:var(--color-surface);border-color:rgb(173 156 139 / .2)}
+.tok .t b{font-family:var(--font-mono);font-size:.72rem;display:block;margin-bottom:.35rem}
+.tok .t .bar{background:var(--color-walnut);height:12px;border-radius:2px}
+.radrow{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end}
+.radbox{width:70px;height:70px;background:var(--color-forest-green)}
+.radlab{font-family:var(--font-mono);font-size:.68rem;color:var(--color-walnut);text-align:center;margin-top:.35rem}
+
+/* ============================================================
+   REAL COMPONENT CSS — lifted from resources/css/app.css
+   ============================================================ */
+.btn-primary{display:inline-block;background:var(--color-charcoal);color:var(--color-oak-sand);padding:.75rem 1.5rem;font-family:var(--font-body);font-weight:600;font-size:.875rem;letter-spacing:.1em;text-transform:uppercase;border-radius:0;border:none;cursor:pointer;transition:opacity .2s;text-align:center}
+.btn-primary:hover{opacity:.85}
+.btn-outline{display:inline-block;background:transparent;color:currentColor;border:1px solid currentColor;padding:.75rem 1.5rem;font-family:var(--font-body);font-weight:600;font-size:.875rem;letter-spacing:.1em;text-transform:uppercase;border-radius:0;cursor:pointer;transition:background-color .2s;text-align:center}
+.btn-outline:hover{background:rgb(0 0 0 / .05)}
+html.dark .btn-outline:hover{background:rgb(255 255 255 / .08)}
+.btn-forest{display:inline-block;background:var(--color-forest-green);color:#fff;padding:.75rem 1.5rem;font-family:var(--font-body);font-weight:600;font-size:.875rem;letter-spacing:.1em;text-transform:uppercase;border-radius:0;border:none;cursor:pointer;transition:opacity .2s;text-align:center}
+.btn-forest:hover{opacity:.85}
+.form-field{display:block;width:100%;border:1px solid #000;padding:.5rem .75rem;font-size:.875rem;background:#fff;border-radius:0;outline:none;font-family:var(--font-body);color:var(--color-charcoal)}
+.form-field::placeholder{color:var(--color-walnut)}
+.form-field:focus{outline:none;box-shadow:0 0 0 2px var(--color-oak-sand),0 0 0 4px var(--color-walnut)}
+html.dark .form-field{background:#221c16;border-color:rgb(173 156 139 / .5);color:var(--color-charcoal)}
+.card{background:var(--color-oak-sand);border:1px solid rgb(140 123 108 / .3)}
+html.dark .card{background:var(--color-surface);border-color:rgb(173 156 139 / .25)}
+.section-label{font-family:var(--font-body);font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--color-walnut)}
+/* badges */
+.admin-badge-success{display:inline-flex;align-items:center;padding:.125rem .625rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#dcfce7;color:#166534}
+.admin-badge-warning{display:inline-flex;align-items:center;padding:.125rem .625rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#fef9c3;color:#854d0e}
+.admin-badge-error{display:inline-flex;align-items:center;padding:.125rem .625rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#fee2e2;color:#991b1b}
+.admin-badge-info{display:inline-flex;align-items:center;padding:.125rem .625rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#dbeafe;color:#1e40af}
+.admin-badge-neutral{display:inline-flex;align-items:center;padding:.125rem .625rem;border-radius:9999px;font-size:.75rem;font-weight:500;background:#f3f4f6;color:#374151}
+/* signature: laser-kerf product frame */
+.kerf-frame{position:relative}
+.kerf-frame::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:
+    linear-gradient(var(--color-walnut),var(--color-walnut)) top left/12px 1px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) top left/1px 12px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) top right/12px 1px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) top right/1px 12px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) bottom left/12px 1px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) bottom left/1px 12px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) bottom right/12px 1px no-repeat,
+    linear-gradient(var(--color-walnut),var(--color-walnut)) bottom right/1px 12px no-repeat;
+  opacity:.35;transition:opacity .3s}
+.group:hover .kerf-frame::after{opacity:.9}
+/* signature motion: engrave reveal */
+.engrave-reveal{position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(105deg,transparent 42%,rgb(255 255 255 / .28) 50%,transparent 58%);
+  transform:translateX(-130%);transition:transform .7s cubic-bezier(.4,0,.2,1)}
+.group:hover .engrave-reveal{transform:translateX(130%)}
+@media(prefers-reduced-motion:reduce){.engrave-reveal{transition:none}}
+
+/* component demo scaffolding */
+.demo{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-bottom:1.4rem}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.6rem}
+.demo-label{font-family:var(--font-mono);font-size:.68rem;color:var(--color-walnut);text-transform:uppercase;letter-spacing:.08em;margin:1.6rem 0 .6rem}
+
+/* product tile demo (mirrors product-card.blade.php) */
+.ptile .imgbox{aspect-ratio:1/1;overflow:hidden;background:var(--color-surface);margin-bottom:.75rem;position:relative;display:flex;align-items:center;justify-content:center}
+.ptile .ph{color:#C4B9AA}
+html.dark .ptile .ph{color:#5b5147}
+.ptile h3{font-size:1rem;line-height:1.35;margin:.35rem 0 .4rem;transition:color .2s}
+.ptile.group:hover h3{color:var(--color-forest-green)}
+.ptile .price{font-size:.9375rem;font-weight:500;color:var(--color-charcoal);font-family:var(--font-body)}
+.ptile .price-sale{font-size:.9375rem;font-weight:600;color:var(--color-mahogany);font-family:var(--font-body)}
+.ptile .price-old{font-size:.8125rem;color:var(--color-walnut);text-decoration:line-through;font-family:var(--font-body);margin-left:.5rem}
+.tile-badge{position:absolute;top:10px;left:10px;color:#F4F1EA;font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:3px 8px;font-family:var(--font-body)}
+
+/* nav demo (mirrors nav.blade.php) */
+.navdemo{border:1px solid rgb(140 123 108 / .3);background:var(--color-oak-sand);position:sticky;position:static}
+.navbar{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 1.25rem}
+.brand{font-family:var(--font-heading);font-weight:400;font-size:1.375rem;letter-spacing:.01em}
+.navlinks{display:flex;gap:2rem}
+.navlinks a{cursor:pointer;transition:color .2s}
+.navlinks a:hover,.navlinks a.on{color:var(--color-charcoal)}
+.navicons{display:flex;gap:1.25rem;color:var(--color-walnut)}
+@media(max-width:720px){.navlinks{display:none}}
+
+/* footer demo */
+.footdemo{background:#2C4C3B;color:#F4F1EA;padding:2.5rem 1.5rem}
+.footdemo .fbrand{font-family:var(--font-heading);font-size:1.375rem;margin-bottom:.6rem}
+.footdemo .ftag{font-size:.8125rem;color:rgba(244,241,234,.65);max-width:34ch;line-height:1.7}
+.footdemo .fhead{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgba(244,241,234,.45);margin:0 0 .8rem}
+.footdemo .fgrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem}
+@media(max-width:640px){.footdemo .fgrid{grid-template-columns:1fr}}
+.footer-link{font-size:.8125rem;color:rgba(244,241,234,.75);display:block;padding:.25rem 0;transition:color .15s}
+.footer-link:hover{color:#F4F1EA}
+
+/* hero demo */
+.herodemo{background:var(--color-forest-green);color:#fff;padding:var(--s-xl) 1.5rem}
+.herodemo .kick{color:rgba(255,255,255,.6)}
+.herodemo h2{color:#fff;font-size:clamp(2rem,5vw,3rem);font-weight:300;line-height:1.15;margin:1rem 0}
+.herodemo p.sub{color:rgba(255,255,255,.75);font-weight:300;max-width:42ch;margin-bottom:1.6rem}
+.hbtn-light{display:inline-block;background:#fff;color:var(--color-charcoal);padding:.9rem 2rem;font-weight:600;font-size:.875rem;letter-spacing:.12em;text-transform:uppercase;transition:opacity .2s}
+.hbtn-light:hover{opacity:.85}
+.hbtn-ghost{display:inline-block;border:1px solid rgba(255,255,255,.6);color:#fff;padding:.9rem 2rem;font-weight:600;font-size:.875rem;letter-spacing:.12em;text-transform:uppercase;transition:background .2s}
+.hbtn-ghost:hover{background:rgba(255,255,255,.1)}
+
+/* admin stat card demo (admin.css) */
+.stat{background:#fff;padding:1.25rem 1.5rem;border:1px solid #e5e7eb;border-radius:.125rem}
+html.dark .stat{background:var(--color-surface);border-color:rgb(173 156 139 / .25)}
+.stat .l{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--color-walnut);margin-bottom:.375rem}
+.stat .v{font-family:var(--font-heading);font-size:1.75rem;font-weight:300;color:var(--color-charcoal)}
+
+/* ============================================================
+   DECISION COMPONENT — restyled to repo, JS behavior identical
+   ============================================================ */
+.decisions{border:1px solid rgb(140 123 108 / .3);background:var(--color-surface);padding:1.6rem;max-width:760px}
+html.dark .decisions{border-color:rgb(173 156 139 / .25)}
+.decision{padding:1rem 0;border-bottom:1px dashed rgb(140 123 108 / .25)}
+.decision:first-child{padding-top:0}
+.decision .q{font-family:var(--font-heading);font-size:1.15rem;margin:0 0 .8rem;color:var(--color-charcoal)}
+.opts{display:flex;flex-direction:column;gap:.5rem}
+.opt{display:flex;gap:.6rem;align-items:flex-start;padding:.6rem .8rem;border:1px solid rgb(140 123 108 / .3);cursor:pointer;transition:border-color .15s,background .15s;font-size:.9rem}
+.opt:hover{border-color:var(--color-walnut);background:rgb(140 123 108 / .06)}
+.opt input{accent-color:var(--color-forest-green);margin-top:.2rem}
+.opt b{font-weight:600}
+.decisions textarea{width:100%;font-family:var(--font-body);font-size:.9rem;padding:.6rem .75rem;border:1px solid #000;background:#fff;color:var(--color-charcoal);border-radius:0;resize:vertical}
+html.dark .decisions textarea{background:#221c16;border-color:rgb(173 156 139 / .5)}
+.decisions .btn{margin-top:1.2rem;background:var(--color-forest-green);color:#fff;border:none;padding:.75rem 1.5rem;font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:opacity .2s}
+.decisions .btn:hover{opacity:.85}
+.toast{margin-left:.9rem;font-size:.8rem;font-weight:600;color:var(--color-forest-green);opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+#out-d1{margin-top:1rem;min-height:120px;font-family:var(--font-mono);font-size:.78rem;display:block}
+
+/* utility */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.floatbar{position:fixed;top:1rem;right:1rem;z-index:99}
+.floatbar button{background:var(--color-charcoal);color:var(--color-oak-sand);border:none;padding:.5rem .9rem;font-family:var(--font-body);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;cursor:pointer}
+.note-box{border-left:2px solid var(--color-mahogany);padding:.4rem 0 .4rem 1rem;color:var(--color-walnut);font-size:.85rem;margin:1rem 0}
+</style>
+
+<div class="floatbar"><button type="button" onclick="document.documentElement.classList.toggle('dark')">◐ Toggle theme</button></div>
+
+<!-- ===================== MASTHEAD ===================== -->
+<header class="masthead">
+  <div class="wrap">
+    <p class="kicker">Handcrafted Wood &amp; Resin · Laser-Cut Gifts</p>
+    <h1>TimberTrace Crafts · Design System</h1>
+    <p class="note">House style for <b>timbertracecrafts.com</b> — read this before generating HTML artifacts for this project. Every token, font, and component below is extracted from the live Vite + Tailwind v4 Laravel repo (<code>resources/css/app.css</code>, <code>admin.css</code>, and the design plan). Warm parchment base, hardwood accents, deep forest green — an artisanal editorial feel.</p>
+    <div class="stack">
+      <span class="chip">Oak Sand base</span>
+      <span class="chip">Fraunces + Inter Tight</span>
+      <span class="chip">Square edges</span>
+      <span class="chip">Light + Dark</span>
+      <span class="chip">Laser-kerf signature</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== COLOR ===================== -->
+<section class="block"><div class="wrap">
+  <p class="eyebrow">Foundations</p>
+  <h2 class="h-sec">Color</h2>
+  <p class="lede">The palette is the Tailwind v4 <code>@theme</code> block in <code>resources/css/app.css</code>. Named tokens become utilities (<code>bg-oak-sand</code>, <code>text-charcoal</code>…). Dark mode redefines the <em>same</em> token names under <code>html.dark</code>, so the whole storefront inverts with no per-utility edits — try the toggle, top-right.</p>
+
+  <p class="demo-label">Brand tokens (@theme)</p>
+  <div class="swatches">
+    <div class="sw"><div class="chipc" style="background:#F4F1EA"></div><div class="meta"><div class="nm">Oak Sand</div><div class="vr">#F4F1EA · --color-oak-sand</div><div class="use">Page surface / parchment base</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#333333"></div><div class="meta"><div class="nm">Charcoal</div><div class="vr">#333333 · --color-charcoal</div><div class="use">Primary ink + solid buttons</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#2C4C3B"></div><div class="meta"><div class="nm">Forest Green</div><div class="vr">#2C4C3B · --color-forest-green</div><div class="use">Primary accent — hero, footer</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#4A2C11"></div><div class="meta"><div class="nm">Mahogany</div><div class="vr">#4A2C11 · --color-mahogany</div><div class="use">Accents, sale price, pullquote rule</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#1E3529"></div><div class="meta"><div class="nm">Pine Shadow</div><div class="vr">#1E3529 · --color-pine-shadow</div><div class="use">Deep backgrounds — admin sidebar</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#8C7B6C"></div><div class="meta"><div class="nm">Walnut</div><div class="vr">#8C7B6C · --color-walnut</div><div class="use">Meta text, hairline borders, focus ring</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#fff8f4"></div><div class="meta"><div class="nm">Surface</div><div class="vr">#fff8f4 · --color-surface</div><div class="use">Elevated / alternating panel</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#ba1a1a"></div><div class="meta"><div class="nm">Error</div><div class="vr">#ba1a1a · --color-error</div><div class="use">Validation, destructive actions</div></div></div>
+  </div>
+
+  <p class="demo-label">Dark-mode resolved values (html.dark)</p>
+  <div class="swatches">
+    <div class="sw"><div class="chipc" style="background:#1b1712"></div><div class="meta"><div class="nm">Oak Sand → page</div><div class="vr">#1b1712</div><div class="use">Warm near-black background</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#241e18"></div><div class="meta"><div class="nm">Surface</div><div class="vr">#241e18</div><div class="use">Elevated panel</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#ece6dc"></div><div class="meta"><div class="nm">Charcoal → ink</div><div class="vr">#ece6dc</div><div class="use">Warm off-white primary ink</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#ad9c8b"></div><div class="meta"><div class="nm">Walnut</div><div class="vr">#ad9c8b</div><div class="use">Muted text + hairlines (lifted)</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#c68a5b"></div><div class="meta"><div class="nm">Mahogany → copper</div><div class="vr">#c68a5b</div><div class="use">Stars, prices on black</div></div></div>
+    <div class="sw"><div class="chipc" style="background:#3e6650"></div><div class="meta"><div class="nm">Forest Green</div><div class="vr">#3e6650</div><div class="use">Accent, lifted for contrast</div></div></div>
+  </div>
+
+  <p class="demo-label">Status badge colors (admin.css)</p>
+  <div class="demo">
+    <span class="admin-badge-success">Success</span>
+    <span class="admin-badge-warning">Warning</span>
+    <span class="admin-badge-error">Error</span>
+    <span class="admin-badge-info">Info</span>
+    <span class="admin-badge-neutral">Neutral</span>
+  </div>
+</div></section>
+
+<!-- ===================== TYPOGRAPHY ===================== -->
+<section class="block"><div class="wrap">
+  <p class="eyebrow">Foundations</p>
+  <h2 class="h-sec">Typography</h2>
+  <p class="lede">Two self-hosted variable faces: <b>Fraunces</b> (serif display, headings) and <b>Inter Tight</b> (sans, body &amp; UI). Headings run at weight 380–560, never bold; H1/H2 use tight <code>-.015em</code> tracking and Fraunces' <code>opsz 144 / WONK 1</code> axes for editorial character. The earlier design plan paired Playfair Display + Montserrat — Fraunces + Inter Tight is the live replacement. This page approximates them with system serif/sans stacks (offline).</p>
+
+  <div class="specimen">
+    <span class="tag">--font-heading · 'Fraunces', serif · h1/h2 weight 380, letter-spacing -.015em</span>
+    <div class="scale-row"><span class="lbl">Display / H1 · ~3rem</span><span style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,3rem);font-weight:380;letter-spacing:-.015em">The Poetry of the Grain</span></div>
+    <div class="scale-row"><span class="lbl">H2 · 2.3rem</span><span style="font-family:var(--font-heading);font-size:2.3rem;font-weight:380;letter-spacing:-.015em">Latest from the Workshop</span></div>
+    <div class="scale-row"><span class="lbl">H3 · 1.5rem · wt 500</span><span style="font-family:var(--font-heading);font-size:1.5rem;font-weight:500">Forever Infinity Heart Box</span></div>
+    <div class="scale-row"><span class="lbl">H4 · 1.15rem · wt 560</span><span style="font-family:var(--font-heading);font-size:1.15rem;font-weight:560">Material Provenance</span></div>
+    <div class="scale-row"><span class="lbl">Italic display</span><span style="font-family:var(--font-heading);font-style:italic;font-size:1.6rem;font-weight:400">handcrafted in hardwood</span></div>
+  </div>
+
+  <div class="specimen">
+    <span class="tag">--font-body · 'Inter Tight', sans-serif</span>
+    <div class="scale-row"><span class="lbl">Body lg · 1.375rem · wt 400</span><span style="font-family:var(--font-body);font-size:1.375rem">Every piece begins as raw timber and becomes something to treasure.</span></div>
+    <div class="scale-row"><span class="lbl">Body md · 1rem</span><span style="font-family:var(--font-body);font-size:1rem">Laser-cut with precision, finished by hand, made to last a lifetime. The narrow reading column keeps line length ideal for long-form.</span></div>
+    <div class="scale-row"><span class="lbl">Small · .875rem</span><span style="font-family:var(--font-body);font-size:.875rem">Dimensions, care instructions, and shipping details.</span></div>
+    <div class="scale-row"><span class="lbl">section-label · .75rem · +.1em UP</span><span class="section-label">Cut to 0.1&nbsp;mm · Finished by hand</span></div>
+  </div>
+
+  <div class="note-box">Meta / eyebrow text uses the <code>.section-label</code> class: Inter Tight, .75rem, weight 600, uppercase, letter-spacing .1em, colored Walnut. It's the workhorse label across nav, cards, and hero kickers.</div>
+</div></div></section>
+
+<!-- ===================== SPACING / RADIUS ===================== -->
+<section class="block"><div class="wrap">
+  <p class="eyebrow">Foundations</p>
+  <h2 class="h-sec">Spacing &amp; Radius</h2>
+  <p class="lede">Spacing scale from the design plan's <code>theme.json</code> uses <code>clamp()</code> so section rhythm scales with the viewport. Containers: page max <code>1340px</code>, reading column max <code>645px</code>. Radius is deliberately minimal — the storefront runs <b>square (radius 0)</b> on buttons, cards, and inputs; only admin chrome and pills use small radii.</p>
+
+  <p class="demo-label">Spacing tokens (theme.json)</p>
+  <div class="tok">
+    <div class="t"><b>tiny · 10px</b><div class="bar" style="width:10px"></div></div>
+    <div class="t"><b>x-small · 20px</b><div class="bar" style="width:20px"></div></div>
+    <div class="t"><b>small · 30px</b><div class="bar" style="width:30px"></div></div>
+    <div class="t"><b>regular · clamp 30-50</b><div class="bar" style="width:50px"></div></div>
+    <div class="t"><b>large · clamp 30-70</b><div class="bar" style="width:70px"></div></div>
+    <div class="t"><b>x-large · clamp 50-90</b><div class="bar" style="width:90px"></div></div>
+    <div class="t"><b>xx-large · clamp 70-140</b><div class="bar" style="width:100%"></div></div>
+    <div class="t"><b>content-max · 645px</b><div class="bar" style="width:100%"></div></div>
+  </div>
+
+  <p class="demo-label">Radius scale (storefront favors 0)</p>
+  <div class="radrow">
+    <div><div class="radbox" style="border-radius:0"></div><div class="radlab">0 · buttons/cards</div></div>
+    <div><div class="radbox" style="border-radius:.125rem"></div><div class="radlab">sm · .125rem</div></div>
+    <div><div class="radbox" style="border-radius:.25rem"></div><div class="radlab">DEFAULT · .25rem</div></div>
+    <div><div class="radbox" style="border-radius:.375rem"></div><div class="radlab">md · .375rem</div></div>
+    <div><div class="radbox" style="border-radius:.5rem"></div><div class="radlab">lg · .5rem</div></div>
+    <div><div class="radbox" style="border-radius:9999px"></div><div class="radlab">full · badges</div></div>
+  </div>
+</div></section>
+
+<!-- ===================== COMPONENTS ===================== -->
+<section class="block"><div class="wrap">
+  <p class="eyebrow">Components</p>
+  <h2 class="h-sec">Buttons</h2>
+  <p class="lede">Three real button classes from <code>app.css</code>. All square, uppercase, letter-spaced .1em, Inter Tight 600. Solid buttons fade to 85% opacity on hover; outline buttons wash 5% (dark: 8%).</p>
+  <div class="demo">
+    <button class="btn-primary">Add to Cart</button>
+    <button class="btn-forest">Shop Now</button>
+    <button class="btn-outline">Our Story</button>
+  </div>
+
+  <h3 style="margin:2rem 0 .8rem;font-size:1.3rem">Form fields</h3>
+  <p class="lede">The <code>.form-field</code>: 1px black border (square), Walnut placeholder, and a distinctive double focus ring (oak-sand halo + walnut outline).</p>
+  <div class="two" style="max-width:560px">
+    <input class="form-field" placeholder="you@example.com">
+    <input class="form-field" placeholder="Search the workshop…">
+  </div>
+
+  <h3 style="margin:2rem 0 .8rem;font-size:1.3rem">Cards</h3>
+  <p class="lede">Flat, shadowless. Depth comes from a Walnut hairline border, not elevation.</p>
+  <div class="card" style="padding:1.4rem;max-width:420px">
+    <p class="section-label" style="margin-bottom:.5rem">Care Guide</p>
+    <h3 style="font-size:1.3rem;margin-bottom:.5rem">The Poetry of the Grain</h3>
+    <p style="font-size:.9rem;color:var(--color-walnut);line-height:1.6">Each piece of timber carries its own history. Wipe with a soft dry cloth and keep away from direct heat to preserve the natural finish.</p>
+  </div>
+
+  <h3 style="margin:2.4rem 0 .8rem;font-size:1.3rem">Navigation (storefront header)</h3>
+  <p class="lede">Sticky, Oak Sand background, thin Walnut border-bottom. Fraunces wordmark, section-label links, minimal line icons, and the light/dark toggle.</p>
+  <div class="navdemo">
+    <div class="navbar">
+      <span class="brand">TimberTrace Crafts</span>
+      <nav class="navlinks">
+        <a class="section-label on">Shop</a>
+        <a class="section-label">Gallery</a>
+        <a class="section-label">Journal</a>
+        <a class="section-label">About</a>
+        <a class="section-label">Contact</a>
+      </nav>
+      <div class="navicons">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin:2.4rem 0 .8rem;font-size:1.3rem">Product tiles</h3>
+  <p class="lede">The signature component (<code>product-card.blade.php</code>): square image in a <b>laser-kerf frame</b> — four faint corner ticks evoking registration marks that sharpen on hover, plus an <b>engrave-reveal</b> light pass sweeping the image. Hover a tile below.</p>
+  <div class="grid-cards">
+    <!-- tile: standard -->
+    <article class="ptile group">
+      <div class="kerf-frame imgbox">
+        <svg class="ph" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z"/></svg>
+        <span class="engrave-reveal"></span>
+      </div>
+      <p class="section-label" style="font-size:.625rem;margin-bottom:.25rem">Jewelry</p>
+      <h3>Monarch Butterfly Earrings</h3>
+      <div><span class="price">$38.00</span></div>
+    </article>
+    <!-- tile: on sale -->
+    <article class="ptile group">
+      <div class="kerf-frame imgbox">
+        <span class="tile-badge" style="background:#4A2C11">Sale</span>
+        <svg class="ph" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z"/></svg>
+        <span class="engrave-reveal"></span>
+      </div>
+      <p class="section-label" style="font-size:.625rem;margin-bottom:.25rem">Boxes</p>
+      <h3>Forever Infinity Heart Box</h3>
+      <div><span class="price-sale">$52.00</span><span class="price-old">$64.00</span></div>
+    </article>
+    <!-- tile: out of stock -->
+    <article class="ptile group">
+      <div class="kerf-frame imgbox">
+        <span class="tile-badge" style="background:rgba(51,51,51,.85)">Out of Stock</span>
+        <svg class="ph" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z"/></svg>
+      </div>
+      <p class="section-label" style="font-size:.625rem;margin-bottom:.25rem">Tumblers</p>
+      <h3>Teardrop Filigree Tumbler</h3>
+      <div><span class="price">$44.00</span> <span style="font-size:.6875rem;font-weight:600;color:var(--color-walnut)">— Sold Out</span></div>
+    </article>
+  </div>
+
+  <h3 style="margin:2.4rem 0 .8rem;font-size:1.3rem">Hero band</h3>
+  <p class="lede">Forest-green full-bleed section (<code>home/index.blade.php</code>): kicker label, large light-weight Fraunces headline, light + ghost buttons.</p>
+  <div class="herodemo">
+    <p class="section-label kick">Cut to 0.1&nbsp;mm · Finished by hand</p>
+    <h2>Handcrafted in Hardwood.<br>Worn with Pride.</h2>
+    <p class="sub">Every piece begins as raw timber and becomes something to treasure. Laser-cut with precision, finished by hand.</p>
+    <div class="demo" style="margin:0">
+      <a class="hbtn-light">Shop Now</a>
+      <a class="hbtn-ghost">Our Story</a>
+    </div>
+  </div>
+
+  <h3 style="margin:2.4rem 0 .8rem;font-size:1.3rem">Admin stat cards</h3>
+  <p class="lede">Back-office chrome (<code>admin.css</code>): white cards, small radius, Fraunces value in light weight over a Walnut uppercase label.</p>
+  <div class="grid-cards">
+    <div class="stat"><div class="l">Revenue (30d)</div><div class="v">$4,820</div></div>
+    <div class="stat"><div class="l">Orders</div><div class="v">137</div></div>
+    <div class="stat"><div class="l">Avg. Order</div><div class="v">$35.18</div></div>
+  </div>
+
+  <h3 style="margin:2.4rem 0 .8rem;font-size:1.3rem">Footer</h3>
+  <p class="lede">Deep Forest Green ground, Oak Sand text at graded opacities.</p>
+  <div class="footdemo">
+    <div class="fgrid">
+      <div>
+        <div class="fbrand">TimberTrace Crafts</div>
+        <p class="ftag">Handcrafted laser-cut wooden jewelry, boxes, and gifts — made with precision and love in every piece.</p>
+      </div>
+      <div>
+        <p class="fhead">Shop</p>
+        <a class="footer-link">Jewelry</a><a class="footer-link">Boxes</a><a class="footer-link">Tumblers</a><a class="footer-link">All Products</a>
+      </div>
+      <div>
+        <p class="fhead">Info</p>
+        <a class="footer-link">About</a><a class="footer-link">Gallery</a><a class="footer-link">Journal</a><a class="footer-link">Contact</a>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== DECISION COMPONENT ===================== -->
+<section class="block" style="border-bottom:none"><div class="wrap">
+  <p class="eyebrow">Interactive</p>
+  <h2 class="h-sec">Open Decisions</h2>
+  <p class="lede">Choose options below, then <b>Copy my choices</b> to paste a Markdown decision block back to Claude in the next session. Restyled to the TimberTrace palette; behavior is the shared decision-widget pattern.</p>
+
+  <form class="decisions" id="d1">
+    <div class="decision" data-decision data-label="Artifact surface">
+      <p class="q">Which surface should new HTML artifacts default to?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q1" value="Oak Sand (light)"><span><b>Oak Sand light</b> — parchment base, matches the live storefront default</span></label>
+        <label class="opt"><input type="radio" name="q1" value="Warm dark (#1b1712)"><span><b>Warm dark</b> — the html.dark near-black; use for focus/reading modes</span></label>
+        <label class="opt"><input type="radio" name="q1" value="Both via toggle"><span><b>Both</b> — ship a theme toggle honoring the token swap</span></label>
+      </div>
+    </div>
+    <div class="decision" data-decision data-label="Accent for primary CTAs">
+      <p class="q">Primary call-to-action color?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q2" value="Charcoal solid"><span><b>Charcoal</b> — the .btn-primary default</span></label>
+        <label class="opt"><input type="radio" name="q2" value="Forest Green"><span><b>Forest Green</b> — .btn-forest, brand-forward</span></label>
+        <label class="opt"><input type="radio" name="q2" value="Outline / ghost"><span><b>Outline</b> — quieter secondary emphasis</span></label>
+      </div>
+    </div>
+    <div class="decision" data-decision data-label="Corner treatment">
+      <p class="q">Edges on cards &amp; buttons?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q3" value="Square (radius 0)"><span><b>Square</b> — the storefront house style</span></label>
+        <label class="opt"><input type="radio" name="q3" value="Small radius (admin)"><span><b>Small radius</b> — admin-style .125rem</span></label>
+      </div>
+    </div>
+    <div class="decision" data-decision data-label="Notes">
+      <textarea name="notes" rows="2" placeholder="Notes for Claude…"></textarea>
+    </div>
+    <button type="button" class="btn" onclick="copyDecisions('d1')">Copy my choices</button>
+    <span class="toast" id="toast-d1">✓ copied</span>
+    <textarea id="out-d1" readonly></textarea>
+  </form>
+</div></section>
+
+<script>
+function copyDecisions(formId){
+  const form=document.getElementById(formId); let md="## Decisions\n";
+  form.querySelectorAll("[data-decision]").forEach(function(d){
+    const label=d.dataset.label||"";
+    const checks=[].slice.call(d.querySelectorAll("input:checked")).map(function(i){return i.value;});
+    const texts=[].slice.call(d.querySelectorAll("textarea,input[type=text]")).map(function(t){return t.value.trim();}).filter(Boolean);
+    md+="- **"+label+"**: "+([].concat(checks,texts).join(", ")||"(no answer)")+"\n";
+  });
+  const out=document.getElementById("out-"+formId); if(out)out.value=md;
+  if(navigator.clipboard)navigator.clipboard.writeText(md).catch(function(){});
+  const t=document.getElementById("toast-"+formId); if(t){t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
+}
+</script>

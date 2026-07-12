@@ -30,64 +30,138 @@
   --content-max:645px; --wide-max:1340px;
 }
 
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
   *{box-sizing:border-box}
-  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
-  ::-webkit-scrollbar{width:10px;height:10px}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
   ::-webkit-scrollbar-track{background:var(--ink)}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
-  html,body{margin:0;background:var(--ink);color:var(--text);
-    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
-  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
-    padding:26px 18px 80px;font-size:14.5px}
-  .wrap{max-width:800px;margin:0 auto}
-  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
-  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--faint)}
-  .doc-mast .eyebrow b{color:var(--brass)}
-  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
-  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
-  main h1{font-size:26px;margin:.2em 0 .5em}
-  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
-  main h3{font-size:16px;margin:1.4em 0 .4em}
-  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  main p{margin:.7em 0;color:var(--text)}
-  main a{color:var(--brass);text-decoration:none}
-  main a:hover{text-decoration:underline}
-  main strong{color:#fff}
-  main ul,main ol{margin:.6em 0;padding-left:1.4em}
-  main li{margin:.28em 0}
-  main li::marker{color:var(--faint)}
-  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
-    padding:1px 5px;border-radius:4px}
-  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:13px 15px;overflow:auto;line-height:1.5}
-  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
-  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
-    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
-  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
-  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-  main tr:hover td{background:var(--ink2)}
-  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
-  main img{max-width:100%;border-radius:var(--r-md)}
-  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
-  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
-    font-family:var(--mono);font-size:10px;color:var(--faint)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
 
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="doc-mast">
-      <span class="eyebrow"><b>▸</b> GEO / AI Search Optimization Plan</span>
-      <span class="src">geo_optimization.md</span>
-    </div>
-    <main>
-<h1 id="geo-ai-search-optimization-plan">GEO / AI Search Optimization Plan</h1>
-<p><strong>Baseline score:</strong> 52/100 (2026-06-25)<br>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">GEO / AI Search Optimization Plan</h1>
+      <p class="standfirst"><strong>Baseline score:</strong> 52/100 (2026-06-25)<br>
 <strong>Target score:</strong> 75/100<br>
 <strong>Audit source:</strong> <code>.claude/seo/audits/2026-06-25_geo-audit.md</code></p>
+      <div class="meta"><span>2 sections</span><span class="dot">·</span><span class="read">~6 min read</span><span class="dot">·</span><span>geo_optimization.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#task-checklist"><span class="n">01</span><span>Task Checklist</span></a><a class="lvl3" href="#phase-1-code-content-can-do-now">Phase 1 — Code &amp;amp; Content (can do now)</a><a class="lvl3" href="#phase-2-content-publishing">Phase 2 — Content Publishing</a><a class="lvl3" href="#phase-3-off-site-brand-presence">Phase 3 — Off-Site Brand Presence</a><a class="lvl3" href="#phase-4-schema-entity">Phase 4 — Schema &amp;amp; Entity</a><a href="#full-plan"><span class="n">02</span><span>Full Plan</span></a><a class="lvl3" href="#context">Context</a><a class="lvl3" href="#phase-1-code-content-highest-roi-no-new-platforms-needed">Phase 1 — Code &amp;amp; Content (highest ROI, no new platforms needed)</a><a class="lvl3" href="#phase-2-content-publishing_1">Phase 2 — Content Publishing</a><a class="lvl3" href="#phase-3-off-site-brand-presence_1">Phase 3 — Off-Site Brand Presence</a><a class="lvl3" href="#phase-4-schema-entity-cleanup">Phase 4 — Schema &amp;amp; Entity Cleanup</a><a class="lvl3" href="#success-metrics">Success Metrics</a><a class="lvl3" href="#dependency-order">Dependency Order</a></nav></details>
+    <main>
+
 <hr>
 <h2 id="task-checklist">Task Checklist</h2>
 <h3 id="phase-1-code-content-can-do-now">Phase 1 — Code &amp; Content (can do now)</h3>
@@ -161,98 +235,4 @@ These are brand statements. AI systems match headings to query patterns.</p>
 <h4 id="4-wood-materials-comparison-table">4. Wood Materials Comparison Table</h4>
 <p>Tables are cited at 2× the rate of prose for comparative queries. A Maple vs Baltic Birch vs Basswood table (grain, weight, finish quality, best use case) positions the about-us page for "what wood is best for jewelry" and similar queries.</p>
 <h4 id="5-bing-indexnow">5. Bing IndexNow</h4>
-<p>IndexNow is a single API call that pushes URLs to Bing's index. Bing Copilot draws from Bing's index. Takes 15 minutes and accelerates citation eligibility on that platform.</p>
-<hr>
-<h3 id="phase-2-content-publishing_1">Phase 2 — Content Publishing</h3>
-<p>Journal posts are the freshness signal that drives Google AI Mode citation (content under 3 months old is 3× more likely to be cited). Three published posts with answer-first structure significantly improves AI Mode visibility.</p>
-<p><strong>Answer-first structure rule (every H2 section):</strong><br>
-1. Question-based H2 (matches real search queries)<br>
-2. 40-60 word direct answer — the citation capsule<br>
-3. Elaboration paragraphs<br>
-4. Data point or source attribution where possible</p>
-<p><strong>Post ideas with high citation potential:</strong><br>
-- "How laser-cut wood earrings are made: a step-by-step process" (process authority)<br>
-- "Wood types for handmade jewelry: Maple, Baltic Birch, and Basswood compared" (leverages materials table)<br>
-- "What is a diode laser and how is it used in woodworking?" (definition play, captures AI Mode)<br>
-- "Veteran-owned small businesses: why Michael J. Miller started Timber Trace Crafts" (brand story, E-E-A-T)</p>
-<hr>
-<h3 id="phase-3-off-site-brand-presence_1">Phase 3 — Off-Site Brand Presence</h3>
-<p>88-92% of AI citations come from off-site signals. The three most impactful platforms for this business:</p>
-<h4 id="youtube-0737-citation-correlation-highest-of-any-platform">YouTube (0.737 citation correlation — highest of any platform)</h4>
-<ul>
-<li>Short "process" videos perform best: laser engraving in action, hand-finishing, inlay work</li>
-<li>Even 60-second clips build the brand entity YouTube needs to associate with the topic</li>
-<li>Title format: "How I make laser-cut wood earrings | Timber Trace Crafts"</li>
-<li>No production budget needed — a phone camera showing the laser in action is sufficient</li>
-</ul>
-<h4 id="reddit-467-of-perplexity-citations">Reddit (46.7% of Perplexity citations)</h4>
-<ul>
-<li>r/woodworking (3.2M members) — "Here's a piece I finished this week" posts with process detail</li>
-<li>r/crafts — answer questions about laser cutting, wood finishing, or earring making</li>
-<li>r/etsy — share behind-the-scenes; respond to "looking for handmade earrings" posts</li>
-<li>Rule: never post links as the primary content. Be genuinely useful first.</li>
-</ul>
-<h4 id="linkedin">LinkedIn</h4>
-<ul>
-<li>Company page takes 30 minutes to set up</li>
-<li>Moderate citation signal (B2B platforms favor LinkedIn; craft/consumer brands see less impact)</li>
-<li>Still worth having as an entity anchor for Google's Knowledge Graph</li>
-</ul>
-<hr>
-<h3 id="phase-4-schema-entity-cleanup">Phase 4 — Schema &amp; Entity Cleanup</h3>
-<p>Once YouTube and LinkedIn are live, add those URLs to the Organization <code>sameAs</code> array. This directly updates Google's entity graph for the brand.</p>
-<p>The Person entity for Michael J. Miller currently has <code>name</code>, <code>url</code>, <code>worksFor</code>. Adding <code>jobTitle: "Founder &amp; Artisan"</code> and a short <code>description</code> strengthens the E-E-A-T entity signal for the author of journal posts.</p>
-<hr>
-<h3 id="success-metrics">Success Metrics</h3>
-<table>
-<thead>
-<tr>
-<th>Metric</th>
-<th>How to measure</th>
-<th>Target</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GEO score</td>
-<td>Re-run <code>/seo geo</code></td>
-<td>75/100</td>
-</tr>
-<tr>
-<td>Perplexity citation</td>
-<td>Search "handmade wood earrings artisan"</td>
-<td>Site cited within 60 days of YouTube launch</td>
-</tr>
-<tr>
-<td>ChatGPT citation</td>
-<td>Search "veteran-owned woodcraft jewelry"</td>
-<td>Site cited within 90 days</td>
-</tr>
-<tr>
-<td>Google AI Mode</td>
-<td>GSC → Discover → AI Overview impressions</td>
-<td>Appears within 30 days of 3 journal posts</td>
-</tr>
-<tr>
-<td>Bing Copilot</td>
-<td>Search brand name</td>
-<td>Indexed and cited within 2 weeks of IndexNow</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="dependency-order">Dependency Order</h3>
-<pre><code>FAQ content (Phase 1) ──────────────────────────────────────────▶ can publish now
-Product description fix (Phase 1) ──────────────────────────────▶ can do now
-About-us heading rewrite (Phase 1) ─────────────────────────────▶ can do now
-Journal posts (Phase 2) ─────────────────────────────────────────▶ can start now
-YouTube channel (Phase 3) ──────────────────────────────────────▶ requires brand decision
-Reddit presence (Phase 3) ──────────────────────────────────────▶ can start now (no account needed beyond existing)
-Schema update (Phase 4) ────── depends on ──────── YouTube/LinkedIn URLs live
-</code></pre>
-<p>Everything in Phase 1 and the journal writing in Phase 2 can be done without any new platform accounts. YouTube is the single off-site action with the highest citation payoff.</p>
-    </main>
-    <div class="doc-foot">house-style · converted from geo_optimization.md · self-contained · bin/md2html.py</div>
-  </div>
-</body>
-</html>
+<p>IndexNow is a single AP

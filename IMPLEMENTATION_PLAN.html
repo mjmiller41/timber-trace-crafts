@@ -30,63 +30,137 @@
   --content-max:645px; --wide-max:1340px;
 }
 
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
   *{box-sizing:border-box}
-  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink)}
-  ::-webkit-scrollbar{width:10px;height:10px}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
   ::-webkit-scrollbar-track{background:var(--ink)}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
-  html,body{margin:0;background:var(--ink);color:var(--text);
-    font-family:var(--sans);line-height:1.62;-webkit-font-smoothing:antialiased}
-  body{background:radial-gradient(760px 300px at 50% -140px,rgba(227,165,82,.07),transparent 70%),var(--ink);
-    padding:26px 18px 80px;font-size:14.5px}
-  .wrap{max-width:800px;margin:0 auto}
-  .doc-mast{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
-    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px}
-  .doc-mast .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-    text-transform:uppercase;color:var(--faint)}
-  .doc-mast .eyebrow b{color:var(--brass)}
-  .doc-mast .src{font-family:var(--mono);font-size:10.5px;color:var(--faint)}
-  main h1,main h2,main h3,main h4{font-weight:800;letter-spacing:-.01em;line-height:1.25;color:var(--text)}
-  main h1{font-size:26px;margin:.2em 0 .5em}
-  main h2{font-size:20px;margin:1.7em 0 .5em;border-top:1px solid var(--line);padding-top:.8em}
-  main h3{font-size:16px;margin:1.4em 0 .4em}
-  main h4{font-size:13px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  main p{margin:.7em 0;color:var(--text)}
-  main a{color:var(--brass);text-decoration:none}
-  main a:hover{text-decoration:underline}
-  main strong{color:#fff}
-  main ul,main ol{margin:.6em 0;padding-left:1.4em}
-  main li{margin:.28em 0}
-  main li::marker{color:var(--faint)}
-  main code{font-family:var(--mono);font-size:.86em;color:#C9CEDF;background:var(--ink2);
-    padding:1px 5px;border-radius:4px}
-  main pre{background:var(--ink2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:13px 15px;overflow:auto;line-height:1.5}
-  main pre code{background:none;padding:0;color:#C9CEDF;font-size:12px}
-  main blockquote{margin:1em 0;border-left:3px solid var(--brass-dim);background:var(--ink2);
-    border-radius:0 var(--r-md) var(--r-md) 0;padding:2px 16px;color:var(--muted)}
-  main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:13px;display:block;overflow-x:auto}
-  main th,main td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-  main th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-  main tr:hover td{background:var(--ink2)}
-  main hr{border:none;border-top:1px solid var(--line);margin:1.8em 0}
-  main img{max-width:100%;border-radius:var(--r-md)}
-  main input[type=checkbox]{accent-color:var(--brass);margin-right:6px}
-  .doc-foot{margin-top:44px;border-top:1px solid var(--line);padding-top:14px;
-    font-family:var(--mono);font-size:10px;color:var(--faint)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
 
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="doc-mast">
-      <span class="eyebrow"><b>▸</b> Timber Trace Crafts — Implementation Plan</span>
-      <span class="src">IMPLEMENTATION_PLAN.md</span>
-    </div>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">TIMBERTRACECRAFTS.COM</div>
+      <h1 class="title">Timber Trace Crafts — Implementation Plan</h1>
+      <p class="standfirst"><strong>Why Laravel over the existing custom MVC:</strong> Laravel gives you Eloquent ORM, migrations, queues (for email), form validation, file storage, artisan commands, and a mature ecosystem — all things the custom MVC would have to rebuild. It runs cleanly on Hostinger shared hosting.</p>
+      <div class="meta"><span>12 sections</span><span class="dot">·</span><span class="read">~9 min read</span><span class="dot">·</span><span>IMPLEMENTATION_PLAN.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#decisions-made-from-your-answers-defaults-for-gaps"><span class="n">01</span><span>Decisions Made (from your answers + defaults for gaps)</span></a><a href="#technology-stack"><span class="n">02</span><span>Technology Stack</span></a><a href="#database-schema"><span class="n">03</span><span>Database Schema</span></a><a class="lvl3" href="#users-auth">Users &amp;amp; Auth</a><a class="lvl3" href="#catalog">Catalog</a><a class="lvl3" href="#media">Media</a><a class="lvl3" href="#reviews">Reviews</a><a class="lvl3" href="#wishlists-restock">Wishlists &amp;amp; Restock</a><a class="lvl3" href="#coupons">Coupons</a><a class="lvl3" href="#orders">Orders</a><a class="lvl3" href="#shipping">Shipping</a><a class="lvl3" href="#tax">Tax</a><a class="lvl3" href="#journal">Journal</a><a class="lvl3" href="#cms-static-pages">CMS / Static Pages</a><a class="lvl3" href="#settings">Settings</a><a class="lvl3" href="#contact">Contact</a><a href="#url-structure"><span class="n">04</span><span>URL Structure</span></a><a class="lvl3" href="#public">Public</a><a class="lvl3" href="#admin-all-require-admin-role">Admin (all require admin role)</a><a href="#feature-specifications"><span class="n">05</span><span>Feature Specifications</span></a><a class="lvl3" href="#product-variants-personalization">Product Variants &amp;amp; Personalization</a><a class="lvl3" href="#cart">Cart</a><a class="lvl3" href="#checkout">Checkout</a><a class="lvl3" href="#square-integration">Square Integration</a><a class="lvl3" href="#shipping-method-selection">Shipping Method Selection</a><a class="lvl3" href="#email-notifications-hostinger-smtp">Email Notifications (Hostinger SMTP)</a><a class="lvl3" href="#media-library">Media Library</a><a class="lvl3" href="#litespeed-cache-strategy">LiteSpeed Cache Strategy</a><a class="lvl3" href="#seo-phase-2-but-schema-in-place-from-phase-1">SEO (Phase 2, but schema in place from Phase 1)</a><a href="#admin-features"><span class="n">06</span><span>Admin Features</span></a><a class="lvl3" href="#dashboard-widgets">Dashboard Widgets</a><a class="lvl3" href="#order-management">Order Management</a><a class="lvl3" href="#product-editor">Product Editor</a><a class="lvl3" href="#reports-phase-2-detail-but-basic-in-phase-1">Reports (Phase 2 detail, but basic in Phase 1)</a><a href="#deployment-pipeline"><span class="n">07</span><span>Deployment Pipeline</span></a><a class="lvl3" href="#repository-structure">Repository Structure</a><a class="lvl3" href="#hostinger-setup-one-time">Hostinger Setup (one-time)</a><a class="lvl3" href="#deploy-on-push-to-main">Deploy on Push to main</a><a href="#phase-1-build-order"><span class="n">08</span><span>Phase 1 Build Order</span></a><a href="#phase-2-build-order"><span class="n">09</span><span>Phase 2 Build Order</span></a><a href="#phase-3-build-order"><span class="n">10</span><span>Phase 3 Build Order</span></a><a href="#open-questions-to-resolve-before-building"><span class="n">11</span><span>Open Questions (to resolve before building)</span></a><a href="#what-this-will-not-include-scope-boundaries"><span class="n">12</span><span>What This Will NOT Include (scope boundaries)</span></a></nav></details>
     <main>
-<h1 id="timber-trace-crafts-implementation-plan">Timber Trace Crafts — Implementation Plan</h1>
 <h2 id="decisions-made-from-your-answers-defaults-for-gaps">Decisions Made (from your answers + defaults for gaps)</h2>
-<table>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Topic</th>
@@ -167,7 +241,7 @@
 <td>Contact form submissions visible in admin inbox; replies via external email</td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <hr>
 <h2 id="technology-stack">Technology Stack</h2>
 <pre><code>Laravel 11
@@ -180,7 +254,7 @@
 ├── Sender.net API client (Phase 2)
 └── LiteSpeed Cache headers (middleware)
 </code></pre>
-<p><strong>Why Laravel over the existing custom MVC:</strong> Laravel gives you Eloquent ORM, migrations, queues (for email), form validation, file storage, artisan commands, and a mature ecosystem — all things the custom MVC would have to rebuild. It runs cleanly on Hostinger shared hosting.</p>
+
 <hr>
 <h2 id="database-schema">Database Schema</h2>
 <h3 id="users-auth">Users &amp; Auth</h3>
@@ -418,143 +492,4 @@ journal_post_tags   (post_id, tag_id)
 <ul>
 <li>Filter by: status, date range, search (name, email, order #)</li>
 <li>Bulk action: mark as processing</li>
-<li>Order detail: line items, customer, addresses, payment info, status timeline, shipment tracking entry, internal notes, print packing slip button</li>
-<li>Status change dropdown with optional note → logged to <code>order_status_history</code> → triggers customer email</li>
-</ul>
-<h3 id="product-editor">Product Editor</h3>
-<ul>
-<li>Name, slug (auto-generated), category, tags</li>
-<li>Short description (used in shop grid), full description (rich text)</li>
-<li>Price, sale price (optional)</li>
-<li>Personalization config (type, price, prompt, max chars)</li>
-<li>Variant builder: add/remove/reorder variants (label, SKU, stock qty, low-stock threshold)</li>
-<li>Media gallery: drag images from media library or upload directly; drag to reorder; mark primary; attach video; optionally link to specific variant</li>
-<li>SEO fields (meta title, meta description — with character count)</li>
-<li>Status (active / draft / archived)</li>
-<li>Featured toggle</li>
-</ul>
-<h3 id="reports-phase-2-detail-but-basic-in-phase-1">Reports (Phase 2 detail, but basic in Phase 1)</h3>
-<ul>
-<li>Phase 1: Revenue table by month, top 10 products by revenue</li>
-<li>Phase 2: Charts (Chart.js), category breakdown, coupon usage report</li>
-</ul>
-<hr>
-<h2 id="deployment-pipeline">Deployment Pipeline</h2>
-<h3 id="repository-structure">Repository Structure</h3>
-<pre><code>timbertracecrafts/
-├── app/
-│   ├── Http/Controllers/   (Admin/, Auth/, Shop/, Api/)
-│   ├── Models/
-│   ├── Mail/
-│   ├── Services/           (SquareService, CartService, TaxService, etc.)
-│   └── Middleware/         (AdminMiddleware, LiteSpeedCacheMiddleware)
-├── config/
-├── database/
-│   ├── migrations/
-│   └── seeders/            (ShippingMethodSeeder, SettingsSeeder, PageSeeder)
-├── public/                 ← Hostinger document root
-│   ├── index.php
-│   └── storage/            ← symlink to ../storage/app/public
-├── resources/
-│   ├── views/
-│   │   ├── layouts/        (app.blade.php, admin.blade.php, email.blade.php)
-│   │   ├── shop/
-│   │   ├── account/
-│   │   ├── admin/
-│   │   ├── emails/
-│   │   └── pages/
-│   └── css/ js/
-├── routes/
-│   ├── web.php
-│   └── admin.php
-├── storage/
-├── .env.example            (committed; .env never committed)
-├── .gitignore
-└── composer.json
-</code></pre>
-<h3 id="hostinger-setup-one-time">Hostinger Setup (one-time)</h3>
-<ol>
-<li>SSH into Hostinger, set document root to <code>public/</code></li>
-<li>Clone repo from GitHub</li>
-<li><code>composer install --no-dev --optimize-autoloader</code></li>
-<li>Copy <code>.env.example</code> to <code>.env</code>, fill in credentials</li>
-<li><code>php artisan migrate --seed</code></li>
-<li><code>php artisan storage:link</code></li>
-<li>Set up Hostinger Git deployment webhook pointing to <code>main</code> branch</li>
-</ol>
-<h3 id="deploy-on-push-to-main">Deploy on Push to <code>main</code></h3>
-<p>Hostinger auto-pulls → post-pull script runs:</p>
-<pre><code class="language-bash">composer install --no-dev --optimize-autoloader
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-</code></pre>
-<hr>
-<h2 id="phase-1-build-order">Phase 1 Build Order</h2>
-<ol>
-<li><strong>Foundation</strong>: Laravel install, Tailwind + Alpine.js setup, design tokens as CSS variables, base layouts (public + admin), auth scaffolding</li>
-<li><strong>Database</strong>: All migrations, seeders (settings, shipping methods, static pages)</li>
-<li><strong>Media Library</strong>: Upload, list, delete — reused across all admin editors</li>
-<li><strong>Catalog</strong>: Category/tag CRUD, product editor with variants + media, product list admin</li>
-<li><strong>Shop Pages</strong>: Home, shop grid (filter/sort/paginate), product detail (gallery, variant selector, personalization, add to cart)</li>
-<li><strong>Cart</strong>: Session/DB cart, coupon field stub (logic in Phase 2), gift message, shipping method selection</li>
-<li><strong>Checkout</strong>: Multi-step form, Square payment integration, order creation, confirmation page</li>
-<li><strong>Order Management Admin</strong>: List, detail, status change, tracking entry, packing slip print view</li>
-<li><strong>Customer Emails</strong>: Order confirmation, shipping notification, status change notifications</li>
-<li><strong>Customer Account</strong>: My orders, order detail, saved addresses, profile/password</li>
-<li><strong>Public Static Pages</strong>: About, Contact, FAQ, Privacy, T&amp;C, Return Policy (all editable via admin page editor)</li>
-<li><strong>Order Status Lookup</strong>: No-login form</li>
-<li><strong>Admin Dashboard</strong>: Widgets, low stock alerts, recent orders</li>
-<li><strong>Settings Admin</strong>: Store info, SMTP config, shipping upcharges, FL tax rate</li>
-</ol>
-<h2 id="phase-2-build-order">Phase 2 Build Order</h2>
-<ol>
-<li>Coupon/discount system (apply at cart, validate server-side at checkout)</li>
-<li>Product reviews (form on product page, approval queue in admin)</li>
-<li>Wishlist (heart icon on product cards + dedicated account page)</li>
-<li>Restock request form + admin batch-notify feature</li>
-<li>Journal/blog (admin editor, public list + post pages)</li>
-<li>Sender.net integration (newsletter signup widget, triggered campaigns)</li>
-<li>Umami analytics snippet</li>
-<li>SEO: sitemap generation, JSON-LD, full meta audit</li>
-<li>LiteSpeed cache header tuning</li>
-<li>Pirate Ship API: generate label from order detail in admin</li>
-<li>Admin reports: revenue charts, top products, category breakdown</li>
-</ol>
-<h2 id="phase-3-build-order">Phase 3 Build Order</h2>
-<ol>
-<li>Etsy API sync (list products, update inventory)</li>
-<li>eBay API sync</li>
-<li>Amazon Handmade (manual CSV export as fallback; API if available)</li>
-<li>Gift cards</li>
-<li>Promotions automation (scheduled sales, countdown timers)</li>
-</ol>
-<hr>
-<h2 id="open-questions-to-resolve-before-building">Open Questions (to resolve before building)</h2>
-<ul>
-<li><strong>Square credentials</strong>: You'll need a Square developer account, sandbox + production keys. Do you already have these, or do we set them up as part of Phase 1?</li>
-<li><strong>Unanswered Q25–28</strong> (defaulted above):</li>
-<li>Reports: Basic revenue table + top products (Phase 1), charts (Phase 2) ✓</li>
-<li>Low stock alerts: Email to admin at configurable per-variant threshold ✓</li>
-<li>Media library: Full shared library ✓</li>
-<li>Customer messaging: Admin can view contact submissions; replies via external email ✓</li>
-<li><strong>Priority/Priority Express pricing</strong>: What are the upcharge amounts you want to start with?</li>
-<li><strong>Pirate Ship</strong>: Is Phase 2 timing acceptable, or do you need label generation at launch?</li>
-</ul>
-<hr>
-<h2 id="what-this-will-not-include-scope-boundaries">What This Will NOT Include (scope boundaries)</h2>
-<ul>
-<li>No live chat widget (contact form only)</li>
-<li>No loyalty/rewards program</li>
-<li>No gift wrapping</li>
-<li>No real-time shipping rate calculation (flat upcharges only)</li>
-<li>No multi-currency (USD only)</li>
-<li>No multi-language</li>
-<li>No Swoole/async server mode — Hostinger shared hosting uses LiteSpeed/FPM only</li>
-</ul>
-    </main>
-    <div class="doc-foot">house-style · converted from IMPLEMENTATION_PLAN.md · self-contained · bin/md2html.py</div>
-  </div>
-</body>
-</html>
+<li>Order detail:
