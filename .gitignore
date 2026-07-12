@@ -38,3 +38,4 @@ notes.jsonc
 /.claude/taxonomy-with-ids.en-US.csv
 /public/etsy-schema-map.html
 .mission/
+.secrets/

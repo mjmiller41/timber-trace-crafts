@@ -14,8 +14,12 @@ composer install --no-dev --optimize-autoloader --no-interaction
 # raw string of the wrong byte length and env:decrypt fails with "Unsupported
 # cipher or incorrect key length".
 ENV_KEY_FILE="$HOME/.secrets/ttc-env-key"
+# Fall back to the gitignored in-repo copy if the home copy is missing.
+if [ ! -f "$ENV_KEY_FILE" ] && [ -f ".secrets/ttc-env-key" ]; then
+    ENV_KEY_FILE=".secrets/ttc-env-key"
+fi
 if [ ! -f "$ENV_KEY_FILE" ]; then
-    echo "Missing $ENV_KEY_FILE — cannot decrypt .env.production.encrypted. Aborting." >&2
+    echo "Missing env key at ~/.secrets/ttc-env-key and ./.secrets/ttc-env-key — cannot decrypt .env.production.encrypted. Aborting." >&2
     exit 1
 fi
 php artisan env:decrypt --env=production --key="$(cat "$ENV_KEY_FILE")" --filename=.env --force
