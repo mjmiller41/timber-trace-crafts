@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit Findings 2026-07-01 — Remediation Plan</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">Audit Findings 2026-07-01 — Remediation Plan</h1>
+      
+      <div class="meta"><span>4 sections</span><span class="dot">·</span><span class="read">~10 min read</span><span class="dot">·</span><span>audit_findings_2026_07_01.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#context"><span class="n">01</span><span>Context</span></a><a href="#task-checklist"><span class="n">02</span><span>Task Checklist</span></a><a class="lvl3" href="#phase-1-storefront-purchase-path-highest-risk-launch-blocking">Phase 1 — Storefront purchase path (highest risk; launch-blocking)</a><a class="lvl3" href="#phase-2-etsy-sync-robustness-needs-queue-worker">Phase 2 — Etsy sync robustness (needs queue worker)</a><a class="lvl3" href="#phase-3-auth-session-security-headers">Phase 3 — Auth, session &amp;amp; security headers</a><a class="lvl3" href="#phase-4-admin-inbox-mail">Phase 4 — Admin inbox / mail</a><a class="lvl3" href="#phase-5-ops-infra-config-hygiene">Phase 5 — Ops, infra &amp;amp; config hygiene</a><a href="#full-plan"><span class="n">03</span><span>Full Plan</span></a><a class="lvl3" href="#phase-1-storefront-purchase-path">Phase 1 — Storefront purchase path</a><a class="lvl3" href="#phase-2-etsy-sync-robustness">Phase 2 — Etsy sync robustness</a><a class="lvl3" href="#phase-3-auth-session-security-headers_1">Phase 3 — Auth, session &amp;amp; security headers</a><a class="lvl3" href="#phase-4-admin-inbox-mail_1">Phase 4 — Admin inbox / mail</a><a class="lvl3" href="#phase-5-ops-infra-config-hygiene_1">Phase 5 — Ops, infra &amp;amp; config hygiene</a><a href="#verification-end-to-end"><span class="n">04</span><span>Verification (end-to-end)</span></a></nav></details>
+    <main>
+<p><strong>Source:</strong> <code>TASKS.md</code> → section "## Audit findings — 2026-07-01" (30 items, numbered 2–32).<br>
+<strong>Branch/worktree:</strong> <code>claude/goofy-clarke-822732</code>, caught up to <code>main</code> @ <code>3bac1c0</code>.<br>
+<strong>Out of scope here:</strong> #1 (checkout capture-then-fail; feeds #28, tracked separately) and #16 (media R2 <code>put()</code> failure — merged into the Active "Investigate prod R2 <code>put()</code> failure" task).</p>
+<h2 id="context">Context</h2>
+<p>A code audit dated 2026-07-01 surfaced 30 security and correctness defects across five subsystems. Several are launch-blocking: the storefront purchase path can be manipulated to pay the wrong price or ship free, and the Etsy sync can silently drop orders or brick its own connection. The findings carry precise <code>file:line</code> references and one (finding #2 in <code>CartController.php</code>) was spot-verified as accurate before planning, so the audit's locations are treated as trustworthy.</p>
+<p>Goal: close every finding with a minimal, convention-matching fix and a test that locks in the corrected behavior, sequenced so the highest-risk purchase-path and Etsy defects land first. Each fix reuses existing patterns (<code>throttle:</code> middleware, <code>Product::currentPrice()</code>/variant price precedence, <code>SyncResult</code>, observer <code>quiet</code> saves, signed routes) rather than introducing new abstractions.</p>
+<h2 id="task-checklist">Task Checklist</h2>
+<h3 id="phase-1-storefront-purchase-path-highest-risk-launch-blocking">Phase 1 — Storefront purchase path (highest risk; launch-blocking)</h3>
+<ul>
+<li>[x] #2 [High] Reject cart variant that doesn't belong to the product (<code>CartController@add</code>) <em>(done 2026-07-02)</em></li>
+<li>[x] #10 [Med] Block draft/archived products and disabled variants from the purchase path <em>(done 2026-07-02)</em></li>
+<li>[x] #9 [Med] Revalidate cart line prices at checkout instead of trusting the add-time snapshot <em>(done 2026-07-02)</em></li>
+<li>[x] #7 [Med] Reject inactive shipping method id instead of defaulting to free shipping <em>(done 2026-07-02)</em></li>
+<li>[x] #8 [Med] Fix inert guest-email validation in checkout <em>(done 2026-07-02)</em></li>
+<li>[x] #28 [Low] Sort cart lines by <code>variant_id</code> before locking to avoid deadlock <em>(done 2026-07-02)</em></li>
+<li>[x] #22 [Low] Clamp percent coupons to <code>max:100</code> + clamp discount to subtotal <em>(done 2026-07-02)</em></li>
+<li>[x] #23 [Low] Uppercase coupon code on save so lookups match <em>(done 2026-07-02)</em></li>
+<li>[x] #29 [Low] Document/normalize tax <code>rate_percent</code> semantics + uppercase state list <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-2-etsy-sync-robustness-needs-queue-worker">Phase 2 — Etsy sync robustness (needs queue worker)</h3>
+<ul>
+<li>[x] #3 [High] Make Etsy order import transactional + retry-idempotent <em>(done 2026-07-02)</em></li>
+<li>[x] #4 [High] Only advance <code>orders_last_synced_at</code> on a successful fetch <em>(done 2026-07-02)</em></li>
+<li>[x] #5 [High] Lock OAuth token refresh to prevent concurrent-refresh brick <em>(done 2026-07-02)</em></li>
+<li>[x] #11 [Med] Use quiet saves in <code>EtsyProductSync</code> + add <code>ShouldBeUnique</code> to <code>SyncProductToEtsy</code> <em>(done 2026-07-02)</em></li>
+<li>[x] #12 [Med] Add 429/5xx retry to <code>EtsyClient</code>, prevent overlapping scheduled syncs, set job timeouts <em>(done 2026-07-02)</em></li>
+<li>[x] #13 [Med] Stop swallowing Etsy webhook status events (queue them; NACK on failure) <em>(done 2026-07-02)</em></li>
+<li>[x] #14 [Med] Log + fail loudly when <code>ImportEtsyOrder</code> gets an empty receipt payload <em>(done 2026-07-02)</em></li>
+<li>[x] #30 [Low] Populate <code>etsy_transaction_id</code> on imported order items <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-3-auth-session-security-headers">Phase 3 — Auth, session &amp; security headers</h3>
+<ul>
+<li>[x] #6 [Med] Add rate limits to coupon/forgot/reset/contact/register/newsletter/restock POSTs <em>(done 2026-07-02)</em></li>
+<li>[x] #20 [Med] Set <code>SESSION_SECURE_COOKIE=true</code> in production config/env <em>(done 2026-07-02 — defaults true when APP_ENV=production, self-healing even if the env var is never set on the server)</em></li>
+<li>[x] #21 [Med] Add tests for account-order ownership + admin <code>updateStatus</code>/<code>addShipment</code> <em>(done 2026-07-02)</em></li>
+<li>[x] #24 [Low] Require <code>current_password</code> when the account email changes <em>(done 2026-07-02)</em></li>
+<li>[x] #25 [Low] Regenerate session after registration login <em>(done 2026-07-02)</em></li>
+<li>[x] #26 [Low] Expire order-tracking signed links (90-day temporary signed routes) <em>(done 2026-07-02)</em></li>
+<li>[x] #27 [Low] Add a Content-Security-Policy header (report-only to start) <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-4-admin-inbox-mail">Phase 4 — Admin inbox / mail</h3>
+<ul>
+<li>[x] #15 [Med] Harden <code>ImapService</code> against malformed <code>Date:</code>/charset so one bad email can't brick the inbox <em>(done 2026-07-02)</em></li>
+</ul>
+<h3 id="phase-5-ops-infra-config-hygiene">Phase 5 — Ops, infra &amp; config hygiene</h3>
+<ul>
+<li>[x] #17 [Med] <code>db:import-hostinger</code>: wrap in transaction + backup, exclude remote <code>jobs</code> table <em>(done 2026-07-02)</em></li>
+<li>[x] #18 [Med] Move prod DB host/name/user out of VCS defaults into env <em>(done 2026-07-02)</em></li>
+<li>[x] #19 [Med] Fix deploy/setup build step so <code>npm run build</code> has its dev tooling <em>(done 2026-07-02 — removed the broken build step entirely; assets ship via the pre-push hook, Node isn't on the server)</em></li>
+<li>[x] #31 [Low] Harden media console commands (webp dupes, delete-before-update, dead-URL abort) <em>(done 2026-07-02)</em></li>
+<li>[x] #32 [Low] Repo/config hygiene: dedupe skills dir, drop unused sanctum, fix <code>.mcp.json</code> path, refresh <code>.env.production</code> <em>(partial 2026-07-02 — symlinked the two duplicated skill dirs, fixed <code>.mcp.json</code>'s stale path. NOT done: removing <code>laravel/sanctum</code> is a dependency change requiring approval per project guidelines; <code>.env.production</code> lives only on the live server, unreachable from this repo — both flagged for the operator.)</em></li>
+</ul>
+<hr>
+<h2 id="full-plan">Full Plan</h2>
+<p>Conventions for every fix: run <code>vendor/bin/pint --dirty --format agent</code> after PHP edits; add/extend a PHPUnit <strong>feature</strong> test (unit where it's pure logic) and run it with <code>php artisan test --compact --filter=…</code>; commit per subsystem group, not per file. Tests run on sqlite <code>:memory:</code> with <code>sync</code> queue — no external services needed.</p>
+<h3 id="phase-1-storefront-purchase-path">Phase 1 — Storefront purchase path</h3>
+<p><strong>#2 [High] Cross-product variant price manipulation</strong> — <code>app/Http/Controllers/CartController.php:27-35,55</code>.<br>
+Fix: after loading the variant, assert <code>$variant-&gt;product_id === $product-&gt;id</code>; abort/redirect back with an error otherwise. Do it before pricing at line 55. Test: <code>CartTest</code> — POST product A + variant B → 422/redirect with error, cart unchanged.</p>
+<p><strong>#10 [Med] Draft/archived products &amp; disabled variants purchasable</strong> — same controller, add path.<br>
+Fix: reject when <code>$product-&gt;status</code> is not the purchasable state or <code>$variant-&gt;is_enabled</code> is false. Reuse whatever storefront listing uses for <code>status</code>. Test: disabled variant and non-active product each rejected.</p>
+<p><strong>#9 [Med] Cart price snapshot never revalidated</strong> — <code>CartController.php:55</code>, <code>CheckoutController.php:126</code>.<br>
+Fix: at checkout, recompute each line's authoritative price (<code>$variant-&gt;price ?? $product-&gt;currentPrice()</code>) and reject/repri­ce if the snapshot diverges. Keep <code>price_snapshot</code> for display but never charge from it. Test: change a product price after add-to-cart → checkout uses the new price.</p>
+<p><strong>#7 [Med] Inactive shipping method → free shipping</strong> — <code>app/Http/Controllers/CheckoutController.php:62-65,120-123</code>.<br>
+Fix: replace bare <code>exists:</code> with a lookup constrained to active methods; when null, fail validation instead of falling through to <code>$shippingAmount = 0.0</code>. Test: POST an inactive shipping method id → rejected, not zero-rated.</p>
+<p><strong>#8 [Med] Guest email validation inert</strong> — <code>CheckoutController.php:89,134</code>.<br>
+Fix: correct the <code>required_if</code> to reference the real auth state (guest = unauthenticated), guard the array key to avoid the post-capture 500. Test: guest checkout with empty/omitted email → validation error before payment.</p>
+<p><strong>#28 [Low] Checkout lock-ordering deadlock</strong> — <code>CheckoutController.php:165-179</code>.<br>
+Fix: sort cart lines by <code>variant_id</code> before the locking loop so concurrent checkouts acquire locks in a consistent order. Test: unit-order the lines and assert deterministic lock sequence.</p>
+<p><strong>#22 [Low] Percent coupon &gt;100 → negative total</strong> — <code>app/Http/Controllers/Admin/CouponController.php:30,52</code>.<br>
+Fix: <code>max:100</code> validation for <code>percent</code> type; clamp computed discount to subtotal in checkout. Test: admin can't save 150% percent coupon; a 100% coupon floors total at 0.</p>
+<p><strong>#23 [Low] Coupon casing mismatch</strong> — <code>CartController.php:89</code> uppercases lookups; admin saves as typed.<br>
+Fix: uppercase <code>code</code> on save in <code>CouponController</code>. Test: mixed-case admin code matches an uppercased apply.</p>
+<p><strong>#29 [Low] Tax config footguns</strong> — <code>app/Services/TaxService.php:12-26</code>.<br>
+Fix: document that <code>rate_percent</code> stores a fraction (or rename accessor), and uppercase/normalize the configured state list so <code>'fl'</code> matches. Test: <code>TaxServiceTest</code> — lowercase state still taxes; fraction interpreted correctly.</p>
+<h3 id="phase-2-etsy-sync-robustness">Phase 2 — Etsy sync robustness</h3>
+<p><strong>#3 [High] Order import not transactional / retry not idempotent</strong> — <code>app/Services/Etsy/EtsyOrderSync.php:90-129</code>, <code>app/Jobs/ImportEtsyOrder.php:25</code>.<br>
+Fix: wrap order + items in <code>DB::transaction</code>; make import idempotent via <code>updateOrCreate</code> on <code>etsy_receipt_id</code> so a retry after partial failure heals instead of tripping the unique index. Test: simulate mid-loop failure → no itemless order; re-run → single complete order.</p>
+<p><strong>#4 [High] Watermark advances on failure</strong> — <code>EtsyOrderSync.php:69</code>.<br>
+Fix: only set <code>orders_last_synced_at = now()</code> after a successful receipts fetch/import; on failure, leave it so the window retries. Test: failed fetch leaves watermark unchanged.</p>
+<p><strong>#5 [High] Unlocked OAuth refresh race</strong> — <code>app/Services/Etsy/EtsyOAuthService.php:80-116</code>.<br>
+Fix: guard the refresh with <code>Cache::lock</code> (atomic); re-read the stored token inside the lock so a concurrent caller uses the freshly rotated token. Test: two concurrent refresh calls → one network refresh, both end with the valid token.</p>
+<p><strong>#11 [Med] Observer echo + no uniqueness guard</strong> — <code>app/Services/Etsy/EtsyProductSync.php:31-44</code>, <code>app/Observers/ProductObserver.php:22</code>, <code>app/Jobs/SyncProductToEtsy.php</code>.<br>
+Fix: use <code>saveQuietly()</code>/<code>updateQuietly()</code> (or <code>Model::withoutEvents</code>) in the sync writes so importing doesn't re-queue a push; add <code>ShouldBeUnique</code> to <code>SyncProductToEtsy</code>. Test: import a listing → no <code>SyncProductToEtsy</code> queued; unique key set correctly.</p>
+<p><strong>#12 [Med] No 429/5xx retry; overlapping syncs; no job timeouts</strong> — <code>app/Services/Etsy/EtsyClient.php:45-57</code>, <code>routes/console.php:11-13</code>.<br>
+Fix: add retry with backoff on 429/5xx in <code>EtsyClient</code>; add <code>-&gt;withoutOverlapping()</code> to the scheduled sync commands; set <code>$timeout</code> on the Etsy jobs. Test: mocked 429-then-200 succeeds; assert schedule uses withoutOverlapping.</p>
+<p><strong>#13 [Med] Webhook status events swallowed</strong> — <code>app/Http/Controllers/EtsyWebhookController.php:39-47,125-159</code>.<br>
+Fix: queue <code>order.canceled/shipped/delivered</code> handling like <code>order.paid</code>, and return non-2xx on genuine failure so Etsy redelivers (keep 200 only for verified-and-accepted). Test: handler failure → non-2xx response; success path queues a job.</p>
+<p><strong>#14 [Med] Silent success on empty receipt payload</strong> — <code>EtsyOrderSync.php:74-84</code>.<br>
+Fix: treat empty/<code>null</code> body as an error — log it and don't mark the receipt imported. Test: empty-body fetch logs and does not create/complete an order.</p>
+<p><strong>#30 [Low] Missing <code>etsy_transaction_id</code> on items</strong> — <code>EtsyOrderSync.php:121-128</code>.<br>
+Fix: populate from <code>$transaction['transaction_id']</code> so the dedup unique index is live. Test: imported item carries the transaction id.</p>
+<h3 id="phase-3-auth-session-security-headers_1">Phase 3 — Auth, session &amp; security headers</h3>
+<p><strong>#6 [Med] Missing rate limits on public POSTs</strong> — <code>routes/web.php:51,82,95,97</code> + <code>/register</code>, <code>/newsletter</code>, <code>/restock-request</code>.<br>
+Fix: add <code>throttle:</code> to each per existing patterns (login <code>5,1</code>, checkout <code>60,1</code>). Suggested: coupon <code>10,1</code>, forgot/reset <code>6,1</code>, contact <code>5,1</co

@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit Fixes Implementation Plan</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">Audit Fixes Implementation Plan</h1>
+      <p class="standfirst"><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+      <div class="meta"><span>2 sections</span><span class="dot">·</span><span class="read">~18 min read</span><span class="dot">·</span><span>2026-06-26-audit-fixes.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#global-constraints"><span class="n">01</span><span>Global Constraints</span></a><a class="lvl3" href="#task-1-route-hardening-login-throttle-honeypot-on-newsletterrestock">Task 1: Route hardening — login throttle + honeypot on newsletter/restock</a><a class="lvl3" href="#task-2-auth-cleanup-remove-fragile-login-elevation-reset-email-on-change">Task 2: Auth cleanup — remove fragile login elevation + reset email on change</a><a class="lvl3" href="#task-3-fix-guest-confirmation-page-403-after-checkout">Task 3: Fix guest confirmation page (403 after checkout)</a><a class="lvl3" href="#task-4-queue-mails-async-etsy-receipt-import-job">Task 4: Queue mails + async Etsy receipt import job</a><a class="lvl3" href="#task-5-checkout-integrity-amount-check-intent-replay-guard-stock-lock">Task 5: Checkout integrity — amount check, intent replay guard, stock lock</a><a class="lvl3" href="#task-6-encrypt-etsy-oauth-tokens-at-rest">Task 6: Encrypt Etsy OAuth tokens at rest</a><a class="lvl3" href="#task-7-fix-settingget-permanently-caching-default-parameter">Task 7: Fix Setting::get permanently caching default parameter</a><a class="lvl3" href="#task-8-fulltext-search-index-for-product-search">Task 8: Fulltext search index for product search</a><a class="lvl3" href="#task-9-clean-up-cartservicemergesessions-no-op">Task 9: Clean up CartService::mergeSessions no-op</a><a class="lvl3" href="#task-10-add-m2-to-todomd-and-run-full-suite">Task 10: Add M2 to todo.md and run full suite</a><a href="#self-review"><span class="n">02</span><span>Self-Review</span></a></nav></details>
+    <main>
+<blockquote>
+
+</blockquote>
+<p><strong>Goal:</strong> Fix all audit findings (C1–C3, H1–H2, M1, M3–M5, L1–L4) identified in the 2026-06-26 codebase audit without introducing regressions.</p>
+<p><strong>Architecture:</strong> Each fix is self-contained in 1–2 files. The biggest cluster is C1/C2/C3 (checkout integrity), which share a DB transaction in <code>CheckoutController::process()</code>. M5 adds a job class for async Etsy receipt import. M1 adds encryption helpers to <code>EtsyOAuthService</code> only — the <code>Setting</code> model stays generic.</p>
+<p><strong>Tech Stack:</strong> Laravel 13, PHP 8.3, PHPUnit 12, Stripe SDK v20, SQLite (tests), MariaDB (prod)</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>PHP 8.3 strict types implied; use constructor promotion, named args where it aids clarity</li>
+<li>Every test uses <code>RefreshDatabase</code> + existing factories; no manual <code>DB::table</code> seeding</li>
+<li>Run <code>vendor/bin/pint --dirty --format agent</code> after every PHP file change</li>
+<li>Run the minimal filter set per task before committing; full suite only at the end</li>
+<li>Never modify <code>require</code> in <code>composer.json</code></li>
+</ul>
+<hr>
+<h3 id="task-1-route-hardening-login-throttle-honeypot-on-newsletterrestock">Task 1: Route hardening — login throttle + honeypot on newsletter/restock</h3>
+<p>Fixes: <strong>H1</strong> (no login rate limit), <strong>L4</strong> (honeypot gaps)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>routes/web.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Produces: <code>POST /login</code> throttled at 5 req/min; <code>POST /newsletter</code> and <code>POST /restock-request</code> protected by <code>honeypot</code> middleware</p>
+<ul>
+<li>[ ] <strong>Step 1: Write a failing test for login throttle</strong></li>
+</ul>
+<p>Add to <code>tests/Feature/AuthTest.php</code> (create the file if it doesn't exist):</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class AuthTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function login_is_rate_limited_after_five_attempts(): void
+    {
+        User::factory()-&gt;create(['email' =&gt; 'user@example.com', 'password' =&gt; Hash::make('Password1!')]);
+
+        for ($i = 0; $i &lt; 5; $i++) {
+            $this-&gt;post('/login', ['email' =&gt; 'user@example.com', 'password' =&gt; 'wrong']);
+        }
+
+        $response = $this-&gt;post('/login', ['email' =&gt; 'user@example.com', 'password' =&gt; 'wrong']);
+
+        $response-&gt;assertStatus(429);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run the test — verify it fails</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=login_is_rate_limited_after_five_attempts
+</code></pre>
+<p>Expected: FAIL (6th attempt returns 200/302, not 429)</p>
+<ul>
+<li>[ ] <strong>Step 3: Add throttle to POST /login in routes/web.php</strong></li>
+</ul>
+<p>Change line 89:</p>
+<pre><code class="language-php">// Before
+Route::post('/login', [AuthController::class, 'login']);
+
+// After
+Route::post('/login', [AuthController::class, 'login'])-&gt;middleware('throttle:5,1');
+</code></pre>
+<p>Add <code>honeypot</code> to newsletter and restock routes (lines 67 and 76):</p>
+<pre><code class="language-php">// Before
+Route::post('/restock-request', [RestockController::class, 'store'])-&gt;name('restock.store');
+// ...
+Route::post('/newsletter', [NewsletterController::class, 'store'])-&gt;name('newsletter.store');
+
+// After
+Route::post('/restock-request', [RestockController::class, 'store'])-&gt;middleware('honeypot')-&gt;name('restock.store');
+// ...
+Route::post('/newsletter', [NewsletterController::class, 'store'])-&gt;middleware('honeypot')-&gt;name('newsletter.store');
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run test — verify it passes</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=login_is_rate_limited_after_five_attempts
+</code></pre>
+<p>Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add routes/web.php tests/Feature/AuthTest.php
+git commit -m &quot;security: throttle login at 5/min; add honeypot to newsletter and restock routes&quot;
+</code></pre>
+<hr>
+<h3 id="task-2-auth-cleanup-remove-fragile-login-elevation-reset-email-on-change">Task 2: Auth cleanup — remove fragile login elevation + reset email on change</h3>
+<p>Fixes: <strong>M4</strong> (silent admin promotion on login), <strong>M3</strong> (email change doesn't invalidate verification)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>app/Http/Controllers/AuthController.php:37-45</code><br>
+- Modify: <code>app/Http/Controllers/AccountController.php:153-176</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: nothing new<br>
+- Produces: login no longer silently promotes role; <code>profileUpdate()</code> sets <code>email_verified_at = null</code> and sends verification when email changes</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<p>Add to <code>tests/Feature/AuthTest.php</code>:</p>
+<pre><code class="language-php">#[Test]
+public function second_user_login_does_not_become_admin(): void
+{
+    User::factory()-&gt;create(['role' =&gt; 'admin']);
+    $customer = User::factory()-&gt;create([
+        'role'     =&gt; 'customer',
+        'password' =&gt; Hash::make('Password1!'),
+    ]);
+
+    $this-&gt;post('/login', ['email' =&gt; $customer-&gt;email, 'password' =&gt; 'Password1!']);
+
+    $this-&gt;assertEquals('customer', $customer-&gt;fresh()-&gt;role);
+}
+</code></pre>
+<p>Create <code>tests/Feature/AccountTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class AccountTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function email_change_resets_verification_and_resends_link(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()-&gt;create([
+            'email'             =&gt; 'old@example.com',
+            'email_verified_at' =&gt; now(),
+            'password'          =&gt; Hash::make('Password1!'),
+        ]);
+
+        $this-&gt;actingAs($user)-&gt;put(route('account.profile.update'), [
+            'name'  =&gt; $user-&gt;name,
+            'email' =&gt; 'new@example.com',
+        ]);
+
+        $this-&gt;assertNull($user-&gt;fresh()-&gt;email_verified_at);
+        Notification::assertSentTo($user-&gt;fresh(), \Illuminate\Auth\Notifications\VerifyEmail::class);
+    }
+
+    #[Test]
+    public function email_unchanged_does_not_reset_verification(): void
+    {
+        $user = User::factory()-&gt;create([
+            'email'             =&gt; 'same@example.com',
+            'email_verified_at' =&gt; now(),
+        ]);
+
+        $this-&gt;actingAs($user)-&gt;put(route('account.profile.update'), [
+            'name'  =&gt; 'New Name',
+            'email' =&gt; 'same@example.com',
+        ]);
+
+        $this-&gt;assertNotNull($user-&gt;fresh()-&gt;email_verified_at);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify they fail</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;second_user_login_does_not_become_admin|email_change_resets&quot;
+</code></pre>
+<p>Expected: FAIL (elevation still happens; verification not reset)</p>
+<ul>
+<li>[ ] <strong>Step 3: Remove auto-admin elevation from AuthController</strong></li>
+</ul>
+<p>Delete lines 39–43 from <code>app/Http/Controllers/AuthController.php</code>:</p>
+<pre><code class="language-php">// Remove this entire block:
+// Elevate first user to admin if still a customer
+if ($user-&gt;role === 'customer' &amp;&amp; User::count() === 1) {
+    $user-&gt;role = 'admin';
+    $user-&gt;save();
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Add email verification reset to AccountController</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/AccountController.php</code>, replace the <code>profileUpdate</code> save block:</p>
+<pre><code class="language-php">// Before (lines ~168-173):
+$user-&gt;name = $validated['name'];
+$user-&gt;email = $validated['email'];
+$user-&gt;save();
+
+// After:
+$emailChanged = $user-&gt;email !== $validated['email'];
+
+$user-&gt;name  = $validated['name'];
+$user-&gt;email = $validated['email'];
+$user-&gt;save();
+
+if ($emailChanged) {
+    $user-&gt;email_verified_at = null;
+    $user-&gt;save();
+    $user-&gt;sendEmailVerificationNotification();
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: Run tests — verify they pass</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;second_user_login_does_not_become_admin|email_change_resets|email_unchanged&quot;
+</code></pre>
+<p>Expected: all PASS</p>
+<ul>
+<li>[ ] <strong>Step 6: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Http/Controllers/AuthController.php app/Http/Controllers/AccountController.php tests/Feature/AuthTest.php tests/Feature/AccountTest.php
+git commit -m &quot;security: remove silent admin elevation on login; reset email verification when email changes&quot;
+</code></pre>
+<hr>
+<h3 id="task-3-fix-guest-confirmation-page-403-after-checkout">Task 3: Fix guest confirmation page (403 after checkout)</h3>
+<p>Fixes: <strong>H2</strong> (guests always 403 on confirmation)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>app/Http/Controllers/CheckoutController.php:209-211</code></p>
+<p><strong>Interfaces:</strong><br>
+- Produces: <code>process()</code> redirects with <code>?email=</code> query param so <code>confirmation()</code> can verify guest identity</p>
+<ul>
+<li>[ ] <strong>Step 1: Write a failing test</strong></li>
+</ul>
+<p>Create <code>tests/Feature/CheckoutGuestConfirmationTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Order;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class CheckoutGuestConfirmationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function guest_can_view_their_confirmation_page_via_email_param(): void
+    {
+        $order = Order::factory()-&gt;create([
+            'user_id'     =&gt; null,
+            'guest_email' =&gt; 'guest@example.com',
+        ]);
+
+        $response = $this-&gt;get(route('checkout.confirmation', [
+            'order' =&gt; $order-&gt;id,
+            'email' =&gt; 'guest@example.com',
+        ]));
+
+        $response-&gt;assertOk();
+    }
+
+    #[Test]
+    public function guest_cannot_view_another_guests_order(): void
+    {
+        $order = Order::factory()-&gt;create([
+            'user_id'     =&gt; null,
+            'guest_email' =&gt; 'real@example.com',
+        ]);
+
+        $response = $this-&gt;get(route('checkout.confirmation', [
+            'order' =&gt; $order-&gt;id,
+            'email' =&gt; 'attacker@example.com',
+        ]));
+
+        $response-&gt;assertForbidden();
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify they exist correctly</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=CheckoutGuestConfirmationTest
+</code></pre>
+<p>Expected: first test PASS (confirmation method already works with param), second also PASS — both these tests may pass already if the view+method is correct. The <em>real</em> bug is in <code>process()</code> not passing the param. Proceed.</p>
+<ul>
+<li>[ ] <strong>Step 3: Fix the redirect in process()</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/CheckoutController.php</code>, change the final line of <code>process()</code>:</p>
+<pre><code class="language-php">// Before (line ~211):
+return redirect()-&gt;route('checkout.confirmation', $order);
+
+// After:
+return redirect()-&gt;route('checkout.confirmation', [
+    'order' =&gt; $order,
+    'email' =&gt; $buyerEmail,
+]);
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=CheckoutGuestConfirmationTest
+</code></pre>
+<p>Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Http/Controllers/CheckoutController.php tests/Feature/CheckoutGuestConfirmationTest.php
+git commit -m &quot;fix: pass email query param on guest checkout confirmation redirect&quot;
+</code></pre>
+<hr>
+<h3 id="task-4-queue-mails-async-etsy-receipt-import-job">Task 4: Queue mails + async Etsy receipt import job</h3>
+<p>Fixes: <strong>M5</strong> (blocking mail/HTTP in request lifecycle)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>app/Http/Controllers/CheckoutController.php:204-208</code><br>
+- Modify: <code>app/Http/Controllers/EtsyWebhookController.php:107-114</code><br>
+- Create: <code>app/Jobs/ImportEtsyOrder.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Produces: <code>ImportEtsyOrder</code> job class with <code>handle(EtsyOrderSync $sync)</code> accepting <code>string $resourceUrl</code> via constructor</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<p>Add to <code>tests/Feature/EtsyWebhookControllerTest.php</code> (append after existing tests):</p>
+<pre><code class="language-php">// Add to imports at top of file:
+// use App\Jobs\ImportEtsyOrder;
+// use Illuminate\Support\Facades\Queue;
+
+#[Test]
+public function order_paid_webhook_dispatches_import_job_for_new_receipts(): void
+{
+    Queue::fake();
+
+    $payload = ['event_type' =&gt; 'order.paid', 'resource_url' =&gt; 'https://api.etsy.com/v3/application/shops/123/receipts/999'];
+    $this-&gt;postWebhook($payload)-&gt;assertOk();
+
+    Queue::assertPushed(ImportEtsyOrder::class, fn ($job) =&gt; $job-&gt;resourceUrl === 'https://api.etsy.com/v3/application/shops/123/receipts/999');
+}
+</code></pre>
+<p>Add to <code>tests/Feature/CheckoutMailQueueTest.php</code> (create it):</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Mail\OrderConfirmationMail;
+use App\Models\Order;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class CheckoutMailQueueTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function order_confirmation_email_is_queued_not_sent_synchronously(): void
+    {
+        Mail::fake();
+
+        $order = Order::factory()-&gt;create(['guest_email' =&gt; 'buyer@example.com']);
+
+        // Simulate what process() does after creating the order
+        Mail::to('buyer@example.com')-&gt;queue(new OrderConfirmationMail($order-&gt;load('items')));
+
+        Mail::assertQueued(OrderConfirmationMail::class);
+        Mail::assertNotSent(OrderConfirmationMail::class);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify the webhook one fails (job class doesn't exist)</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;order_paid_webhook_dispatches_import_job&quot;
+</code></pre>
+<p>Expected: FAIL — <code>App\Jobs\ImportEtsyOrder</code> not found</p>
+<ul>
+<li>[ ] <strong>Step 3: Create ImportEtsyOrder job</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class app/Jobs/ImportEtsyOrder --no-interaction
+</code></pre>
+<p>Replace the generated file at <code>app/Jobs/ImportEtsyOrder.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Jobs;
+
+use App\Services\Etsy\EtsyOrderSync;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+
+class ImportEtsyOrder implements ShouldQueue
+{
+    use Queueable;
+
+    public int $tries = 3;
+
+    public int $backoff = 30;
+
+    public function __construct(public readonly string $resourceUrl) {}
+
+    public function handle(EtsyOrderSync $sync): void
+    {
+        $sync-&gt;importFromResourceUrl($this-&gt;resourceUrl);
+    }
+
+    public function failed(\Throwable $e): void
+    {
+        Log::error('ImportEtsyOrder job failed', [
+            'resource_url' =&gt; $this-&gt;resourceUrl,
+            'error'        =&gt; $e-&gt;getMessage(),
+        ]);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Add importFromResourceUrl to EtsyOrderSync</strong></li>
+</ul>
+<p>Open <code>app/Services/Etsy/EtsyOrderSync.php</code> and check if a method for resource-URL import already exists. If it does, map the job's <code>handle()</code> to it. If not, add:</p>
+<pre><code class="language-php">public function importFromResourceUrl(string $resourceUrl): void
+{
+    $path = preg_replace('#^https://api\.etsy\.com/v3#', '', $resourceUrl);
+    $receipt = $this-&gt;client-&gt;get($path);
+
+    if ($receipt) {
+        $this-&gt;importReceipt($receipt);
+    }
+}
+</code></pre>
+<p>(Add <code>use App\Services\Etsy\EtsyClient;</code> to the job if the service is constructor-injected; check the existing class head for the correct pattern.)</p>
+<ul>
+<li>[ ] <strong>Step 5: Update EtsyWebhookController to dispatch the job</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/EtsyWebhookController.php</code>, replace the inline receipt-fetch+import in <code>handleOrderPaid()</code>:</p>
+<pre><code class="language-php">// Before (~lines 107-114):
+$receipt = $this-&gt;fetchReceipt($resourceUrl);
+if ($receipt) {
+    app(EtsyOrderSync::class)-&gt;importReceipt($receipt);
+    $order = Order::where('etsy_receipt_id', $receiptId)-&gt;first();
+}
+
+// After:
+ImportEtsyOrder::dispatch($resourceUrl);
+$order = Order::where('etsy_receipt_id', $receiptId)-&gt;first();
+</code></pre>
+<p>Add import at top: <code>use App\Jobs\ImportEtsyOrder;</code></p>
+<p>You can also remove the now-unused private <code>fetchReceipt()</code> method from the controller.</p>
+<ul>
+<li>[ ] <strong>Step 6: Queue the order confirmation mail in CheckoutController</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/CheckoutController.php</code>, change line ~205:</p>
+<pre><code class="language-php">// Before:
+Mail::to($buyerEmail)-&gt;send(new OrderConfirmationMail($order-&gt;load('items')));
+
+// After:
+Mail::to($buyerEmail)-&gt;queue(new OrderConfirmationMail($order-&gt;load('items')));
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: Run all task tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;order_paid_webhook_dispatches_import_job|order_confirmation_email_is_queued&quot;
+</code></pre>
+<p>Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 8: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Jobs/ImportEtsyOrder.php app/Services/Etsy/EtsyOrderSync.php app/Http/Controllers/EtsyWebhookController.php app/Http/Controllers/CheckoutController.php tests/Feature/CheckoutMailQueueTest.php
+git commit -m &quot;perf: queue order confirmation mail; dispatch Etsy receipt import job asynchronously&quot;
+</code></pre>
+<hr>
+<h3 id="task-5-checkout-integrity-amount-check-intent-replay-guard-stock-lock">Task 5: Checkout integrity — amount check, intent replay guard, stock lock</h3>
+<p>Fixes: <strong>C1</strong> (underpayment), <strong>C2</strong> (intent replay), <strong>C3</strong> (overselling)</p>
+<p>This is the highest-impact task. All three fixes land in <code>CheckoutController::process()</code> and the DB transaction inside it, plus one migration.</p>
+<p><strong>Files:</strong><br>
+- Create: migration <code>add_unique_index_to_orders_stripe_payment_intent_id</code><br>
+- Modify: <code>app/Http/Controllers/CheckoutController.php:85-211</code><br>
+- Modify: <code>app/Services/StripeService.php:37-46</code><br>
+- Test: <code>tests/Feature/CheckoutIntegrityTest.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- <code>StripeService::verifyPaymentIntent()</code> now returns the <code>PaymentIntent</code> with the amount available (no signature change needed — it already returns the full object)<br>
+- <code>CheckoutController::process()</code> asserts <code>$intent-&gt;amount_received === $expectedCents</code><br>
+- The DB transaction locks each variant row and decrements <code>stock_qty</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<p>Create <code>tests/Feature/CheckoutIntegrityTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\ShippingMethod;
+use App\Services\StripeService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
+use PHPUnit\Framework\Attributes\Test;
+use Stripe\PaymentIntent;
+use Tests\TestCase;
+
+class CheckoutIntegrityTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private ShippingMethod $shipping;
+    private Product $product;
+    private ProductVariant $variant;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this-&gt;shipping = ShippingMethod::factory()-&gt;create(['price' =&gt; 5.00]);
+        $this-&gt;product  = Product::factory()-&gt;create(['price' =&gt; 20.00]);
+        $this-&gt;variant  = ProductVariant::factory()-&gt;create([
+            'product_id' =&gt; $this-&gt;product-&gt;id,
+            'stock_qty'  =&gt; 5,
+        ]);
+
+        session(['cart' =&gt; [
+            'key1' =&gt; [
+                'row_key'              =&gt; 'key1',
+                'product_id'           =&gt; $this-&gt;product-&gt;id,
+                'variant_id'           =&gt; $this-&gt;variant-&gt;id,
+                'sku'                  =&gt; 'SKU1',
+                'name'                 =&gt; $this-&gt;product-&gt;name,
+                'variant_label'        =&gt; '',
+                'personalization_text' =&gt; null,
+                'personalization_price' =&gt; 0.0,
+                'price'                =&gt; 20.00,
+                'qty'                  =&gt; 1,
+                'image_url'            =&gt; null,
+            ],
+        ]]);
+    }
+
+    private function mockStripe(string $status = 'succeeded', int $amountReceived = 2500): void
+    {
+        $intent = Mockery::mock(PaymentIntent::class);
+        $intent-&gt;status          = $status;
+        $intent-&gt;id              = 'pi_test';
+        $intent-&gt;currency        = 'usd';
+        $intent-&gt;amount_received = $amountReceived;
+
+        $mock = Mockery::mock(StripeService::class);
+        $mock-&gt;shouldReceive('verifyPaymentIntent')-&gt;andReturn($intent);
+        $this-&gt;app-&gt;instance(StripeService::class, $mock);
+    }
+
+    private function postCheckout(array $overrides = [])
+    {
+        return $this-&gt;post(route('checkout.process'), array_merge([
+            'shipping_first_name' =&gt; 'Jane',
+            'shipping_last_name'  =&gt; 'Doe',
+            'shipping_address_1'  =&gt; '123 Main St',
+            'shipping_city'       =&gt; 'Portland',
+            'shipping_state'      =&gt; 'OR',
+            'shipping_zip'        =&gt; '97201',
+            'shipping_method_id'  =&gt; $this-&gt;shipping-&gt;id,
+            'payment_intent_id'   =&gt; 'pi_test',
+            'guest_email'         =&gt; 'jane@example.com',
+        ], $overrides));
+    }
+
+    #[Test]
+    public function checkout_fails_when_stripe_amount_does_not_match_order_total(): void
+    {
+        // Cart total is $20 product + $5 shipping = $25 = 2500 cents
+        // Mock returns 500 cents (underpayment)
+        $this-&gt;mockStripe(amountReceived: 500);
+
+        $response = $this-&gt;postCheckout();
+
+        $response-&gt;assertRedirect();
+        $response-&gt;assertSessionHasErrors('payment');
+        $this-&gt;assertDatabaseCount('orders', 0);
+    }
+
+    #[Test]
+    public function checkout_is_blocked_for_replayed_payment_intent(): void
+    {
+        $this-&gt;mockStripe(amountReceived: 2500);
+
+        // First checkout succeeds
+        $this-&gt;postCheckout();
+        $this-&gt;assertDatabaseCount('orders', 1);
+
+        // Re-seed cart (cleared after first checkout)
+        session(['cart' =&gt; [
+            'key1' =&gt; [
+                'row_key'              =&gt; 'key1',
+                'product_id'           =&gt; $this-&gt;product-&gt;id,
+                'variant_id'           =&gt; $this-&gt;variant-&gt;id,
+                'sku'                  =&gt; 'SKU1',
+                'name'                 =&gt; $this-&gt;product-&gt;name,
+                'variant_label'        =&gt; '',
+                'personalization_text' =&gt; null,
+                'personalization_price' =&gt; 0.0,
+                'price'                =&gt; 20.00,
+                'qty'                  =&gt; 1,
+                'image_url'            =&gt; null,
+            ],
+        ]]);
+
+        $response = $this-&gt;postCheckout();
+
+        $response-&gt;assertRedirect();
+        $this-&gt;assertDatabaseCount('orders', 1); // no second order created
+    }
+
+    #[Test]
+    public function checkout_fails_when_variant_is_out_of_stock(): void
+    {
+        $this-&gt;mockStripe(amountReceived: 2500);
+        $this-&gt;variant-&gt;update(['stock_qty' =&gt; 0]);
+
+        $response = $this-&gt;postCheckout();
+
+        $response-&gt;assertRedirect();
+        $response-&gt;assertSessionHasErrors();
+        $this-&gt;assertDatabaseCount('orders', 0);
+    }
+
+    #[Test]
+    public function checkout_decrements_variant_stock(): void
+    {
+        $this-&gt;mockStripe(amountReceived: 2500);
+
+        $this-&gt;postCheckout();
+
+        $this-&gt;assertEquals(4, $this-&gt;variant-&gt;fresh()-&gt;stock_qty);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify they all fail</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=CheckoutIntegrityTest
+</code></pre>
+<p>Expected: all 4 FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Create migration for unique payment intent index</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:migration add_unique_to_orders_stripe_payment_intent_id --no-interaction
+</code></pre>
+<p>In the generated file:</p>
+<pre><code class="language-php">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table-&gt;unique('stripe_payment_intent_id');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table-&gt;dropUnique(['stripe_payment_intent_id']);
+        });
+    }
+};
+</code></pre>
+<pre><code class="language-bash">php artisan migrate
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Add amount_received to StripeService return</strong></li>
+</ul>
+<p><code>StripeService::verifyPaymentIntent()</code> already returns the full <code>PaymentIntent</code> object which has <code>amount_received</code>. No code change needed here — the method signature is fine. The guards go in the controller.</p>
+<ul>
+<li>[ ] <strong>Step 5: Add C1 + C2 + C3 guards to CheckoutController::process()</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/CheckoutController.php</code>, inside <code>process()</code>:</p>
+<p><strong>After the <code>$intent</code> is verified (after <code>~line 116</code>), add the C2 replay guard:</strong></p>
+<pre><code class="language-php">// C2: block replayed payment intents
+if (Order::where('stripe_payment_intent_id', $intent-&gt;id)-&gt;exists()) {
+    $existing = Order::where('stripe_payment_intent_id', $intent-&gt;id)-&gt;first();
+    return redirect()-&gt;route('checkout.confirmation', [
+        'order' =&gt; $existing,
+        'email' =&gt; $buyerEmail,
+    ]);
+}
+</code></pre>
+<p><strong>After recalculating <code>$total</code> (~line 129), add the C1 amount check:</strong></p>
+<pre><code class="language-php">// C1: reconcile Stripe amount_received against recalculated server-side total
+$expectedCents = (int) round($total * 100);
+if ($intent-&gt;amount_received !== $expectedCents || $intent-&gt;currency !== 'usd') {
+    Log::warning('Payment amount mismatch', [
+        'intent'   =&gt; $intent-&gt;id,
+        'expected' =&gt; $expectedCents,
+        'received' =&gt; $intent-&gt;amount_received,
+    ]);
+    return back()-&gt;withErrors([
+        'payment' =&gt; 'Payment amount did not match your order total. Please restart checkout.',
+    ])-&gt;withInput();
+}
+</code></pre>
+<p><strong>Inside the DB transaction, before <code>Order::create()</code>, add the C3 stock guard:</strong></p>
+<pre><code class="language-php">// C3: validate and decrement stock atomically
+foreach ($cart as $item) {
+    $variant = ProductVariant::whereKey($item['variant_id'])-&gt;lockForUpdate()-&gt;firstOrFail();
+
+    if ($variant-&gt;stock_qty &lt; $item['qty']) {
+        throw new \RuntimeException(&quot;'{$item['name']}' is no longer available in the requested quantity.&quot;);
+    }
+
+    $variant-&gt;decrement('stock_qty', $item['qty']);
+}
+</code></pre>
+<p>Wrap the entire <code>DB::transaction</code> call in a try/catch to surface stock errors:</p>
+<pre><code class="language-php">try {
+    $order = DB::transaction(function () use (/* existing use list */) {
+        // ... existing transaction body with stock guard added above ...
+    });
+} catch (\RuntimeException $e) {
+    return back()-&gt;withErrors(['cart' =&gt; $e-&gt;getMessage()])-&gt;withInput();
+}
+</code></pre>
+<p>Note: the <code>$buyerEmail</code> variable must be resolved <strong>before</strong> the transaction block (move it up from inside) since the C2 guard also needs it.</p>
+<ul>
+<li>[ ] <strong>Step 6: Run tests — verify they pass</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=CheckoutIntegrityTest
+</code></pre>
+<p>Expected: all 4 PASS</p>
+<ul>
+<li>[ ] <strong>Step 7: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add database/migrations/*add_unique_to_orders_stripe_payment_intent_id* app/Http/Controllers/CheckoutController.php tests/Feature/CheckoutIntegrityTest.php
+git commit -m &quot;fix: validate Stripe amount, block intent replay, lock and decrement stock at checkout (C1/C2/C3)&quot;
+</code></pre>
+<hr>
+<h3 id="task-6-encrypt-etsy-oauth-tokens-at-rest">Task 6: Encrypt Etsy OAuth tokens at rest</h3>
+<p>Fixes: <strong>M1</strong> (tokens stored in plaintext in settings table)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>app/Services/Etsy/EtsyOAuthService.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- <code>storeToken(string $key, string $value): void</code> — encrypts and stores via <code>Setting::set</code><br>
+- <code>retrieveToken(string $key): ?string</code> — reads via <code>Setting::get</code> and decrypts; returns <code>null</code> if missing or decrypt fails</p>
+<ul>
+<li>[ ] <strong>Step 1: Write a failing test</strong></li>
+</ul>
+<p>Create <code>tests/Feature/EtsyOAuthTokenEncryptionTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Setting;
+use App\Services\Etsy\EtsyOAuthService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class EtsyOAuthTokenEncryptionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function etsy_access_token_is_not_stored_as_plaintext(): void
+    {
+        $oauth = app(EtsyOAuthService::class);
+
+        // Use reflection to call private storeToken
+        $ref = new \ReflectionMethod($oauth, 'storeToken');
+        $ref-&gt;setAccessible(true);
+        $ref-&gt;invoke($oauth, 'etsy.access_token', 'plaintext_token_value');
+
+        $raw = Setting::find('etsy.access_token')?-&gt;value;
+
+        $this-&gt;assertNotEquals('plaintext_token_value', $raw, 'Token must not be stored in plaintext');
+        $this-&gt;assertEquals('plaintext_token_value', Crypt::decryptString($raw), 'Token must be recoverable via decryption');
+    }
+
+    #[Test]
+    public function retrieve_token_decrypts_stored_value(): void
+    {
+        Setting::set('etsy.access_token', Crypt::encryptString('my_secret_token'));
+
+        $oauth = app(EtsyOAuthService::class);
+
+        $ref = new \ReflectionMethod($oauth, 'retrieveToken');
+        $ref-&gt;setAccessible(true);
+        $result = $ref-&gt;invoke($oauth, 'etsy.access_token');
+
+        $this-&gt;assertEquals('my_secret_token', $result);
+    }
+
+    #[Test]
+    public function retrieve_token_returns_null_for_missing_key(): void
+    {
+        $oauth = app(EtsyOAuthService::class);
+
+        $ref = new \ReflectionMethod($oauth, 'retrieveToken');
+        $ref-&gt;setAccessible(true);
+        $result = $ref-&gt;invoke($oauth, 'etsy.access_token');
+
+        $this-&gt;assertNull($result);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify they fail</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyOAuthTokenEncryptionTest
+</code></pre>
+<p>Expected: FAIL (<code>storeToken</code> method doesn't exist)</p>
+<ul>
+<li>[ ] <strong>Step 3: Add encryption helpers to EtsyOAuthService</strong></li>
+</ul>
+<p>Add <code>use Illuminate\Support\Facades\Crypt;</code> to the imports.</p>
+<p>Add these two private methods at the bottom of the class:</p>
+<pre><code class="language-php">private function storeToken(string $key, string $value): void
+{
+    Setting::set($key, Crypt::encryptString($value));
+}
+
+private function retrieveToken(string $key): ?string
+{
+    $raw = Setting::get($key);
+
+    if ($raw === null) {
+        return null;
+    }
+
+    try {
+        return Crypt::decryptString($raw);
+    } catch (\Illuminate\Contracts\Encryption\DecryptException) {
+        return null;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Replace direct Setting calls with helpers</strong></li>
+</ul>
+<p>In <code>handleCallback()</code>, replace:</p>
+<pre><code class="language-php">// Before:
+Setting::set('etsy.access_token', $data['access_token']);
+Setting::set('etsy.refresh_token', $data['refresh_token']);
+// ...
+if (isset($data['refresh_token'])) {
+    Setting::set('etsy.refresh_token', $data['refresh_token']);
+}
+
+// After:
+$this-&gt;storeToken('etsy.access_token', $data['access_token']);
+$this-&gt;storeToken('etsy.refresh_token', $data['refresh_token']);
+</code></pre>
+<p>In <code>refreshToken()</code>, replace:</p>
+<pre><code class="language-php">// Before:
+$refreshToken = Setting::get('etsy.refresh_token');
+// ...
+Setting::set('etsy.access_token', $data['access_token']);
+// ...
+if (isset($data['refresh_token'])) {
+    Setting::set('etsy.refresh_token', $data['refresh_token']);
+}
+
+// After:
+$refreshToken = $this-&gt;retrieveToken('etsy.refresh_token');
+// ...
+$this-&gt;storeToken('etsy.access_token', $data['access_token']);
+// ...
+if (isset($data['refresh_token'])) {
+    $this-&gt;storeToken('etsy.refresh_token', $data['refresh_token']);
+}
+</code></pre>
+<p>In <code>isConnected()</code>, the access token check uses <code>Setting::get('etsy.access_token')</code> which returns the encrypted blob — that's truthy, so <code>!empty()</code> still works. No change needed there.</p>
+<p>In <code>refreshIfExpired()</code>, <code>$refreshToken</code> comes via <code>retrieveToken</code> above — no further changes.</p>
+<p>In <code>resolveShopId()</code> and the <code>EtsyClient</code>, the access token is passed as a resolved value — these call sites already receive the decrypted token via <code>Setting::get('etsy.access_token')</code> which will now return the ciphertext. Update the <code>EtsyClient</code> constructor/usage to call <code>retrieveToken</code> instead. Check <code>app/Services/Etsy/EtsyClient.php</code> for where <code>etsy.access_token</code> is read and replace with <code>$this-&gt;oauth-&gt;getAccessToken()</code>.</p>
+<p>Add a public method to <code>EtsyOAuthService</code>:</p>
+<pre><code class="language-php">public function getAccessToken(): ?string
+{
+    return $this-&gt;retrieveToken('etsy.access_token');
+}
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Any existing encrypted tokens in production need to be rotated after this deploy. Old plaintext tokens will return <code>null</code> from <code>retrieveToken</code> (the <code>DecryptException</code> path), causing the next API call to fail gracefully and prompt re-connection.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: Run tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyOAuthTokenEncryptionTest
+</code></pre>
+<p>Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 6: Run the full Etsy test suite to check for regressions</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact tests/Feature/EtsyOAuthTest.php tests/Feature/EtsyAdminTest.php tests/Feature/EtsySyncTest.php
+</code></pre>
+<p>Expected: all PASS (mock HTTP calls won't be affected)</p>
+<ul>
+<li>[ ] <strong>Step 7: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Services/Etsy/EtsyOAuthService.php app/Services/Etsy/EtsyClient.php tests/Feature/EtsyOAuthTokenEncryptionTest.php
+git commit -m &quot;security: encrypt Etsy OAuth tokens at rest using Laravel Crypt (M1)&quot;
+</code></pre>
+<hr>
+<h3 id="task-7-fix-settingget-permanently-caching-default-parameter">Task 7: Fix Setting::get permanently caching default parameter</h3>
+<p>Fixes: <strong>L2</strong> (null defaults cached forever, hiding later-set values)</p>
+<p><strong>Files:</strong><br>
+- Modify: <code>app/Models/Setting.php:34-40</code></p>
+<p><strong>Interfaces:</strong><br>
+- <code>Setting::get(string $key, mixed $default = null): mixed</code> — now caches only the DB value (which may be <code>null</code>); <code>$default</code> is applied at return time and never cached</p>
+<ul>
+<li>[ ] <strong>Step 1: Write a failing test</strong></li>
+</ul>
+<p>Create <code>tests/Feature/SettingCacheTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Setting;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+class SettingCacheTest extends TestCase
+{
+    use RefreshDatabase;
+
+    #[Test]
+    public function get_with_default_does_not_cache_the_default_value(): void
+    {
+        // First call: key doesn't exist, returns provided default
+        $result = Setting::get('foo.bar', 'fallback');
+        $this-&gt;assertEquals('fallback', $result);
+
+        // Now create the setting (simulates a later set)
+        Setting::set('foo.bar', 'real_value');
+
+        // Second call: should return real_value, not cached 'fallback'
+        $result2 = Setting::get('foo.bar');
+        $this-&gt;assertEquals('real_value', $result2);
+    }
+
+    #[Test]
+    public function get_caches_actual_db_values_permanently(): void
+    {
+        Setting::set('app.name', 'TimberTrace');
+
+        Setting::get('app.name'); // warms cache
+
+        // Bypass Setting::set (direct DB update) — cache should still serve old value
+        \DB::table('settings')-&gt;where('key', 'app.name')-&gt;update(['value' =&gt; 'Changed']);
+
+        $this-&gt;assertEquals('TimberTrace', Setting::get('app.name'));
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests — verify first test fails</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=SettingCacheTest
+</code></pre>
+<p>Expected: <code>get_with_default_does_not_cache_the_default_value</code> FAIL (returns 'fallback' on second call because it was cached); second test PASS.</p>
+<ul>
+<li>[ ] <strong>Step 3: Fix Setting::get</strong></li>
+</ul>
+<p>In <code>app/Models/Setting.php</code>, replace the <code>get()</code> method:</p>
+<pre><code class="language-php">public static function get(string $key, mixed $default = null): mixed
+{
+    $value = Cache::rememberForever('setting.'.$key, function () use ($key) {
+        $setting = static::find($key);
+
+        return $setting ? $setting-&gt;value : null;
+    });
+
+    return $value ?? $default;
+}
+</code></pre>
+<p>The closure now always returns <code>null</code> (never the caller's <code>$default</code>) when the row is absent, so different callers with different defaults don't pollute the cache. The <code>$default</code> is applied only at call-site return time.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=SettingCacheTest
+</code></pre>
+<p>Expected: both PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Pint + commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Models/Setting.php tests/Feature/SettingCacheTest.php
+git commit -m &quot;fix: Setting::get no longer caches caller-provided defaults; only caches DB values (L2)&quot;
+</code></pre>
+<hr>
+<h3 id="task-8-fulltext-search-index-for-product-search">Task 8: Fulltext search index for product search</h3>
+<p>Fixes: <strong>L1</strong> (leading-wildcard LIKE can't use indexes)</p>
+<p><strong>Files:</strong><br>
+- Create: migration <code>add_fulltext_index_to_products_name_and_short_description</code><br>
+- Modify: <code>app/Http/Controllers/ShopController.php:35-39</code></p>
+<p><strong>Interfaces:</strong><br>
+- On MySQL/MariaDB: uses <code>whereFullText(['name', 'short_description'], $search)</code><br>
+- On SQLite (tests): falls back to existing LIKE query</p>
+<ul>
+<li>[ ] <strong>Step 1: Create the migration</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:migration add_fulltext_index_to_products_name_short_description --no-interaction
+</code></pre>
+<p>In the generated file:</p>
+<pre><code class="language-php">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (DB::connection()-&gt;getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE products ADD FULLTEXT INDEX products_search_fulltext (name, short_description)');
+        }
+    }
+
+    public function down(): void
+    {
+        if (DB::connection()-&gt;getDriverName() === 'mysql') {
+            Schema::table('products', function (Blueprint $table) {
+                $table-&gt;dropIndex('products_search_fulltext');
+            });
+        }
+    }
+};
+</code></pre>
+<pre><code class="language-bash">php artisan migrate
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Update ShopController to use fulltext on MySQL</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/ShopController.php</code>, replace the search block (~lines 35-39):</p>
+<pre><code class="language-php">// Before:
+if ($search = $request-&gt;query('search')) {
+    $query-&gt;where(function ($q) use ($search) {
+        $q-&gt;where('name', 'like', &quot;%{$search}%

@@ -1,0 +1,1939 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Sync Implementation Plan</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">Etsy Sync Implementation Plan</h1>
+      <p class="standfirst"><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+      <div class="meta"><span>13 sections</span><span class="dot">·</span><span class="read">~23 min read</span><span class="dot">·</span><span>2026-06-24-etsy-sync.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#global-constraints"><span class="n">01</span><span>Global Constraints</span></a><a href="#file-map"><span class="n">02</span><span>File Map</span></a><a href="#task-1-migrations-model-updates"><span class="n">03</span><span>Task 1: Migrations &amp;amp; Model Updates</span></a><a href="#task-2-config-exception-syncresult-etsyclient"><span class="n">04</span><span>Task 2: Config, Exception, SyncResult &amp;amp; EtsyClient</span></a><a href="#task-3-etsyoauthservice"><span class="n">05</span><span>Task 3: EtsyOAuthService</span></a><a href="#task-4-etsyproductsync"><span class="n">06</span><span>Task 4: EtsyProductSync</span></a><a href="#task-5-etsyinventorysync"><span class="n">07</span><span>Task 5: EtsyInventorySync</span></a><a href="#task-6-etsyordersync"><span class="n">08</span><span>Task 6: EtsyOrderSync</span></a><a href="#task-7-etsyshipmentsync-ordercontroller-hook"><span class="n">09</span><span>Task 7: EtsyShipmentSync + OrderController Hook</span></a><a href="#task-8-artisan-commands-scheduler"><span class="n">10</span><span>Task 8: Artisan Commands &amp;amp; Scheduler</span></a><a href="#task-9-admin-controller-routes-view"><span class="n">11</span><span>Task 9: Admin Controller, Routes &amp;amp; View</span></a><a href="#task-10-full-test-suite-validation"><span class="n">12</span><span>Task 10: Full Test Suite Validation</span></a><a href="#notes-for-when-etsy-approves-the-app"><span class="n">13</span><span>Notes for When Etsy Approves the App</span></a></nav></details>
+    <main>
+<blockquote>
+
+</blockquote>
+<p><strong>Goal:</strong> Bidirectional sync between Timber Trace Crafts and Etsy — push products/inventory to Etsy, pull orders from Etsy, push shipment tracking back to Etsy.</p>
+<p><strong>Architecture:</strong> Service-layer approach: <code>EtsyClient</code> (HTTP wrapper), <code>EtsyOAuthService</code> (token lifecycle), and four sync services (Product, Inventory, Order, Shipment). Admin controller + view provides the connect flow and manual sync triggers. Three Artisan commands enable CLI and scheduled use.</p>
+<p><strong>Tech Stack:</strong> Laravel 13, PHP 8.3, <code>Illuminate\Http\Client</code> (HTTP), <code>App\Models\Setting</code> (credential storage), PHPUnit with <code>Http::fake()</code> for testing.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>PHP 8.3 — use constructor property promotion, match expressions, typed returns everywhere</li>
+<li>Laravel 13 — use <code>Http</code> facade for HTTP calls, <code>Setting::get/set</code> for credential storage</li>
+<li>Never store credentials in code or docs — <code>.env</code> only (<code>ETSY_KEYSTRING</code>, <code>ETSY_SHARED_SECRET</code>)</li>
+<li><code>Setting::set()</code> must be used for all credential writes (it clears the cache; raw DB updates leave stale cache)</li>
+<li>All sync services must catch <code>EtsyApiException</code> per-item and continue — one failure must not abort the batch</li>
+<li>Rate limit compliance: add <code>usleep(250_000)</code> (250ms) between Etsy API calls in batch loops</li>
+<li>No Etsy API calls will work until Etsy approves the app — tests use <code>Http::fake()</code></li>
+<li>Pint must be run (<code>vendor/bin/pint --dirty --format agent</code>) after any PHP file change</li>
+</ul>
+<hr>
+<h2 id="file-map">File Map</h2>
+<p><strong>New files:</strong><br>
+- <code>app/Exceptions/EtsyApiException.php</code> — typed exception with HTTP status code<br>
+- <code>app/Services/Etsy/SyncResult.php</code> — value object: counts of created/updated/skipped/failed<br>
+- <code>app/Services/Etsy/EtsyClient.php</code> — authenticated HTTP wrapper with auto-refresh<br>
+- <code>app/Services/Etsy/EtsyOAuthService.php</code> — OAuth2 connect, callback, refresh<br>
+- <code>app/Services/Etsy/EtsyProductSync.php</code> — push products to Etsy as draft listings<br>
+- <code>app/Services/Etsy/EtsyInventorySync.php</code> — push variant stock quantities to Etsy<br>
+- <code>app/Services/Etsy/EtsyOrderSync.php</code> — pull Etsy receipts as local orders<br>
+- <code>app/Services/Etsy/EtsyShipmentSync.php</code> — push tracking info to Etsy receipts<br>
+- <code>app/Http/Controllers/Admin/EtsyController.php</code> — admin connect/sync UI<br>
+- <code>app/Console/Commands/EtsySyncProducts.php</code><br>
+- <code>app/Console/Commands/EtsySyncInventory.php</code><br>
+- <code>app/Console/Commands/EtsySyncOrders.php</code><br>
+- <code>resources/views/admin/etsy/index.blade.php</code><br>
+- <code>tests/Feature/EtsyOAuthTest.php</code><br>
+- <code>tests/Feature/EtsySyncTest.php</code></p>
+<p><strong>Modified files:</strong><br>
+- <code>database/migrations/</code> — two new migrations<br>
+- <code>app/Models/Product.php</code> — add <code>etsy_listing_id</code> to <code>$fillable</code><br>
+- <code>app/Models/Order.php</code> — add <code>etsy_receipt_id</code> to <code>$fillable</code><br>
+- <code>config/services.php</code> — add <code>etsy</code> block<br>
+- <code>routes/web.php</code> — add Etsy admin routes<br>
+- <code>routes/console.php</code> — add scheduler entries<br>
+- <code>app/Http/Controllers/Admin/OrderController.php</code> — push shipment to Etsy after creating</p>
+<hr>
+<h2 id="task-1-migrations-model-updates">Task 1: Migrations &amp; Model Updates</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>database/migrations/[timestamp]_add_etsy_listing_id_to_products_table.php</code><br>
+- Create: <code>database/migrations/[timestamp]_add_etsy_receipt_id_to_orders_table.php</code><br>
+- Modify: <code>app/Models/Product.php</code><br>
+- Modify: <code>app/Models/Order.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Produces: <code>products.etsy_listing_id</code> (nullable string, unique), <code>orders.etsy_receipt_id</code> (nullable string, unique)</p>
+<ul>
+<li>[ ] <strong>Step 1: Create the migrations</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:migration add_etsy_listing_id_to_products_table --no-interaction
+php artisan make:migration add_etsy_receipt_id_to_orders_table --no-interaction
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Fill in the products migration</strong></li>
+</ul>
+<p>Open the generated file at <code>database/migrations/*_add_etsy_listing_id_to_products_table.php</code> and replace the <code>up</code>/<code>down</code> methods:</p>
+<pre><code class="language-php">public function up(): void
+{
+    Schema::table('products', function (Blueprint $table) {
+        $table-&gt;string('etsy_listing_id')-&gt;nullable()-&gt;unique()-&gt;after('status');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('products', function (Blueprint $table) {
+        $table-&gt;dropColumn('etsy_listing_id');
+    });
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: Fill in the orders migration</strong></li>
+</ul>
+<p>Open the generated file at <code>database/migrations/*_add_etsy_receipt_id_to_orders_table.php</code>:</p>
+<pre><code class="language-php">public function up(): void
+{
+    Schema::table('orders', function (Blueprint $table) {
+        $table-&gt;string('etsy_receipt_id')-&gt;nullable()-&gt;unique()-&gt;after('stripe_payment_intent_id');
+    });
+}
+
+public function down(): void
+{
+    Schema::table('orders', function (Blueprint $table) {
+        $table-&gt;dropColumn('etsy_receipt_id');
+    });
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run migrations</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan migrate --no-interaction
+</code></pre>
+<p>Expected: <code>Running migrations... DONE</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Update Product model</strong></li>
+</ul>
+<p>In <code>app/Models/Product.php</code>, add <code>'etsy_listing_id'</code> to the <code>$fillable</code> array after <code>'status'</code>:</p>
+<pre><code class="language-php">protected $fillable = [
+    'name',
+    'slug',
+    'sku_base',
+    'description',
+    'short_description',
+    'category_id',
+    'price',
+    'sale_price',
+    'personalization_type',
+    'personalization_price',
+    'personalization_prompt',
+    'personalization_max_chars',
+    'status',
+    'etsy_listing_id',
+    'featured',
+    'sort_order',
+    'meta_title',
+    'meta_description',
+];
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Update Order model</strong></li>
+</ul>
+<p>In <code>app/Models/Order.php</code>, add <code>'etsy_receipt_id'</code> to <code>$fillable</code> after <code>'stripe_payment_intent_id'</code>:</p>
+<pre><code class="language-php">'stripe_payment_intent_id',
+'etsy_receipt_id',
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: Run Pint</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add database/migrations/ app/Models/Product.php app/Models/Order.php
+git commit -m &quot;feat: add etsy_listing_id to products and etsy_receipt_id to orders&quot;
+</code></pre>
+<hr>
+<h2 id="task-2-config-exception-syncresult-etsyclient">Task 2: Config, Exception, SyncResult &amp; EtsyClient</h2>
+<p><strong>Files:</strong><br>
+- Modify: <code>config/services.php</code><br>
+- Create: <code>app/Exceptions/EtsyApiException.php</code><br>
+- Create: <code>app/Services/Etsy/SyncResult.php</code><br>
+- Create: <code>app/Services/Etsy/EtsyClient.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>ETSY_KEYSTRING</code> and <code>ETSY_SHARED_SECRET</code> from <code>.env</code>, <code>Setting::get('etsy.access_token')</code><br>
+- Produces:<br>
+  - <code>EtsyClient::get(string $path, array $query = []): array</code><br>
+  - <code>EtsyClient::put(string $path, array $body = []): array</code><br>
+  - <code>EtsyClient::post(string $path, array $body = []): array</code><br>
+  - <code>SyncResult</code> with properties <code>int $created</code>, <code>int $updated</code>, <code>int $skipped</code>, <code>int $failed</code><br>
+  - <code>EtsyApiException(string $message, int $statusCode = 0)</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add Etsy to services config</strong></li>
+</ul>
+<p>In <code>config/services.php</code>, add after the <code>'stripe'</code> block:</p>
+<pre><code class="language-php">'etsy' =&gt; [
+    'keystring' =&gt; env('ETSY_KEYSTRING'),
+    'shared_secret' =&gt; env('ETSY_SHARED_SECRET'),
+],
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Create EtsyApiException</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Exceptions/EtsyApiException --no-interaction
+</code></pre>
+<p>Replace the file contents with:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Exceptions;
+
+use RuntimeException;
+
+class EtsyApiException extends RuntimeException
+{
+    public function __construct(string $message, public readonly int $statusCode = 0)
+    {
+        parent::__construct($message);
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: Create SyncResult</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/SyncResult --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+class SyncResult
+{
+    public function __construct(
+        public int $created = 0,
+        public int $updated = 0,
+        public int $skipped = 0,
+        public int $failed = 0,
+    ) {}
+
+    public function summary(): string
+    {
+        return &quot;Created: {$this-&gt;created} | Updated: {$this-&gt;updated} | Skipped: {$this-&gt;skipped} | Failed: {$this-&gt;failed}&quot;;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Write the EtsyClient test</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:test --phpunit EtsyClientTest --no-interaction
+</code></pre>
+<p>Replace the file at <code>tests/Feature/EtsyClientTest.php</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Exceptions\EtsyApiException;
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use Illuminate\Support\Facades\Http;
+use Mockery;
+use Tests\TestCase;
+
+class EtsyClientTest extends TestCase
+{
+    public function test_get_returns_decoded_json(): void
+    {
+        Http::fake([
+            'api.etsy.com/*' =&gt; Http::response(['listing_id' =&gt; 123], 200),
+        ]);
+
+        $oauth = Mockery::mock(EtsyOAuthService::class);
+        $oauth-&gt;shouldReceive('refreshIfExpired')-&gt;once();
+
+        $client = new EtsyClient($oauth);
+
+        $result = $client-&gt;get('/application/listings/123');
+
+        $this-&gt;assertEquals(['listing_id' =&gt; 123], $result);
+    }
+
+    public function test_non_200_response_throws_etsy_api_exception(): void
+    {
+        Http::fake([
+            'api.etsy.com/*' =&gt; Http::response(['error' =&gt; 'Not found'], 404),
+        ]);
+
+        $oauth = Mockery::mock(EtsyOAuthService::class);
+        $oauth-&gt;shouldReceive('refreshIfExpired')-&gt;once();
+
+        $client = new EtsyClient($oauth);
+
+        $this-&gt;expectException(EtsyApiException::class);
+        $client-&gt;get('/application/listings/999');
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: Run the test to confirm it fails</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyClientTest
+</code></pre>
+<p>Expected: FAIL — <code>EtsyClient</code> class not found</p>
+<ul>
+<li>[ ] <strong>Step 6: Create EtsyClient</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyClient --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Exceptions\EtsyApiException;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Http;
+
+class EtsyClient
+{
+    private const BASE_URL = 'https://api.etsy.com/v3';
+
+    public function __construct(private readonly EtsyOAuthService $oauth) {}
+
+    public function get(string $path, array $query = []): array
+    {
+        return $this-&gt;request('GET', $path, query: $query);
+    }
+
+    public function put(string $path, array $body = []): array
+    {
+        return $this-&gt;request('PUT', $path, body: $body);
+    }
+
+    public function post(string $path, array $body = []): array
+    {
+        return $this-&gt;request('POST', $path, body: $body);
+    }
+
+    private function request(string $method, string $path, array $query = [], array $body = []): array
+    {
+        $this-&gt;oauth-&gt;refreshIfExpired();
+
+        $accessToken = Setting::get('etsy.access_token');
+
+        $pending = Http::withHeaders([
+            'x-api-key' =&gt; config('services.etsy.keystring'),
+            'Authorization' =&gt; &quot;Bearer {$accessToken}&quot;,
+        ]);
+
+        $response = match ($method) {
+            'GET' =&gt; $pending-&gt;get(self::BASE_URL.$path, $query),
+            'PUT' =&gt; $pending-&gt;put(self::BASE_URL.$path, $body),
+            'POST' =&gt; $pending-&gt;post(self::BASE_URL.$path, $body),
+            default =&gt; throw new \InvalidArgumentException(&quot;Unsupported HTTP method: {$method}&quot;),
+        };
+
+        if (! $response-&gt;successful()) {
+            throw new EtsyApiException(
+                &quot;Etsy API error {$response-&gt;status()} on {$method} {$path}: {$response-&gt;body()}&quot;,
+                $response-&gt;status()
+            );
+        }
+
+        return $response-&gt;json() ?? [];
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 7: Run the test to confirm it passes</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyClientTest
+</code></pre>
+<p>Expected: 2 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 8: Run Pint</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add config/services.php app/Exceptions/ app/Services/Etsy/ tests/Feature/EtsyClientTest.php
+git commit -m &quot;feat: add EtsyClient, SyncResult, and EtsyApiException&quot;
+</code></pre>
+<hr>
+<h2 id="task-3-etsyoauthservice">Task 3: EtsyOAuthService</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Services/Etsy/EtsyOAuthService.php</code><br>
+- Create: <code>tests/Feature/EtsyOAuthTest.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>config('services.etsy.keystring')</code>, <code>config('services.etsy.shared_secret')</code>, <code>Setting::get/set</code><br>
+- Produces:<br>
+  - <code>EtsyOAuthService::buildAuthUrl(): string</code><br>
+  - <code>EtsyOAuthService::handleCallback(string $code, string $state): void</code> — stores tokens + shop_id in settings<br>
+  - <code>EtsyOAuthService::refreshIfExpired(): void</code><br>
+  - <code>EtsyOAuthService::refreshToken(): void</code><br>
+  - <code>EtsyOAuthService::isConnected(): bool</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:test --phpunit EtsyOAuthTest --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Setting;
+use App\Services\Etsy\EtsyOAuthService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
+
+class EtsyOAuthTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_build_auth_url_contains_required_params(): void
+    {
+        $service = new EtsyOAuthService();
+        $url = $service-&gt;buildAuthUrl();
+
+        $this-&gt;assertStringContainsString('etsy.com/oauth/connect', $url);
+        $this-&gt;assertStringContainsString('response_type=code', $url);
+        $this-&gt;assertStringContainsString('listings_r', $url);
+        $this-&gt;assertNotNull(session('etsy_oauth_state'));
+    }
+
+    public function test_handle_callback_stores_tokens_and_shop_id(): void
+    {
+        Http::fake([
+            'api.etsy.com/v3/public/oauth/token' =&gt; Http::response([
+                'access_token' =&gt; 'test-access-token',
+                'refresh_token' =&gt; 'test-refresh-token',
+                'expires_in' =&gt; 3600,
+                'token_type' =&gt; 'Bearer',
+            ], 200),
+            'api.etsy.com/v3/application/users/me' =&gt; Http::response([
+                'user_id' =&gt; 99,
+            ], 200),
+            'api.etsy.com/v3/application/users/99/shops' =&gt; Http::response([
+                'shop_id' =&gt; 12345678,
+            ], 200),
+        ]);
+
+        $state = 'test-state-value';
+        session(['etsy_oauth_state' =&gt; $state]);
+
+        $service = new EtsyOAuthService();
+        $service-&gt;handleCallback('auth-code', $state);
+
+        $this-&gt;assertEquals('test-access-token', Setting::get('etsy.access_token'));
+        $this-&gt;assertEquals('test-refresh-token', Setting::get('etsy.refresh_token'));
+        $this-&gt;assertEquals('12345678', Setting::get('etsy.shop_id'));
+        $this-&gt;assertNotNull(Setting::get('etsy.token_expires_at'));
+    }
+
+    public function test_handle_callback_rejects_invalid_state(): void
+    {
+        session(['etsy_oauth_state' =&gt; 'correct-state']);
+
+        $service = new EtsyOAuthService();
+
+        $this-&gt;expectException(\RuntimeException::class);
+        $this-&gt;expectExceptionMessage('Invalid OAuth state');
+        $service-&gt;handleCallback('auth-code', 'wrong-state');
+    }
+
+    public function test_refresh_token_updates_access_token(): void
+    {
+        Http::fake([
+            'api.etsy.com/v3/public/oauth/token' =&gt; Http::response([
+                'access_token' =&gt; 'new-access-token',
+                'expires_in' =&gt; 3600,
+            ], 200),
+        ]);
+
+        Setting::set('etsy.refresh_token', 'old-refresh-token');
+        Setting::set('etsy.access_token', 'old-access-token');
+
+        $service = new EtsyOAuthService();
+        $service-&gt;refreshToken();
+
+        $this-&gt;assertEquals('new-access-token', Setting::get('etsy.access_token'));
+    }
+
+    public function test_is_connected_returns_true_when_tokens_exist(): void
+    {
+        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.shop_id', '12345');
+
+        $service = new EtsyOAuthService();
+
+        $this-&gt;assertTrue($service-&gt;isConnected());
+    }
+
+    public function test_is_connected_returns_false_when_no_token(): void
+    {
+        $service = new EtsyOAuthService();
+
+        $this-&gt;assertFalse($service-&gt;isConnected());
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run to confirm failure</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyOAuthTest
+</code></pre>
+<p>Expected: FAIL — <code>EtsyOAuthService</code> class not found</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyOAuthService</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyOAuthService --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Exceptions\EtsyApiException;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Http;
+
+class EtsyOAuthService
+{
+    private const AUTH_URL = 'https://www.etsy.com/oauth/connect';
+
+    private const TOKEN_URL = 'https://api.etsy.com/v3/public/oauth/token';
+
+    private const SCOPES = 'listings_r listings_w inventory_r inventory_w transactions_r shops_r';
+
+    public function buildAuthUrl(): string
+    {
+        $state = bin2hex(random_bytes(16));
+        session(['etsy_oauth_state' =&gt; $state]);
+
+        return self::AUTH_URL.'?'.http_build_query([
+            'response_type' =&gt; 'code',
+            'redirect_uri' =&gt; route('admin.etsy.callback'),
+            'scope' =&gt; self::SCOPES,
+            'client_id' =&gt; config('services.etsy.keystring'),
+            'state' =&gt; $state,
+        ]);
+    }
+
+    public function handleCallback(string $code, string $state): void
+    {
+        if ($state !== session('etsy_oauth_state')) {
+            throw new \RuntimeException('Invalid OAuth state — possible CSRF attempt.');
+        }
+
+        $response = Http::post(self::TOKEN_URL, [
+            'grant_type' =&gt; 'authorization_code',
+            'client_id' =&gt; config('services.etsy.keystring'),
+            'client_secret' =&gt; config('services.etsy.shared_secret'),
+            'redirect_uri' =&gt; route('admin.etsy.callback'),
+            'code' =&gt; $code,
+        ]);
+
+        if (! $response-&gt;successful()) {
+            throw new EtsyApiException('Token exchange failed: '.$response-&gt;body());
+        }
+
+        $data = $response-&gt;json();
+
+        Setting::set('etsy.access_token', $data['access_token']);
+        Setting::set('etsy.refresh_token', $data['refresh_token']);
+        Setting::set('etsy.token_expires_at', now()-&gt;addSeconds($data['expires_in'])-&gt;toISOString());
+
+        $shopId = $this-&gt;resolveShopId($data['access_token']);
+        Setting::set('etsy.shop_id', (string) $shopId);
+
+        session()-&gt;forget('etsy_oauth_state');
+    }
+
+    public function refreshIfExpired(): void
+    {
+        $expiresAt = Setting::get('etsy.token_expires_at');
+
+        if (! $expiresAt || now()-&gt;addMinutes(5)-&gt;greaterThan($expiresAt)) {
+            $this-&gt;refreshToken();
+        }
+    }
+
+    public function refreshToken(): void
+    {
+        $refreshToken = Setting::get('etsy.refresh_token');
+
+        if (! $refreshToken) {
+            throw new \RuntimeException('No Etsy refresh token. Reconnect via Admin → Etsy.');
+        }
+
+        $response = Http::post(self::TOKEN_URL, [
+            'grant_type' =&gt; 'refresh_token',
+            'client_id' =&gt; config('services.etsy.keystring'),
+            'client_secret' =&gt; config('services.etsy.shared_secret'),
+            'refresh_token' =&gt; $refreshToken,
+        ]);
+
+        if (! $response-&gt;successful()) {
+            throw new EtsyApiException('Token refresh failed: '.$response-&gt;body());
+        }
+
+        $data = $response-&gt;json();
+
+        Setting::set('etsy.access_token', $data['access_token']);
+        Setting::set('etsy.token_expires_at', now()-&gt;addSeconds($data['expires_in'])-&gt;toISOString());
+
+        if (isset($data['refresh_token'])) {
+            Setting::set('etsy.refresh_token', $data['refresh_token']);
+        }
+    }
+
+    public function isConnected(): bool
+    {
+        return ! empty(Setting::get('etsy.access_token')) &amp;&amp; ! empty(Setting::get('etsy.shop_id'));
+    }
+
+    private function resolveShopId(string $accessToken): int
+    {
+        $headers = [
+            'x-api-key' =&gt; config('services.etsy.keystring'),
+            'Authorization' =&gt; &quot;Bearer {$accessToken}&quot;,
+        ];
+
+        $meResponse = Http::withHeaders($headers)-&gt;get('https://api.etsy.com/v3/application/users/me');
+
+        if (! $meResponse-&gt;successful()) {
+            throw new EtsyApiException('Failed to fetch Etsy user: '.$meResponse-&gt;body());
+        }
+
+        $userId = $meResponse-&gt;json('user_id');
+
+        $shopResponse = Http::withHeaders($headers)-&gt;get(&quot;https://api.etsy.com/v3/application/users/{$userId}/shops&quot;);
+
+        if (! $shopResponse-&gt;successful()) {
+            throw new EtsyApiException('Failed to fetch Etsy shop: '.$shopResponse-&gt;body());
+        }
+
+        return $shopResponse-&gt;json('shop_id');
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to confirm they pass</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyOAuthTest
+</code></pre>
+<p>Expected: 6 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 5: Run Pint</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add app/Services/Etsy/EtsyOAuthService.php tests/Feature/EtsyOAuthTest.php
+git commit -m &quot;feat: add EtsyOAuthService with connect/callback/refresh flow&quot;
+</code></pre>
+<hr>
+<h2 id="task-4-etsyproductsync">Task 4: EtsyProductSync</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Services/Etsy/EtsyProductSync.php</code><br>
+- Test: <code>tests/Feature/EtsySyncTest.php</code> (creates this file, shared across Tasks 4–7)</p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyClient</code>, <code>Product</code> model (with <code>variants</code>, <code>media</code> relations), <code>Setting::get('etsy.shop_id')</code><br>
+- Produces:<br>
+  - <code>EtsyProductSync::syncProduct(Product $product): void</code><br>
+  - <code>EtsyProductSync::syncAll(): SyncResult</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:test --phpunit EtsySyncTest --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\Setting;
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOrderSync;
+use App\Services\Etsy\EtsyProductSync;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
+use Tests\TestCase;
+
+class EtsySyncTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Setting::set('etsy.shop_id', '12345678');
+        Setting::set('etsy.access_token', 'fake-token');
+    }
+
+    // ── Product Sync ──────────────────────────────────────────────────
+
+    public function test_sync_product_creates_new_listing_and_saves_id(): void
+    {
+        $product = Product::factory()-&gt;create(['status' =&gt; 'active', 'etsy_listing_id' =&gt; null]);
+        ProductVariant::factory()-&gt;create(['product_id' =&gt; $product-&gt;id, 'stock_qty' =&gt; 5]);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client-&gt;shouldReceive('post')
+            -&gt;once()
+            -&gt;with('/application/shops/12345678/listings', Mockery::type('array'))
+            -&gt;andReturn(['listing_id' =&gt; 987654321]);
+
+        $sync = new EtsyProductSync($client);
+        $sync-&gt;syncProduct($product);
+
+        $this-&gt;assertEquals('987654321', $product-&gt;fresh()-&gt;etsy_listing_id);
+    }
+
+    public function test_sync_product_updates_existing_listing(): void
+    {
+        $product = Product::factory()-&gt;create(['status' =&gt; 'active', 'etsy_listing_id' =&gt; '111222333']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client-&gt;shouldReceive('put')
+            -&gt;once()
+            -&gt;with('/application/listings/111222333', Mockery::type('array'))
+            -&gt;andReturn(['listing_id' =&gt; 111222333]);
+
+        $sync = new EtsyProductSync($client);
+        $sync-&gt;syncProduct($product);
+
+        $this-&gt;assertEquals('111222333', $product-&gt;fresh()-&gt;etsy_listing_id);
+    }
+
+    public function test_sync_all_returns_result_counts(): void
+    {
+        Product::factory()-&gt;count(2)-&gt;create(['status' =&gt; 'active', 'etsy_listing_id' =&gt; null]);
+        Product::factory()-&gt;create(['status' =&gt; 'active', 'etsy_listing_id' =&gt; '555']);
+
+        $client = Mockery::mock(EtsyClient::class);
+        $client-&gt;shouldReceive('post')-&gt;twice()-&gt;andReturn(['listing_id' =&gt; 99]);
+        $client-&gt;shouldReceive('put')-&gt;once()-&gt;andReturn(['listing_id' =&gt; 555]);
+
+        $sync = new EtsyProductSync($client);
+        $result = $sync-&gt;syncAll();
+
+        $this-&gt;assertEquals(2, $result-&gt;created);
+        $this-&gt;assertEquals(1, $result-&gt;updated);
+        $this-&gt;assertEquals(0, $result-&gt;failed);
+    }
+
+    // ── Order Sync (placeholder tests — filled in Task 6) ────────────
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run to confirm failure</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsySyncTest
+</code></pre>
+<p>Expected: FAIL — <code>EtsyProductSync</code> not found</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyProductSync</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyProductSync --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Exceptions\EtsyApiException;
+use App\Models\Product;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
+
+class EtsyProductSync
+{
+    public function __construct(private readonly EtsyClient $client) {}
+
+    public function syncProduct(Product $product): void
+    {
+        $product-&gt;loadMissing(['variants', 'media']);
+
+        $payload = $this-&gt;buildListingPayload($product);
+
+        if ($product-&gt;etsy_listing_id) {
+            $this-&gt;client-&gt;put(&quot;/application/listings/{$product-&gt;etsy_listing_id}&quot;, $payload);
+        } else {
+            $shopId = Setting::get('etsy.shop_id');
+            $response = $this-&gt;client-&gt;post(&quot;/application/shops/{$shopId}/listings&quot;, $payload);
+            $product-&gt;update(['etsy_listing_id' =&gt; (string) $response['listing_id']]);
+        }
+    }
+
+    public function syncAll(): SyncResult
+    {
+        $result = new SyncResult();
+
+        Product::where('status', 'active')
+            -&gt;cursor()
+            -&gt;each(function (Product $product) use ($result) {
+                try {
+                    $isNew = $product-&gt;etsy_listing_id === null;
+                    $this-&gt;syncProduct($product);
+                    $isNew ? $result-&gt;created++ : $result-&gt;updated++;
+                } catch (EtsyApiException $e) {
+                    $result-&gt;failed++;
+                    Log::error('Etsy product sync failed', [
+                        'product_id' =&gt; $product-&gt;id,
+                        'error' =&gt; $e-&gt;getMessage(),
+                    ]);
+                }
+
+                usleep(250_000);
+            });
+
+        return $result;
+    }
+
+    private function buildListingPayload(Product $product): array
+    {
+        $totalStock = $product-&gt;variants-&gt;sum('stock_qty');
+        $price = (float) ($product-&gt;sale_price ?? $product-&gt;price);
+
+        $payload = [
+            'title' =&gt; $product-&gt;name,
+            'description' =&gt; strip_tags($product-&gt;description ?? $product-&gt;short_description ?? ''),
+            'price' =&gt; $price,
+            'quantity' =&gt; max(1, $totalStock),
+            'who_made' =&gt; 'i_did',
+            'when_made' =&gt; 'made_to_order',
+            'is_supply' =&gt; false,
+        ];
+
+        // Only set state on new listings; preserve existing state on updates
+        if (! $product-&gt;etsy_listing_id) {
+            $payload['state'] = 'draft';
+
+            $shippingProfileId = Setting::get('etsy.shipping_profile_id');
+            $taxonomyId = Setting::get('etsy.taxonomy_id');
+
+            if ($shippingProfileId) {
+                $payload['shipping_profile_id'] = (int) $shippingProfileId;
+            }
+
+            if ($taxonomyId) {
+                $payload['taxonomy_id'] = (int) $taxonomyId;
+            }
+        }
+
+        return $payload;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run the product sync tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;EtsySyncTest::test_sync_product&quot;
+php artisan test --compact --filter=&quot;EtsySyncTest::test_sync_all&quot;
+</code></pre>
+<p>Expected: 3 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 5: Run Pint</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<pre><code class="language-bash">git add app/Services/Etsy/EtsyProductSync.php tests/Feature/EtsySyncTest.php
+git commit -m &quot;feat: add EtsyProductSync — push products to Etsy as draft listings&quot;
+</code></pre>
+<hr>
+<h2 id="task-5-etsyinventorysync">Task 5: EtsyInventorySync</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Services/Etsy/EtsyInventorySync.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyClient</code>, <code>Product</code> with <code>variants</code> relation, products where <code>etsy_listing_id IS NOT NULL</code><br>
+- Produces:<br>
+  - <code>EtsyInventorySync::syncProduct(Product $product): void</code><br>
+  - <code>EtsyInventorySync::syncAll(): SyncResult</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add tests to EtsySyncTest</strong></li>
+</ul>
+<p>In <code>tests/Feature/EtsySyncTest.php</code>, add these methods to the class (before the closing <code>}</code>):</p>
+<pre><code class="language-php">// ── Inventory Sync ────────────────────────────────────────────────
+
+public function test_inventory_sync_skips_products_without_listing_id(): void
+{
+    $product = Product::factory()-&gt;create(['etsy_listing_id' =&gt; null]);
+    ProductVariant::factory()-&gt;create(['product_id' =&gt; $product-&gt;id, 'stock_qty' =&gt; 5]);
+
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldNotReceive('put');
+
+    $sync = new \App\Services\Etsy\EtsyInventorySync($client);
+    $sync-&gt;syncProduct($product);
+}
+
+public function test_inventory_sync_puts_full_products_array(): void
+{
+    $product = Product::factory()-&gt;create(['etsy_listing_id' =&gt; '777888']);
+    ProductVariant::factory()-&gt;create(['product_id' =&gt; $product-&gt;id, 'label' =&gt; 'Small', 'stock_qty' =&gt; 3, 'sku' =&gt; 'ABC-S']);
+    ProductVariant::factory()-&gt;create(['product_id' =&gt; $product-&gt;id, 'label' =&gt; 'Large', 'stock_qty' =&gt; 7, 'sku' =&gt; 'ABC-L']);
+
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldReceive('put')
+        -&gt;once()
+        -&gt;with('/application/listings/777888/inventory', Mockery::on(function ($payload) {
+            return isset($payload['products']) &amp;&amp; count($payload['products']) === 2;
+        }))
+        -&gt;andReturn([]);
+
+    $sync = new \App\Services\Etsy\EtsyInventorySync($client);
+    $sync-&gt;syncProduct($product);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run tests to confirm they fail</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_inventory_sync&quot;
+</code></pre>
+<p>Expected: FAIL — <code>EtsyInventorySync</code> not found</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyInventorySync</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyInventorySync --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Exceptions\EtsyApiException;
+use App\Models\Product;
+use Illuminate\Support\Facades\Log;
+
+class EtsyInventorySync
+{
+    public function __construct(private readonly EtsyClient $client) {}
+
+    public function syncProduct(Product $product): void
+    {
+        if (! $product-&gt;etsy_listing_id) {
+            return;
+        }
+
+        $product-&gt;loadMissing('variants');
+
+        $products = $product-&gt;variants-&gt;map(function ($variant) {
+            return [
+                'sku' =&gt; $variant-&gt;sku ?? '',
+                'offerings' =&gt; [
+                    [
+                        'price' =&gt; 0,
+                        'quantity' =&gt; max(0, $variant-&gt;stock_qty),
+                        'is_enabled' =&gt; $variant-&gt;stock_qty &gt; 0,
+                    ],
+                ],
+                'property_values' =&gt; [
+                    [
+                        'property_id' =&gt; 513,
+                        'value_ids' =&gt; [],
+                        'scale_id' =&gt; null,
+                        'property_name' =&gt; 'Style',
+                        'values' =&gt; [$variant-&gt;label ?? $variant-&gt;sku],
+                    ],
+                ],
+            ];
+        })-&gt;values()-&gt;all();
+
+        $this-&gt;client-&gt;put(&quot;/application/listings/{$product-&gt;etsy_listing_id}/inventory&quot;, [
+            'products' =&gt; $products,
+        ]);
+    }
+
+    public function syncAll(): SyncResult
+    {
+        $result = new SyncResult();
+
+        Product::whereNotNull('etsy_listing_id')
+            -&gt;cursor()
+            -&gt;each(function (Product $product) use ($result) {
+                try {
+                    $this-&gt;syncProduct($product);
+                    $result-&gt;updated++;
+                } catch (EtsyApiException $e) {
+                    $result-&gt;failed++;
+                    Log::error('Etsy inventory sync failed', [
+                        'product_id' =&gt; $product-&gt;id,
+                        'listing_id' =&gt; $product-&gt;etsy_listing_id,
+                        'error' =&gt; $e-&gt;getMessage(),
+                    ]);
+                }
+
+                usleep(250_000);
+            });
+
+        return $result;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_inventory_sync&quot;
+</code></pre>
+<p>Expected: 2 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 5: Run Pint &amp; commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Services/Etsy/EtsyInventorySync.php tests/Feature/EtsySyncTest.php
+git commit -m &quot;feat: add EtsyInventorySync — push variant stock quantities to Etsy&quot;
+</code></pre>
+<hr>
+<h2 id="task-6-etsyordersync">Task 6: EtsyOrderSync</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Services/Etsy/EtsyOrderSync.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyClient</code>, <code>Order</code> model, <code>OrderItem</code> model, <code>Setting::get/set('etsy.orders_last_synced_at')</code><br>
+- Produces:<br>
+  - <code>EtsyOrderSync::sync(): SyncResult</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add tests to EtsySyncTest</strong></li>
+</ul>
+<p>In <code>tests/Feature/EtsySyncTest.php</code>, add the following to the class:</p>
+<pre><code class="language-php">// ── Order Sync ────────────────────────────────────────────────────
+
+public function test_order_sync_imports_new_receipt_as_order(): void
+{
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldReceive('get')
+        -&gt;with('/application/shops/12345678/receipts', Mockery::type('array'))
+        -&gt;andReturn([
+            'results' =&gt; [
+                [
+                    'receipt_id' =&gt; 9876543,
+                    'name' =&gt; 'Jane Smith',
+                    'first_line' =&gt; '123 Oak St',
+                    'second_line' =&gt; null,
+                    'city' =&gt; 'Portland',
+                    'state' =&gt; 'OR',
+                    'zip' =&gt; '97201',
+                    'country_iso' =&gt; 'US',
+                    'buyer_email' =&gt; 'jane@example.com',
+                    'grandtotal' =&gt; ['amount' =&gt; 4500, 'divisor' =&gt; 100],
+                    'subtotal' =&gt; ['amount' =&gt; 3500, 'divisor' =&gt; 100],
+                    'total_shipping_cost' =&gt; ['amount' =&gt; 800, 'divisor' =&gt; 100],
+                    'total_tax_cost' =&gt; ['amount' =&gt; 200, 'divisor' =&gt; 100],
+                    'transactions' =&gt; [
+                        [
+                            'title' =&gt; 'Oak Shelf',
+                            'quantity' =&gt; 1,
+                            'price' =&gt; ['amount' =&gt; 3500, 'divisor' =&gt; 100],
+                            'sku' =&gt; 'SHELF-OAK',
+                        ],
+                    ],
+                ],
+            ],
+            'count' =&gt; 1,
+        ]);
+
+    $sync = new \App\Services\Etsy\EtsyOrderSync($client);
+    $sync-&gt;sync();
+
+    $this-&gt;assertDatabaseHas('orders', [
+        'etsy_receipt_id' =&gt; '9876543',
+        'status' =&gt; 'processing',
+        'guest_email' =&gt; 'jane@example.com',
+    ]);
+
+    $this-&gt;assertDatabaseHas('order_items', [
+        'name_snapshot' =&gt; 'Oak Shelf',
+        'qty' =&gt; 1,
+    ]);
+}
+
+public function test_order_sync_skips_already_imported_receipts(): void
+{
+    Order::factory()-&gt;create(['etsy_receipt_id' =&gt; '9876543']);
+
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldReceive('get')
+        -&gt;andReturn([
+            'results' =&gt; [
+                ['receipt_id' =&gt; 9876543, 'transactions' =&gt; []],
+            ],
+            'count' =&gt; 1,
+        ]);
+
+    $sync = new \App\Services\Etsy\EtsyOrderSync($client);
+    $result = $sync-&gt;sync();
+
+    $this-&gt;assertEquals(1, $result-&gt;skipped);
+    $this-&gt;assertDatabaseCount('orders', 1);
+}
+</code></pre>
+<p>You'll also need to add <code>Order</code> to the factory. Open <code>database/factories/OrderFactory.php</code> and ensure it has the <code>etsy_receipt_id</code> field (it can be <code>null</code> by default):</p>
+<pre><code class="language-php">'etsy_receipt_id' =&gt; null,
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run to confirm failure</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_order_sync&quot;
+</code></pre>
+<p>Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyOrderSync</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyOrderSync --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Exceptions\EtsyApiException;
+use App\Models\Order;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Log;
+
+class EtsyOrderSync
+{
+    public function __construct(private readonly EtsyClient $client) {}
+
+    public function sync(): SyncResult
+    {
+        $result = new SyncResult();
+        $shopId = Setting::get('etsy.shop_id');
+        $lastSynced = Setting::get('etsy.orders_last_synced_at');
+        $minCreated = $lastSynced ? strtotime($lastSynced) : now()-&gt;subDays(30)-&gt;timestamp;
+
+        $offset = 0;
+        $limit = 100;
+
+        do {
+            try {
+                $response = $this-&gt;client-&gt;get(&quot;/application/shops/{$shopId}/receipts&quot;, [
+                    'min_created' =&gt; $minCreated,
+                    'limit' =&gt; $limit,
+                    'offset' =&gt; $offset,
+                    'was_paid' =&gt; true,
+                ]);
+            } catch (EtsyApiException $e) {
+                Log::error('Etsy order sync failed', ['error' =&gt; $e-&gt;getMessage()]);
+                $result-&gt;failed++;
+                break;
+            }
+
+            $receipts = $response['results'] ?? [];
+            $count = $response['count'] ?? 0;
+
+            foreach ($receipts as $receipt) {
+                $receiptId = (string) $receipt['receipt_id'];
+
+                if (Order::where('etsy_receipt_id', $receiptId)-&gt;exists()) {
+                    $result-&gt;skipped++;
+                    continue;
+                }
+
+                try {
+                    $this-&gt;importReceipt($receipt);
+                    $result-&gt;created++;
+                } catch (\Throwable $e) {
+                    $result-&gt;failed++;
+                    Log::error('Etsy receipt import failed', [
+                        'receipt_id' =&gt; $receiptId,
+                        'error' =&gt; $e-&gt;getMessage(),
+                    ]);
+                }
+            }
+
+            $offset += $limit;
+            usleep(250_000);
+        } while (count($receipts) === $limit);
+
+        if ($result-&gt;failed === 0) {
+            Setting::set('etsy.orders_last_synced_at', now()-&gt;toISOString());
+        }
+
+        return $result;
+    }
+
+    private function importReceipt(array $receipt): void
+    {
+        [$firstName, $lastName] = $this-&gt;splitName($receipt['name'] ?? '');
+
+        $order = Order::create([
+            'etsy_receipt_id' =&gt; (string) $receipt['receipt_id'],
+            'status' =&gt; 'processing',
+            'guest_email' =&gt; $receipt['buyer_email'] ?? null,
+            'subtotal' =&gt; $this-&gt;toDollars($receipt['subtotal'] ?? []),
+            'shipping_amount' =&gt; $this-&gt;toDollars($receipt['total_shipping_cost'] ?? []),
+            'tax_amount' =&gt; $this-&gt;toDollars($receipt['total_tax_cost'] ?? []),
+            'total' =&gt; $this-&gt;toDollars($receipt['grandtotal'] ?? []),
+            'discount_amount' =&gt; 0,
+            'shipping_method' =&gt; 'Etsy',
+            'shipping_first_name' =&gt; $firstName,
+            'shipping_last_name' =&gt; $lastName,
+            'shipping_line1' =&gt; $receipt['first_line'] ?? '',
+            'shipping_line2' =&gt; $receipt['second_line'] ?? null,
+            'shipping_city' =&gt; $receipt['city'] ?? '',
+            'shipping_state' =&gt; $receipt['state'] ?? '',
+            'shipping_zip' =&gt; $receipt['zip'] ?? '',
+            'shipping_country' =&gt; $receipt['country_iso'] ?? 'US',
+        ]);
+
+        foreach ($receipt['transactions'] ?? [] as $transaction) {
+            $price = $this-&gt;toDollars($transaction['price'] ?? []);
+
+            $order-&gt;items()-&gt;create([
+                'name_snapshot' =&gt; $transaction['title'] ?? '',
+                'sku_snapshot' =&gt; $transaction['sku'] ?? '',
+                'variant_label_snapshot' =&gt; '',
+                'price_snapshot' =&gt; $price,
+                'qty' =&gt; $transaction['quantity'] ?? 1,
+                'subtotal' =&gt; $price * ($transaction['quantity'] ?? 1),
+            ]);
+        }
+    }
+
+    private function toDollars(array $money): float
+    {
+        $amount = $money['amount'] ?? 0;
+        $divisor = $money['divisor'] ?? 100;
+
+        return $divisor &gt; 0 ? round($amount / $divisor, 2) : 0.0;
+    }
+
+    private function splitName(string $name): array
+    {
+        $parts = explode(' ', trim($name), 2);
+
+        return [$parts[0] ?? '', $parts[1] ?? ''];
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Check if OrderFactory exists; if not, create it</strong></li>
+</ul>
+<pre><code class="language-bash">ls database/factories/OrderFactory.php 2&gt;/dev/null || php artisan make:factory OrderFactory --model=Order --no-interaction
+</code></pre>
+<p>If the factory was just created, open it and add the minimum fields:</p>
+<pre><code class="language-php">public function definition(): array
+{
+    return [
+        'status' =&gt; 'processing',
+        'subtotal' =&gt; 50.00,
+        'discount_amount' =&gt; 0,
+        'shipping_amount' =&gt; 5.00,
+        'tax_amount' =&gt; 3.00,
+        'total' =&gt; 58.00,
+        'etsy_receipt_id' =&gt; null,
+        'shipping_method' =&gt; 'Standard',
+        'shipping_first_name' =&gt; fake()-&gt;firstName(),
+        'shipping_last_name' =&gt; fake()-&gt;lastName(),
+        'shipping_line1' =&gt; fake()-&gt;streetAddress(),
+        'shipping_city' =&gt; fake()-&gt;city(),
+        'shipping_state' =&gt; fake()-&gt;stateAbbr(),
+        'shipping_zip' =&gt; fake()-&gt;postcode(),
+        'shipping_country' =&gt; 'US',
+    ];
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: Run the order sync tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_order_sync&quot;
+</code></pre>
+<p>Expected: 2 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 6: Run Pint &amp; commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Services/Etsy/EtsyOrderSync.php tests/Feature/EtsySyncTest.php database/factories/
+git commit -m &quot;feat: add EtsyOrderSync — pull Etsy receipts into local orders&quot;
+</code></pre>
+<hr>
+<h2 id="task-7-etsyshipmentsync-ordercontroller-hook">Task 7: EtsyShipmentSync + OrderController Hook</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Services/Etsy/EtsyShipmentSync.php</code><br>
+- Modify: <code>app/Http/Controllers/Admin/OrderController.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyClient</code>, <code>Order</code> (with <code>etsy_receipt_id</code>), <code>Shipment</code> (with <code>carrier</code>, <code>tracking_number</code>)<br>
+- Produces: <code>EtsyShipmentSync::pushShipment(Order $order, Shipment $shipment): void</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Add tests to EtsySyncTest</strong></li>
+</ul>
+<p>In <code>tests/Feature/EtsySyncTest.php</code>, add:</p>
+<pre><code class="language-php">// ── Shipment Sync ─────────────────────────────────────────────────
+
+public function test_shipment_push_sends_tracking_to_etsy(): void
+{
+    $order = Order::factory()-&gt;create(['etsy_receipt_id' =&gt; '5551234']);
+    $shipment = new \App\Models\Shipment([
+        'carrier' =&gt; 'USPS',
+        'tracking_number' =&gt; 'TRACK123',
+    ]);
+    $shipment-&gt;order_id = $order-&gt;id;
+
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldReceive('post')
+        -&gt;once()
+        -&gt;with(
+            '/application/shops/12345678/receipts/5551234/tracking',
+            Mockery::on(fn ($p) =&gt; $p['carrier_name'] === 'USPS' &amp;&amp; $p['tracking_code'] === 'TRACK123')
+        )
+        -&gt;andReturn([]);
+
+    $sync = new \App\Services\Etsy\EtsyShipmentSync($client);
+    $sync-&gt;pushShipment($order, $shipment);
+}
+
+public function test_shipment_push_skips_non_etsy_orders(): void
+{
+    $order = Order::factory()-&gt;create(['etsy_receipt_id' =&gt; null]);
+    $shipment = new \App\Models\Shipment(['carrier' =&gt; 'UPS', 'tracking_number' =&gt; 'XYZ']);
+    $shipment-&gt;order_id = $order-&gt;id;
+
+    $client = Mockery::mock(EtsyClient::class);
+    $client-&gt;shouldNotReceive('post');
+
+    $sync = new \App\Services\Etsy\EtsyShipmentSync($client);
+    $sync-&gt;pushShipment($order, $shipment);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run to confirm failure</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_shipment_push&quot;
+</code></pre>
+<p>Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyShipmentSync</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:class Services/Etsy/EtsyShipmentSync --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Services\Etsy;
+
+use App\Models\Order;
+use App\Models\Setting;
+use App\Models\Shipment;
+use Illuminate\Support\Facades\Log;
+
+class EtsyShipmentSync
+{
+    public function __construct(private readonly EtsyClient $client) {}
+
+    public function pushShipment(Order $order, Shipment $shipment): void
+    {
+        if (! $order-&gt;etsy_receipt_id) {
+            return;
+        }
+
+        $shopId = Setting::get('etsy.shop_id');
+
+        try {
+            $this-&gt;client-&gt;post(
+                &quot;/application/shops/{$shopId}/receipts/{$order-&gt;etsy_receipt_id}/tracking&quot;,
+                [
+                    'carrier_name' =&gt; $shipment-&gt;carrier,
+                    'tracking_code' =&gt; $shipment-&gt;tracking_number,
+                    'send_bcc' =&gt; true,
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::error('Etsy shipment push failed', [
+                'order_id' =&gt; $order-&gt;id,
+                'receipt_id' =&gt; $order-&gt;etsy_receipt_id,
+                'error' =&gt; $e-&gt;getMessage(),
+            ]);
+        }
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Run shipment tests</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=&quot;test_shipment_push&quot;
+</code></pre>
+<p>Expected: 2 PASSED</p>
+<ul>
+<li>[ ] <strong>Step 5: Hook into OrderController</strong></li>
+</ul>
+<p>In <code>app/Http/Controllers/Admin/OrderController.php</code>, add the import at the top:</p>
+<pre><code class="language-php">use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyShipmentSync;
+</code></pre>
+<p>In the <code>addShipment</code> method, after <code>$shipment = $order-&gt;shipments()-&gt;create([...]);</code>, add:</p>
+<pre><code class="language-php">// Push tracking to Etsy if this is an Etsy order
+try {
+    $etsySync = new EtsyShipmentSync(new EtsyClient(new EtsyOAuthService()));
+    $etsySync-&gt;pushShipment($order, $shipment);
+} catch (\Throwable $e) {
+    Log::error('Etsy shipment hook failed', ['order_id' =&gt; $order-&gt;id, 'error' =&gt; $e-&gt;getMessage()]);
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 6: Run Pint &amp; commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Services/Etsy/EtsyShipmentSync.php app/Http/Controllers/Admin/OrderController.php tests/Feature/EtsySyncTest.php
+git commit -m &quot;feat: add EtsyShipmentSync and hook into OrderController&quot;
+</code></pre>
+<hr>
+<h2 id="task-8-artisan-commands-scheduler">Task 8: Artisan Commands &amp; Scheduler</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Console/Commands/EtsySyncProducts.php</code><br>
+- Create: <code>app/Console/Commands/EtsySyncInventory.php</code><br>
+- Create: <code>app/Console/Commands/EtsySyncOrders.php</code><br>
+- Modify: <code>routes/console.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyProductSync</code>, <code>EtsyInventorySync</code>, <code>EtsyOrderSync</code><br>
+- Produces: CLI commands <code>etsy:sync-products</code>, <code>etsy:sync-inventory</code>, <code>etsy:sync-orders</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Create EtsySyncProducts command</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:command EtsySyncProducts --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Console\Commands;
+
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyProductSync;
+use Illuminate\Console\Command;
+
+class EtsySyncProducts extends Command
+{
+    protected $signature = 'etsy:sync-products';
+
+    protected $description = 'Push all active products to Etsy as draft listings';
+
+    public function handle(): int
+    {
+        $oauth = new EtsyOAuthService();
+
+        if (! $oauth-&gt;isConnected()) {
+            $this-&gt;error('Etsy is not connected. Visit Admin → Etsy to connect.');
+
+            return self::FAILURE;
+        }
+
+        $this-&gt;info('Syncing products to Etsy...');
+
+        $sync = new EtsyProductSync(new EtsyClient($oauth));
+        $result = $sync-&gt;syncAll();
+
+        $this-&gt;table(['Created', 'Updated', 'Skipped', 'Failed'], [
+            [$result-&gt;created, $result-&gt;updated, $result-&gt;skipped, $result-&gt;failed],
+        ]);
+
+        return $result-&gt;failed &gt; 0 ? self::FAILURE : self::SUCCESS;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Create EtsySyncInventory command</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:command EtsySyncInventory --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Console\Commands;
+
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyInventorySync;
+use App\Services\Etsy\EtsyOAuthService;
+use Illuminate\Console\Command;
+
+class EtsySyncInventory extends Command
+{
+    protected $signature = 'etsy:sync-inventory';
+
+    protected $description = 'Push variant stock quantities for all Etsy-linked products';
+
+    public function handle(): int
+    {
+        $oauth = new EtsyOAuthService();
+
+        if (! $oauth-&gt;isConnected()) {
+            $this-&gt;error('Etsy is not connected. Visit Admin → Etsy to connect.');
+
+            return self::FAILURE;
+        }
+
+        $this-&gt;info('Syncing inventory to Etsy...');
+
+        $sync = new EtsyInventorySync(new EtsyClient($oauth));
+        $result = $sync-&gt;syncAll();
+
+        $this-&gt;table(['Created', 'Updated', 'Skipped', 'Failed'], [
+            [$result-&gt;created, $result-&gt;updated, $result-&gt;skipped, $result-&gt;failed],
+        ]);
+
+        return $result-&gt;failed &gt; 0 ? self::FAILURE : self::SUCCESS;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsySyncOrders command</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:command EtsySyncOrders --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Console\Commands;
+
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyOrderSync;
+use Illuminate\Console\Command;
+
+class EtsySyncOrders extends Command
+{
+    protected $signature = 'etsy:sync-orders';
+
+    protected $description = 'Pull new orders from Etsy into the local database';
+
+    public function handle(): int
+    {
+        $oauth = new EtsyOAuthService();
+
+        if (! $oauth-&gt;isConnected()) {
+            $this-&gt;error('Etsy is not connected. Visit Admin → Etsy to connect.');
+
+            return self::FAILURE;
+        }
+
+        $this-&gt;info('Pulling orders from Etsy...');
+
+        $sync = new EtsyOrderSync(new EtsyClient($oauth));
+        $result = $sync-&gt;sync();
+
+        $this-&gt;table(['Imported', 'Updated', 'Skipped', 'Failed'], [
+            [$result-&gt;created, $result-&gt;updated, $result-&gt;skipped, $result-&gt;failed],
+        ]);
+
+        return $result-&gt;failed &gt; 0 ? self::FAILURE : self::SUCCESS;
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Add scheduler</strong></li>
+</ul>
+<p>Replace the contents of <code>routes/console.php</code> with:</p>
+<pre><code class="language-php">&lt;?php
+
+use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+
+Artisan::command('inspire', function () {
+    $this-&gt;comment(Inspiring::quote());
+})-&gt;purpose('Display an inspiring quote');
+
+Schedule::command('etsy:sync-orders')-&gt;everyFifteenMinutes();
+Schedule::command('etsy:sync-inventory')-&gt;everyThirtyMinutes();
+Schedule::command('etsy:sync-products')-&gt;dailyAt('02:00');
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: Verify commands are registered</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan list etsy
+</code></pre>
+<p>Expected: shows <code>etsy:sync-products</code>, <code>etsy:sync-inventory</code>, <code>etsy:sync-orders</code></p>
+<ul>
+<li>[ ] <strong>Step 6: Run Pint &amp; commit</strong></li>
+</ul>
+<pre><code class="language-bash">vendor/bin/pint --dirty --format agent
+git add app/Console/Commands/EtsySync*.php routes/console.php
+git commit -m &quot;feat: add etsy:sync-* artisan commands and scheduler&quot;
+</code></pre>
+<hr>
+<h2 id="task-9-admin-controller-routes-view">Task 9: Admin Controller, Routes &amp; View</h2>
+<p><strong>Files:</strong><br>
+- Create: <code>app/Http/Controllers/Admin/EtsyController.php</code><br>
+- Modify: <code>routes/web.php</code><br>
+- Create: <code>resources/views/admin/etsy/index.blade.php</code></p>
+<p><strong>Interfaces:</strong><br>
+- Consumes: <code>EtsyOAuthService</code>, <code>EtsyProductSync</code>, <code>EtsyInventorySync</code>, <code>EtsyOrderSync</code><br>
+- Produces: routes <code>admin.etsy.index</code>, <code>admin.etsy.connect</code>, <code>admin.etsy.callback</code>, <code>admin.etsy.disconnect</code>, <code>admin.etsy.sync.products</code>, <code>admin.etsy.sync.inventory</code>, <code>admin.etsy.sync.orders</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write feature test for admin UI</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:test --phpunit EtsyAdminTest --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace Tests\Feature;
+
+use App\Models\Setting;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
+
+class EtsyAdminTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function adminUser(): User
+    {
+        return User::factory()-&gt;create(['is_admin' =&gt; true]);
+    }
+
+    public function test_etsy_admin_page_loads_when_disconnected(): void
+    {
+        $response = $this-&gt;actingAs($this-&gt;adminUser())
+            -&gt;get(route('admin.etsy.index'));
+
+        $response-&gt;assertOk();
+        $response-&gt;assertSee('Connect to Etsy');
+    }
+
+    public function test_etsy_admin_page_shows_connected_state(): void
+    {
+        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.shop_id', '12345678');
+
+        $response = $this-&gt;actingAs($this-&gt;adminUser())
+            -&gt;get(route('admin.etsy.index'));
+
+        $response-&gt;assertOk();
+        $response-&gt;assertSee('Connected');
+    }
+
+    public function test_connect_redirects_to_etsy_oauth_url(): void
+    {
+        $response = $this-&gt;actingAs($this-&gt;adminUser())
+            -&gt;get(route('admin.etsy.connect'));
+
+        $response-&gt;assertRedirect();
+        $this-&gt;assertStringContainsString('etsy.com/oauth/connect', $response-&gt;headers-&gt;get('Location'));
+    }
+
+    public function test_disconnect_clears_etsy_settings(): void
+    {
+        Setting::set('etsy.access_token', 'some-token');
+        Setting::set('etsy.shop_id', '12345');
+
+        $response = $this-&gt;actingAs($this-&gt;adminUser())
+            -&gt;post(route('admin.etsy.disconnect'));
+
+        $response-&gt;assertRedirect(route('admin.etsy.index'));
+        $this-&gt;assertNull(Setting::get('etsy.access_token'));
+        $this-&gt;assertNull(Setting::get('etsy.shop_id'));
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 2: Run to confirm failure</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan test --compact --filter=EtsyAdminTest
+</code></pre>
+<p>Expected: FAIL — route not found</p>
+<ul>
+<li>[ ] <strong>Step 3: Create EtsyController</strong></li>
+</ul>
+<pre><code class="language-bash">php artisan make:controller Admin/EtsyController --no-interaction
+</code></pre>
+<pre><code class="language-php">&lt;?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Setting;
+use App\Services\Etsy\EtsyClient;
+use App\Services\Etsy\EtsyInventorySync;
+use App\Services\Etsy\EtsyOAuthService;
+use App\Services\Etsy\EtsyOrderSync;
+use App\Services\Etsy\EtsyProductSync;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class EtsyController extends Controller
+{
+    public function __construct(private readonly EtsyOAuthService $oauth) {}
+
+    public function index(): View
+    {
+        return view('admin.etsy.index', [
+            'isConnected' =&gt; $this-&gt;oauth-&gt;isConnected(),
+            'shopId' =&gt; Setting::get('etsy.shop_id'),
+            'tokenExpiresAt' =&gt; Setting::get('etsy.token_expires_at'),
+            'ordersLastSyncedAt' =&gt; Setting::get('etsy.orders_last_synced_at'),
+        ]);
+    }
+
+    public function connect(): RedirectResponse
+    {
+        return redirect($this-&gt;oauth-&gt;buildAuthUrl());
+    }
+
+    public function callback(Request $request): RedirectResponse
+    {
+        if ($request-&gt;has('error')) {
+            return redirect()-&gt;route('admin.etsy.index')
+                -&gt;with('error', 'Etsy authorization was denied: '.$request-&gt;input('error_description', ''));
+        }
+
+        try {
+            $this-&gt;oauth-&gt;handleCallback(
+                $request-&gt;input('code'),
+                $request-&gt;input('state')
+            );
+
+            return redirect()-&gt;route('admin.etsy.index')-&gt;with('success', 'Connected to Etsy successfully.');
+        } catch (\Throwable $e) {
+            return redirect()-&gt;route('admin.etsy.index')-&gt;with('error', 'Connection failed: '.$e-&gt;getMessage());
+        }
+    }
+
+    public function disconnect(): RedirectResponse
+    {
+        foreach (['etsy.access_token', 'etsy.refresh_token', 'etsy.token_expires_at', 'etsy.shop_id', 'etsy.orders_last_synced_at'] as $key) {
+            Setting::set($key, null);
+        }
+
+        return redirect()-&gt;route('admin.etsy.index')-&gt;with('success', 'Disconnected from Etsy.');
+    }
+
+    public function syncProducts(): RedirectResponse
+    {
+        $result = (new EtsyProductSync(new EtsyClient($this-&gt;oauth)))-&gt;syncAll();
+
+        return redirect()-&gt;route('admin.etsy.index')
+            -&gt;with('success', 'Products synced. '.$result-&gt;summary());
+    }
+
+    public function syncInventory(): RedirectResponse
+    {
+        $result = (new EtsyInventorySync(new EtsyClient($this-&gt;oauth)))-&gt;syncAll();
+
+        return redirect()-&gt;route('admin.etsy.index')
+            -&gt;with('success', 'Inventory synced. '.$result-&gt;summary());
+    }
+
+    public function syncOrders(): RedirectResponse
+    {
+        $result = (new EtsyOrderSync(new EtsyClient($this-&gt;oauth)))-&gt;sync();
+
+        return redirect()-&gt;route('admin.etsy.index')
+            -&gt;with('success', 'Orders synced. '.$result-&gt;summary());
+    }
+}
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 4: Add routes</strong></li>
+</ul>
+<p>In <code>routes/web.php</code>, inside the <code>admin</code> middleware group, add after the settings routes:</p>
+<pre><code class="language-php">// Etsy sync
+Route::get('/etsy', [App\Http\Controllers\Admin\EtsyController::class, 'index'])-&gt;name('etsy.index');
+Route::get('/etsy/connect', [App\Http\Controllers\Admin\EtsyController::class, 'connect'])-&gt;name('etsy.connect');
+Route::get('/etsy/callback', [App\Http\Controllers\Admin\EtsyController::class, 'callback'])-&gt;name('etsy.callback');
+Route::post('/etsy/disconnect', [App\Http\Controllers\Admin\EtsyController::class, 'disconnect'])-&gt;name('etsy.disconnect');
+Route::post('/etsy/sync/products', [App\Http\Controllers\Admin\EtsyController::class, 'syncProducts'])-&gt;name('etsy.sync.products');
+Route::post('/etsy/sync/inventory', [App\Http\Controllers\Admin\EtsyController::class, 'syncInventory'])-&gt;name('etsy.sync.inventory');
+Route::post('/etsy/sync/orders', [App\Http\Controllers\Admin\EtsyController::class, 'syncOrders'])-&gt;name('etsy.sync.orders');
+</code></pre>
+<ul>
+<li>[ ] <strong>Step 5: Create the view directory and view</strong></li>
+</ul>
+<pre><code class="language-bash">mkdir -p resources/views/admin/etsy
+</code></pre>
+<p>Create <code>resources/views/admin/etsy/index.blade.php</code>:</p>
+<pre><code class="language-blade">@extends('layouts.admin')
+
+@section('page-title', 'Etsy Sync')
+
+@section('content')
+
+@if(session('success'))
+&lt;div style=&quot;background: #f0fdf4; border: 1px solid #86efac; border-radius: 0.25rem; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.875rem; color: #166534;&quot;&gt;
+    {{ session('success') }}
+&lt;/div&gt;
+@endif
+
+@if(session('error'))
+&lt;div style=&quot;background: #fef2f2; border: 1px solid #fca5a5; border-radius: 0.25rem; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.875rem; color: #991b1b;&quot;&gt;
+    {{ session('error') }}
+&lt;/div&gt;
+@endif
+
+&lt;div class=&quot;admin-card&quot; style=&quot;max-width: 760px;&quot;&gt;
+    &lt;div class=&quot;admin-card-header&quot;&gt;
+        &lt;span class=&quot;admin-card-title&quot;&gt;Etsy Connection&lt;/span&gt;
+
+        @if($isConnected)
+            &lt;span style=&quot;font-size: 0.75rem; font-weight: 600; color: #166534; background: #dcfce7; padding: 0.25rem 0.625rem; border-radius: 9999px;&quot;&gt;Connected&lt;/span&gt;
+        @else
+            &lt;span style=&quot;font-size: 0.75rem; font-weight: 600; color: #991b1b; background: #fee2e2; padding: 0.25rem 0.625rem; border-radius: 9999px;&quot;&gt;Disconnected&lt;/span&gt;
+        @endif
+    &lt;/div&gt;
+
+    @if($isConnected)
+        &lt;div style=&quot;padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;&quot;&gt;
+            &lt;div style=&quot;font-size: 0.875rem; color: #6b7280;&quot;&gt;
+                &lt;strong&gt;Shop ID:&lt;/strong&gt; {{ $shopId }}
+            &lt;/div&gt;
+            @if($tokenExpiresAt)
+            &lt;div style=&quot;font-size: 0.875rem; color: #6b7280;&quot;&gt;
+                &lt;strong&gt;Token expires:&lt;/strong&gt; {{ \Carbon\Carbon::parse($tokenExpiresAt)-&gt;diffForHumans() }}
+            &lt;/div&gt;
+            @endif
+
+            &lt;form method=&quot;POST&quot; action=&quot;{{ route('admin.etsy.disconnect') }}&quot; style=&quot;margin-top: 0.5rem;&quot;&gt;
+                @csrf
+                &lt;button type=&quot;submit&quot; class=&quot;admin-btn admin-btn-danger&quot; onclick=&quot;return confirm('Disco

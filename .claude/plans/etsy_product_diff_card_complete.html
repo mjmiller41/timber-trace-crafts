@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Product Diff — Admin Card with Per-Field Conflict Resolution</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">Etsy Product Diff — Admin Card with Per-Field Conflict Resolution</h1>
+      <p class="standfirst"><strong>Completed:</strong> 2026-07-07</p>
+      <div class="meta"><span>6 sections</span><span class="dot">·</span><span class="read">~5 min read</span><span class="dot">·</span><span>etsy_product_diff_card_complete.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#task-checklist"><span class="n">01</span><span>Task Checklist</span></a><a href="#context"><span class="n">02</span><span>Context</span></a><a href="#existing-code-to-reuse"><span class="n">03</span><span>Existing code to reuse</span></a><a href="#design"><span class="n">04</span><span>Design</span></a><a class="lvl3" href="#1-appservicesetsyetsylistingdiffphp-new">1. app/Services/Etsy/EtsyListingDiff.php (new)</a><a class="lvl3" href="#2-controller-apphttpcontrollersadminetsycontrollerphp">2. Controller — app/Http/Controllers/Admin/EtsyController.php</a><a class="lvl3" href="#3-routes-routeswebphp-inside-the-existing-admin-etsy-group-after-line-262">3. Routes — routes/web.php (inside the existing admin etsy group, after line 262)</a><a class="lvl3" href="#4-view-resourcesviewsadminetsyindexbladephp">4. View — resources/views/admin/etsy/index.blade.php</a><a class="lvl3" href="#5-tests-testsfeatureetsydiffadmintestphp-new">5. Tests — tests/Feature/EtsyDiffAdminTest.php (new)</a><a href="#out-of-scope"><span class="n">05</span><span>Out of scope</span></a><a href="#verification"><span class="n">06</span><span>Verification</span></a></nav></details>
+    <main>
+
+<h2 id="task-checklist">Task Checklist</h2>
+<ul>
+<li>[x] Extract listing-diff logic into <code>app/Services/Etsy/EtsyListingDiff.php</code> (expanded field set: title, description, price, quantity, tags, status) <em>(done 2026-07-07)</em></li>
+<li>[x] Refactor <code>EtsyDiffCommand</code> to use the new service for listings (orders/sections stay in the command); fix the <code>published</code>→<code>active</code> status-mapping bug <em>(done 2026-07-07)</em></li>
+<li>[x] Add <code>EtsyController::diffProducts()</code> — run diff, cache report 1h, redirect back <em>(done 2026-07-07)</em></li>
+<li>[x] Pass cached <code>diffReport</code> from <code>EtsyController::index()</code> to the view <em>(done 2026-07-07)</em></li>
+<li>[x] Add <code>EtsyController::resolveDiff()</code> — validate per-field choices, apply Etsy→DB quietly, push merged product DB→Etsy when any "keep website" chosen, prune resolved conflicts from cache <em>(done 2026-07-07)</em></li>
+<li>[x] Add routes <code>admin.etsy.diff.products</code> (POST) and <code>admin.etsy.diff.resolve</code> (POST) <em>(done 2026-07-07)</em></li>
+<li>[x] Add "Product Diff" card + conflict-resolution results section to <code>resources/views/admin/etsy/index.blade.php</code> <em>(done 2026-07-07)</em></li>
+<li>[x] Feature tests: <code>tests/Feature/EtsyDiffAdminTest.php</code> (diff run, keep-etsy apply, keep-website push, auth guard) — 14 tests / 46 assertions passing <em>(done 2026-07-07)</em></li>
+<li>[x] Verify existing <code>EtsyDiffCommandTest</code> still passes after refactor; run <code>vendor/bin/pint --dirty --format agent</code> <em>(done 2026-07-07)</em></li>
+</ul>
+<hr>
+<h2 id="context">Context</h2>
+<p>The store syncs products bidirectionally with Etsy, but data drifts (manual edits on Etsy, failed syncs). A CLI diff exists (<code>php artisan etsy:diff</code>) that reports drift, but it's terminal-only, compares only price/title/status, and offers no way to resolve differences. This feature surfaces the product diff on the <strong>Admin → Etsy</strong> page as a new card matching the existing sync-card format, focuses the output on conflicts, and lets the admin pick — per field — whether the website or Etsy value wins.</p>
+<h2 id="existing-code-to-reuse">Existing code to reuse</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diff + pagination + money logic</td>
+<td><code>app/Console/Commands/EtsyDiffCommand.php</code> (<code>diffListings</code>, <code>fetchAllListings</code>, <code>compareListingToProduct</code>, <code>money</code>) — extract, don't duplicate</td>
+</tr>
+<tr>
+<td>DB → Etsy push</td>
+<td><code>app/Services/Etsy/EtsyProductSync::syncProduct()</code> (handles PATCH + inventory endpoint for price/stock + stale-listing recovery)</td>
+</tr>
+<tr>
+<td>Card layout &amp; flash messages</td>
+<td><code>resources/views/admin/etsy/index.blade.php</code> (<code>admin-card</code> grid, POST + <code>admin-btn-secondary</code> buttons)</td>
+</tr>
+<tr>
+<td>Controller error pattern</td>
+<td><code>EtsyController::syncProducts()</code> — try/catch → redirect with <code>success</code>/<code>error</code> flash</td>
+</tr>
+<tr>
+<td>Test patterns</td>
+<td><code>tests/Feature/EtsyAdminTest.php</code>, <code>tests/Feature/EtsyDiffCommandTest.php</code> (Http::fake of Etsy endpoints)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="design">Design</h2>
+<h3 id="1-appservicesetsyetsylistingdiffphp-new">1. <code>app/Services/Etsy/EtsyListingDiff.php</code> (new)</h3>
+<p>Constructor takes <code>EtsyClient</code> (same convention as other <code>Etsy/*</code> services).</p>
+<ul>
+<li><code>diff(): array</code> — fetches all listings for the shop (move <code>fetchAllListings()</code> pagination here), keys DB products by <code>etsy_listing_id</code>, returns:<br>
+<code>php
+  [
+    'generated_at' =&gt; ISO string,
+    'etsyOnly'  =&gt; [...],   // listings with no linked product
+    'dbOnly'    =&gt; [...],   // products whose etsy_listing_id vanished from Etsy
+    'conflicts' =&gt; [        // both exist, fields differ
+      ['listing_id', 'product_id', 'product_name',
+       'differences' =&gt; ['price' =&gt; ['db' =&gt; 24.0, 'etsy' =&gt; 26.0], ...]]
+    ],
+    'matched'   =&gt; int,
+  ]</code></li>
+<li>Compared fields (expanded set — mirrors what <code>EtsyProductSync::buildListingPayload()</code> actually pushes):</li>
+<li><strong>title</strong> — <code>html_entity_decode</code> Etsy title vs <code>$product-&gt;name</code></li>
+<li><strong>description</strong> — Etsy plain text vs <code>strip_tags($product-&gt;description ?? $product-&gt;short_description ?? '')</code>, whitespace-normalized before compare</li>
+<li><strong>price</strong> — <code>money($listing['price'])</code> vs <code>(float) ($product-&gt;sale_price ?? $product-&gt;price)</code> (the effective price the push uses)</li>
+<li><strong>quantity</strong> — <code>$listing['quantity']</code> vs <code>$product-&gt;variants-&gt;sum('stock_qty')</code></li>
+<li><strong>tags</strong> — <code>$listing['tags']</code> vs <code>$product-&gt;etsy_tags ?? []</code>, order-insensitive compare</li>
+<li><strong>status</strong> — Etsy <code>state</code> vs mapped DB status: <code>active</code>→<code>active</code>, <code>draft</code>→<code>draft</code>, skip <code>archived</code>. <strong>Note:</strong> the CLI currently maps <code>published</code>→<code>active</code>, but the products enum is <code>['active','draft','archived']</code> — <code>published</code> never occurs. Fix during extraction.</li>
+<li>Eager-load <code>variants</code> on the product query to avoid N+1 on quantity compare.</li>
+</ul>
+<p>Refactor <code>EtsyDiffCommand::diffListings()</code> to delegate to this service; orders/sections diffing stays in the command untouched.</p>
+<h3 id="2-controller-apphttpcontrollersadminetsycontrollerphp">2. Controller — <code>app/Http/Controllers/Admin/EtsyController.php</code></h3>
+<ul>
+<li><code>diffProducts(): RedirectResponse</code> (POST) — runs <code>EtsyListingDiff::diff()</code> inline (same as the other sync buttons), <code>Cache::put('etsy.product_diff', $report, now()-&gt;addHour())</code>, redirect with success flash. Try/catch → error flash, matching <code>syncProducts()</code>.</li>
+<li><code>index()</code> — add <code>'diffReport' =&gt; Cache::get('etsy.product_diff')</code> to the view data.</li>
+<li><code>resolveDiff(Request $request): RedirectResponse</code> (POST) — input shape:<br>
+<code>resolutions[&lt;product_id&gt;][&lt;field&gt;] = 'db' | 'etsy'</code><br>
+  Validate: product ids exist, fields in the allowed set, values <code>in:db,etsy</code>. Per product:<br>
+  1. Look up the product's conflict entry in the cached report (source of the Etsy values — no re-fetch). If a product isn't in the cached report, skip it.<br>
+  2. Apply every <code>'etsy'</code> choice to the DB via <strong><code>updateQuietly()</code></strong> (must not re-fire <code>ProductObserver</code> → <code>SyncProductToEtsy</code>):<ul>
+<li>title → <code>name</code> · description → <code>description</code> · tags → <code>etsy_tags<

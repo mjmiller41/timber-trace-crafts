@@ -1,0 +1,2005 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listings Tutorial</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">.CLAUDE</div>
+      <h1 class="title">Listings Tutorial</h1>
+      <p class="standfirst">:::important<br>
+These tutorials are subject to change as endpoints change during our feedback period development. We welcome your feedback! If you find an error or have a suggestion, please post it in the <a href="https://github.com/etsy/open-api">Open API GitHub Repository</a>.<br>
+:::</p>
+      <div class="meta"><span>7 sections</span><span class="dot">·</span><span class="read">~27 min read</span><span class="dot">·</span><span>etsy_api_listings_tutorial.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a class="lvl3" href="#authorization-and-x-api-key-header-parameters">Authorization and x-api-key header parameters</a><a class="lvl3" href="#listing-lifecycle-and-state">Listing lifecycle and state</a><a href="#listing-a-physical-product-for-sale"><span class="n">01</span><span>Listing a physical product for sale</span></a><a href="#listing-a-digital-product-for-sale"><span class="n">02</span><span>Listing a digital product for sale</span></a><a href="#converting-a-physical-product-listing-to-a-digital-product-listing"><span class="n">03</span><span>Converting a physical product listing to a digital product listing</span></a><a href="#adding-an-image-to-a-listing"><span class="n">04</span><span>Adding an image to a listing</span></a><a href="#listing-inventory-with-different-properties-quantities-and-prices"><span class="n">05</span><span>Listing inventory with different properties, quantities, and prices</span></a><a class="lvl3" href="#updating-inventory">Updating Inventory</a><a class="lvl3" href="#handling-variations-in-inventory-updates">Handling Variations in Inventory Updates</a><a class="lvl3" href="#custom-variations">Custom Variations</a><a class="lvl3" href="#how-to-fetch-property-values-for-the-products-array">How to Fetch Property Values for the Products Array?</a><a href="#adding-a-shipping-profile-to-a-listing"><span class="n">06</span><span>Adding a shipping profile to a listing</span></a><a href="#adding-a-processing-profile-to-a-listing"><span class="n">07</span><span>Adding a processing profile to a listing</span></a></nav></details>
+    <main>
+
+<p>Listings are the pages containing products for sale in an Etsy shop. The Etsy Open API v3 supports managing listings either for an individual shop or across the Etsy marketplace as a whole, depending on your application's <a href="/documentation/#personal-access">Access Level</a>.</p>
+<p><em>Throughout this tutorial, the instructions reference REST resources, endpoints, parameters, and response fields, which we cover in detail in <a href="/documentation/essentials/requests">Request Standards</a> and <a href="/documentation/essentials/urlsyntax">URL Syntax</a>.</em></p>
+<h3 id="authorization-and-x-api-key-header-parameters"><code>Authorization</code> and <code>x-api-key</code> header parameters</h3>
+<p>The endpoints in this tutorial require an OAuth token in the header with <code>listings_r</code> and <code>listings_w</code> scope. If your app also deletes listings, then the token requires the <code>listings_d</code> scope as well. See the <a href="/documentation/essentials/oauth2">Authentication topic</a> for instructions on how to generate an OAuth token with these scopes.</p>
+<p>In addition, all Open API V3 Requests require the <code>x-api-key:</code> parameter in the header with your shop's Etsy App API Key <em>keystring</em> and <em>shared secret</em>, separated by a colon (<code>:</code>), which you can find in <a href="https://www.etsy.com/developers/your-apps">Your Apps</a>.</p>
+<h3 id="listing-lifecycle-and-state">Listing lifecycle and state</h3>
+<p>After creating a listing, your users, Etsy, or your application can change the listing to reflect several states that determine how customers interact with the listing and the effective changes available to sellers, which map to API endpoints. The following table summarizes the states and the change operations available from the API.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>state</th>
+<th>description</th>
+<th>Actions and endpoints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>draft</td>
+<td>inactive listing because its <code>state</code> is not "active" or lacks at least one image</td>
+<td>Publish (<code>updateListing</code>), Delete (<code>deleteListing</code>)</td>
+</tr>
+<tr>
+<td>published</td>
+<td>active listing searchable by users, with &gt; 0 unsold inventory</td>
+<td>Deactivate (<code>updateListing</code>), Delete (<code>deleteListing</code>)</td>
+</tr>
+<tr>
+<td>deactivated</td>
+<td>previously published listing deliberately deactivated, unsearchable, and unsellable</td>
+<td>Publish (<code>updateListing</code>), Delete (<code>deleteListing</code>)</td>
+</tr>
+<tr>
+<td>sold out</td>
+<td>published listing with 0 unsold inventory</td>
+<td>Delete (<code>deleteListing</code>)</td>
+</tr>
+<tr>
+<td>expired</td>
+<td>previously published listing older that was not renewed after expiring (not charged)</td>
+<td>Publish (<code>updateListing</code>), Delete (<code>deleteListing</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="listing-a-physical-product-for-sale">Listing a physical product for sale</h2>
+<p>To add a new listing to a shop, use the <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> endpoint, which adds a single item for sale to an Etsy Shop. All published listings require at least one listing image, so your application must either:</p>
+<ul>
+<li>use images already uploaded to the shop, or</li>
+<li>upload listing images - see <a href="#adding-an-image-to-a-listing">Adding an image to a listing</a></li>
+</ul>
+<p>The following procedure adds a listing using images already uploaded to the shop:</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a>, which must include a <code>shop_id</code> for the shop that hosts the listing. For example, if your shop_id is : "12345678", the <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> URL is:</p>
+<pre><code>https://api.etsy.com/v3/application/shops/12345678/listings
+</code></pre>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> request body, which must include at a minimum:</p>
+<ul>
+<li><code>quantity</code></li>
+<li><code>title</code></li>
+<li><code>description</code></li>
+<li><code>price</code></li>
+<li><code>who_made</code></li>
+<li><code>when_made</code></li>
+<li><code>taxonomy_id</code></li>
+<li><code>image_ids</code> required for active listings</li>
+<li><code>shipping_profile_id</code> required for physical listings</li>
+<li><code>readiness_state_id</code> required for physical listings</li>
+</ul>
+</li>
+<li>
+<p>Execute a <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> POST request with your <code>listings_w</code> scoped OAuth token and <code>x-api-key</code>. For example, a <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> request to list 5 yo-yos might look like the following:</p>
+</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;quantity&quot;, &quot;5&quot;);
+urlencoded.append(&quot;title&quot;, &quot;Vintage Duncan Toys Butterfly Yo-Yo, Red&quot;);
+urlencoded.append(
+    &quot;description&quot;,
+    &quot;Vintage Duncan Yo-Yo from 1976 with string, steel axle, and plastic body.&quot;,
+);
+urlencoded.append(&quot;price&quot;, &quot;1000&quot;);
+urlencoded.append(&quot;who_made&quot;, &quot;someone_else&quot;);
+urlencoded.append(&quot;when_made&quot;, &quot;1970s&quot;);
+urlencoded.append(&quot;taxonomy_id&quot;, &quot;1&quot;);
+urlencoded.append(&quot;image_ids&quot;, &quot;378848,238298,030076&quot;);
+urlencoded.append(&quot;shipping_profile_id&quot;, &quot;6722757781&quot;);
+urlencoded.append(&quot;readiness_state_id&quot;, &quot;18201076875&quot;);
+
+var requestOptions = {
+    method: &quot;POST&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/listings&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/listings',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+    CURLOPT_POSTFIELDS =&gt; 'quantity=5&amp;title=Vintage%20Duncan%20Toys%20Butterfly%20Yo-Yo%2C%20Red&amp;description=Vintage%20Duncan%20Yo-Yo%20from%201976%20with%20string%2C%20steel%20axle%2C%20and%20plastic%20body.&amp;price=1000&amp;who_made=someone_else&amp;when_made=1970s&amp;taxonomy_id=1&amp;image_ids=378848%2C238298%2C030076&amp;shipping_profile_id=6722757781&amp;readiness_state_id=18201076875'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<p>To sell variations of the same product in the same listing, such as different colored products with specific quantities for sale in each color, see <a href="#listing-inventory-with-different-properties-quantities-and-prices">Listing inventory with different properties, quantities, and prices</a> below.</p>
+<h2 id="listing-a-digital-product-for-sale">Listing a digital product for sale</h2>
+<p>To list a digital product for sale, use <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> just as you would for a physical product, but your application must set the listing's <code>type</code> parameter to "download" and upload a digital product file for the digital product listing using <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a>. If you already uploaded a digital product file to your shop, for example as part of previous listing, you can associate the file with a listing using <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a> with its file ID as well. Each file in a shop is unique and managed separately, so you cannot assign or upload a file with <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a>.</p>
+<p>The following procedure uploads a digital product file to a listing and updates the listing's <code>type</code> parameter to "download":</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a>, which must include a <code>shop_id</code> and <code>listing_id</code> to assign the digital product file to a listing. For example, if your <code>shop_id</code> is "12345678" and your <code>listing_id</code> is "192837465," then the uploadListingFile URL is:</p>
+<pre><code>https://api.etsy.com/v3/application/shops/12345678/listings/192837465/files
+</code></pre>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a> request body, which must include either a <code>file</code> (binary) parameter for a digital product file to upload or a <code>file_id</code> for a file already uploaded to the shop, but not both.</p>
+</li>
+<li>
+<p>Execute an <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a> POST request with your <code>listings_w</code> scoped OAuth token and <code>x-api-key</code>. For example, an <a href="/documentation/reference/#operation/uploadListingFile"><code>uploadListingFile</code></a> request might look like the following:</p>
+</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(
+    &quot;file&quot;,
+    &quot;v8%&amp;^%&amp;$38owf87leshif;hnvygsldjkhnvusidsba',;bf.r;'e,rl;rtkjrj87^*^&amp;_Iuyibdsa*^5765FtIG YtfDbf86af*rfdiidtbsdiGIgdi7vleikvvvkdljke ... d[L&gt;(*BKbaukyfgdg'jsdkbklvh&quot;,
+);
+
+var requestOptions = {
+    method: &quot;POST&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/listings/192837465/files&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/listings/192837465/files',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+    CURLOPT_POSTFIELDS =&gt; 'file=v8%&amp;^%&amp;$38owf87leshif;hnvygsldjkhnvusidsba',;bf.r;'e,rl;rtkjrj87^*^&amp;_Iuyibdsa*^5765FtIG YtfDbf86af*rfdiidtbsdiGIgdi7vleikvvvkdljke ... d[L&gt;(*BKbaukyfgdg'jsdkbklvh'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<ol start="4">
+<li>Set the listing's <code>type</code> to "download" with an <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> PATCH request that includes <code>shop_id</code> and <code>listing_id</code> in the URL, a <code>listings_w</code> scoped OAuth token and <code>x-api-key</code> in the header, and the <code>type</code> setting in the request body. For example, an <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> request might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;type&quot;, &quot;download&quot;);
+
+var requestOptions = {
+    method: &quot;PATCH&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/listings/192837465&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/listings/192837465',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PATCH',
+    CURLOPT_POSTFIELDS =&gt; 'type=download'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<h2 id="converting-a-physical-product-listing-to-a-digital-product-listing">Converting a physical product listing to a digital product listing</h2>
+<p>In the event that a physical product listing needs to be changed to a digital listing, this can be accomplished via the <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> endpoint and passing <code>type</code> as "download". However, note that if the physical product listing has any variations or inventory beyond a single product, <a href="https://developer.etsy.com/documentation/reference/#operation/updateListing"><code>updateListing</code></a> will return a 409 error. Before converting any physical listing to digital, the inventory must be reset to a single product using the <a href="/documentation/reference/#operation/uploadListingInventory"><code>uploadListingInventory</code></a> endpoint.</p>
+<p>The following is an example body of the <a href="/documentation/reference/#operation/uploadListingInventory"><code>uploadListingInventory</code></a> post (set your price as a float value and your sku):</p>
+<pre><code class="language-json">{
+    &quot;products&quot;: [
+        {
+            &quot;sku&quot;: &quot;YOUR SKU HERE&quot;,
+            &quot;offerings&quot;: [
+                {
+                    &quot;quantity&quot;: 1,
+                    &quot;is_enabled&quot;: true,
+                    &quot;price&quot;: 1.23,
+                    &quot;readiness_state_id&quot;: 18201076875
+                }
+            ],
+            &quot;property_values&quot;: []
+        }
+    ],
+    &quot;price_on_property&quot;: [],
+    &quot;quantity_on_property&quot;: [],
+    &quot;sku_on_property&quot;: []
+}
+</code></pre>
+<h2 id="adding-an-image-to-a-listing">Adding an image to a listing</h2>
+<p>Published listings require at least one listing image, as noted above. To upload a new image and add it to a listing, use the <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a> endpoint with the shop and listing IDs, and add the image binary file in the <code>image</code> parameter. To make a listing active after uploading a required image, use the <a href="https://developer.etsy.com/documentation/reference/#operation/updateListing"><code>updateListing</code></a> endpoint with the <code>state</code> parameter set to "active." As noted above, you can associate images with listings in a <code>createDraftListing</code> request using the <code>image_ids</code> parameter if images are already uploaded to your shop.</p>
+<p>The following procedure uploads an image to a listing and updates the listing to active:</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a>, which must include a <code>shop_id</code> and <code>listing_id</code> to assign the image to a listing. For example, if your <code>shop_id</code> is "12345678" and your <code>listing_id</code> is "192837465," then the <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a> URL is:</p>
+<pre><code>https://api.etsy.com/v3/application/shops/12345678/listings/192837465/images
+</code></pre>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a> request body, which must include either an <code>image</code> (binary) parameter with a digital image as its value or a <code>listing_image_id</code> for an image uploaded to the shop, but not both.</p>
+</li>
+<li>
+<p>Execute an <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a> POST request with your <code>listings_w</code> scoped OAuth token and <code>x-api-key</code>. For example, an <a href="/documentation/reference/#operation/uploadListingImage"><code>uploadListingImage</code></a> request might look like the following:</p>
+</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'Node JS', value: 'nodejs'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var myHeaders = new Headers();
+myHeaders.append(&quot;Content-Type&quot;, &quot;multipart/form-data&quot;);
+myHeaders.append(&quot;x-api-key&quot;, &quot;112233445566778899:a1b2c3d4e5&quot;);
+myHeaders.append(&quot;Authorization&quot;, &quot;Bearer abcd1234efgh5678ijkl90mnopqrst&quot;);
+
+var formdata = new FormData();
+formdata.append(&quot;image&quot;, fileInput.files[0], &quot;image.jpg&quot;);
+
+var requestOptions = {
+    method: &quot;POST&quot;,
+    headers: myHeaders,
+    body: formdata,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/xxxxxxxx/listings/yyyyyyyy/images&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="nodejs"></p>
+<pre><code class="language-js">var request = require(&quot;request&quot;);
+var fs = require(&quot;fs&quot;);
+var options = {
+    method: &quot;POST&quot;,
+    url: &quot;https://api.etsy.com/v3/application/shops/xxxxxxxx/listings/yyyyyyyy/images&quot;,
+    headers: {
+        &quot;Content-Type&quot;: &quot;multipart/form-data&quot;,
+        &quot;x-api-key&quot;: &quot;112233445566778899:a1b2c3d4e5&quot;,
+        Authorization: &quot;Bearer abcd1234efgh5678ijkl90mnopqrst&quot;,
+    },
+    formData: {
+        image: {
+            value: fs.createReadStream(&quot;/path/to/my/image.jpg&quot;),
+            options: {
+                filename: &quot;image.jpg&quot;,
+                contentType: null,
+            },
+        },
+    },
+};
+request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body);
+});
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/xxxxxxxx/listings/yyyyyyyy/images',
+  CURLOPT_RETURNTRANSFER =&gt; true,
+  CURLOPT_ENCODING =&gt; '',
+  CURLOPT_MAXREDIRS =&gt; 10,
+  CURLOPT_TIMEOUT =&gt; 0,
+  CURLOPT_FOLLOWLOCATION =&gt; true,
+  CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+  CURLOPT_POSTFIELDS =&gt; array('image'=&gt; new CURLFILE('/path/to/my/image.jpg')),
+  CURLOPT_HTTPHEADER =&gt; array(
+    'Content-Type: multipart/form-data',
+    'x-api-key: 112233445566778899:a1b2c3d4e5',
+    'Authorization: Bearer abcd1234efgh5678ijkl90mnopqrst'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<ol start="4">
+<li>Set the Listing's <code>state</code> to "active" with an <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> PATCH request that includes <code>shop_id</code> and <code>listing_id</code> in the URL, a <code>listings_w</code> scoped OAuth token and <code>x-api-key</code> in the header, and the new <code>state</code> in the request body. For example, an updateListing request might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;state&quot;, &quot;active&quot;);
+
+var requestOptions = {
+    method: &quot;PATCH&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/listings/192837465&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/listings/192837465',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PATCH',
+    CURLOPT_POSTFIELDS =&gt; 'state=active'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<h2 id="listing-inventory-with-different-properties-quantities-and-prices">Listing inventory with different properties, quantities, and prices</h2>
+<p>Inventory is a list of products for sale in a listing. The products are customizable, so understanding the inventory request structure is vital to offering different variations of the same product in one listing. Inventory defines products using the following components:</p>
+<ul>
+<li><code>sku</code>: Stock Keeping Unit (SKU) assigned to this product.</li>
+<li><code>offerings</code>: a list of prices and quantities associated with a specific product, representing purchase options visible to buyers on the Etsy shop.<ul>
+<li><code>quantity</code>: the number of products available at this offering price</li>
+<li><code>price</code>: a number indicating the price of this product interpreted in the default currency of the listing/shop, which is US pennies by default.</li>
+<li><code>is_enabled</code>: when true, the offering is visible to buyers in the listing.</li>
+<li><code>readiness_state_id</code>: the processing profile associated with the offering, if processing profile is set at listing level this id will be the same across all offerings.</li>
+</ul>
+</li>
+<li><code>property_values</code>: A list of properties differentiating this product from other products in a listing. For example, to sell sets of bed sheets in different color (white, blue, magenta, forest green, etc) and size (twin, full, queen, king) combinations, use property_values for color and size.<ul>
+<li><code>property_id</code>: a unique number identifying this property.</li>
+<li><code>property_name</code>: a string name for a property.</li>
+<li><code>scale_id</code>: a number indexing an Etsy-defined scale. There are a lot of these, but for example shoe sizes have three available scales:</li>
+</ul>
+</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: left;">Scale ID</th>
+<th style="text-align: left;">Scale Name</th>
+<th style="text-align: left;">Value IDs and Names</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">US/Canada</td>
+<td style="text-align: left;">value_id:1329,"name":"0 (Baby)", value_id:1330,"name":"0.5 (Baby)", value_id:1331,"name":"1 (Baby)", value_id:1332,"name":"1.5 (Baby)", value_id:1333,"name":"2 (Baby)", value_id:1334,"name":"2.5 (Baby)", value_id:1335,"name":"3 (Baby)", value_id:1336,"name":"3.5 (Baby)", value_id:1337,"name":"4 (Baby)", value_id:1338,"name":"4.5 (Walker)", value_id:1339,"name":"5 (Walker)", value_id:1340,"name":"5.5 (Walker)", value_id:1341,"name":"6 (Walker)", value_id:1342,"name":"6.5 (Walker)", value_id:1343,"name":"7 (Walker)", value_id:1344,"name":"7.5 (Toddler)", value_id:1345,"name":"8 (Toddler)", value_id:1346,"name":"8.5 (Toddler)", value_id:1347,"name":"9 (Toddler)", value_id:1348,"name":"9.5 (Toddler)", value_id:1349,"name":"10 (Toddler)", value_id:1350,"name":"10.5 (Toddler)", value_id:1351,"name":"11 (Toddler)", value_id:1352,"name":"11.5 (Toddler)", value_id:1353,"name":"12 (Toddler)", value_id:1354,"name":"12.5 (Youth)", value_id:1355,"name":"13 (Youth)", value_id:1356,"name":"13.5 (Youth)", value_id:1357,"name":"1 (Youth)", value_id:1358,"name":"1.5 (Youth)", value_id:1359,"name":"2 (Youth)", value_id:1360,"name":"2.5 (Youth)", value_id:1361,"name":"3 (Youth)", value_id:1362,"name":"3.5 (Youth)", value_id:1363,"name":"4 (Youth)", value_id:1364,"name":"4.5 (Youth)", value_id:1365,"name":"5 (Youth)", value_id:1366,"name":"5.5 (Youth)", value_id:1367,"name":"6 (Youth)", value_id:1368,"name":"6.5 (Youth)", value_id:1369,"name":"7 (Youth)"</td>
+</tr>
+<tr>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">EU</td>
+<td style="text-align: left;">"value_id":1370,"name":"15", "value_id":1371,"name":"16", "value_id":1372,"name":"17", "value_id":1373,"name":"18", "value_id":1374,"name":"19", "value_id":1375,"name":"20", "value_id":1376,"name":"21", "value_id":1377,"name":"22", "value_id":1378,"name":"23", "value_id":1379,"name":"24", "value_id":1380,"name":"25", "value_id":1381,"name":"26", "value_id":1382,"name":"27", "value_id":1383,"name":"28", "value_id":1385,"name":"29", "value_id":1386,"name":"30", "value_id":1387,"name":"31", "value_id":1388,"name":"32", "value_id":1389,"name":"33", "value_id":1390,"name":"34", "value_id":1391,"name":"35", "value_id":1392,"name":"36", "value_id":1393,"name":"37", "value_id":1394,"name":"38", "value_id":1395,"name":"39"</td>
+</tr>
+<tr>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;">UK</td>
+<td style="text-align: left;">value_id:1396,"name":"0 (Baby)", value_id:1397,"name":"0.5 (Baby)", value_id:1399,"name":"1 (Baby)", value_id:1401,"name":"1.5 (Baby)", value_id:1402,"name":"2 (Baby)", value_id:1403,"name":"2.5 (Baby)", value_id:1404,"name":"3 (Baby)", value_id:1405,"name":"3.5 (Walker)", value_id:1406,"name":"4 (Walker)", value_id:1407,"name":"4.5 (Walker)", value_id:1408,"name":"5 (Walker)", value_id:1409,"name":"5.5 (Walker)", value_id:1410,"name":"6 (Walker)", value_id:1411,"name":"6.5 (Toddler)", value_id:1412,"name":"7 (Toddler)", value_id:1413,"name":"7.5 (Toddler)", value_id:1414,"name":"8 (Toddler)", value_id:1415,"name":"8.5 (Toddler)", value_id:1416,"name":"9 (Toddler)", value_id:1417,"name":"9.5 (Toddler)", value_id:1418,"name":"10 (Toddler)", value_id:1419,"name":"10.5 (Toddler)", value_id:1420,"name":"11 (Toddler)", value_id:1421,"name":"11.5 (Youth)", value_id:1422,"name":"12 (Youth)", value_id:1423,"name":"12.5 (Youth)", value_id:1424,"name":"13 (Youth)", value_id:1425,"name":"13.5 (Youth)", value_id:1426,"name":"1 (Youth)", value_id:1428,"name":"2 (Youth)", value_id:1429,"name":"2.5 (Youth)", value_id:1430,"name":"3 (Youth)", value_id:1431,"name":"3.5 (Youth)", value_id:1432,"name":"4 (Youth)", value_id:1433,"name":"4.5 (Youth)", value_id:1434,"name":"5 (Youth)", value_id:1435,"name":"5.5 (Youth)", value_id:1436,"name":"6 (Youth)"</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><code>value_ids</code>: a list of numbers valid for the <code>scale_id</code> selected indicating the product variations.</li>
+<li><code>values</code>: a list of strings matching the value ids selected.</li>
+</ul>
+<p>The following endpoints change the listing properties and inventory for an existing listing:</p>
+<ol>
+<li><a href="/documentation/reference/#operation/updateListingProperty"><code>updateListingProperty</code></a> adds properties to a listing</li>
+<li><a href="/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a> assigns skus to offerings for different property combinations</li>
+</ol>
+<h3 id="updating-inventory">Updating Inventory</h3>
+<p>The following procedure adds a product for sale in a listing:</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a>, which must include a <code>listing_id</code> to change the inventory in a listing. For example, if your <code>listing_id</code> is "192837465," then the updateListingInventory URL is:</p>
+<pre><code>https://api.etsy.com/v3/application/listings/192837465/inventory
+</code></pre>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a> request body, which must include at least one product in the <code>products</code> parameter with nested <code>offerings</code> and <code>property_values</code> lists.</p>
+</li>
+<li>
+<p>Execute an <a href="/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a> PUT request with a <code>listings_w</code> scoped OAuth token and <code>x-api-key</code>. For example, an <a href="/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a> request to add 10 US/Canada size 4 shoes with a sku of 7836646 might look like the following:</p>
+</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/json&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var productsArray = {
+    products: [
+        {
+            sku: &quot;7836646&quot;,
+            property_values: [
+                {
+                    property_id: 54142601979,
+                    property_name: &quot;Kids' shoe size&quot;,
+                    scale_id: 17,
+                    value_ids: [1363],
+                    values: [&quot;4 (Youth)&quot;],
+                },
+            ],
+            offerings: [
+                {
+                    price: 500,
+                    quantity: 10,
+                    is_enabled: true,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+        },
+    ],
+};
+
+var requestOptions = {
+    method: &quot;PUT&quot;,
+    headers: headers,
+    body: JSON.stringify(productsArray),
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/listings/192837465/inventory&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/listings/192837465/inventory',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PUT',
+    CURLOPT_POSTFIELDS =&gt;'{
+      &quot;products&quot;: [
+        {
+            &quot;sku&quot;: &quot;7836646&quot;,
+            &quot;property_values&quot;: [
+                {
+                    &quot;property_id&quot;: 54142601979,
+                    &quot;property_name&quot;: &quot;Kids' shoe size&quot;,
+                    &quot;scale_id&quot;: 17,
+                    &quot;value_ids&quot;: [
+                        1363
+                    ],
+                    &quot;values&quot;: [
+                        &quot;4 (Youth)&quot;
+                    ],
+                }
+            ],
+            &quot;offerings&quot;: [
+                {
+                    &quot;price&quot;: 500,
+                    &quot;quantity&quot;: 10,
+                    &quot;is_enabled&quot;: true,
+                    &quot;readiness_state_id&quot;: 18201076875
+                }
+            ]
+        }
+      ],
+      &quot;price_on_property&quot;: [54142601979],
+      &quot;quantity_on_property&quot;: [],
+      &quot;sku_on_property&quot;: []
+    }',
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/json',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<p><strong>NOTES:</strong></p>
+<ol>
+<li>
+<p>When updating inventory, the entire set of products (based on variations) must be in the <code>products</code> array.</p>
+</li>
+<li>
+<p>To get the product array, call <a href="https://developer.etsy.com/documentation/reference/#operation/getListingInventory"><code>getListingInventory</code></a> for the listing. From the <a href="https://developer.etsy.com/documentation/reference/#operation/getListingInventory"><code>getListingInventory</code></a> response, remove the following fields: <code>product_id</code>, <code>offering_id</code>, <code>scale_name</code>, <code>is_deleted</code> and <code>value_pairs</code>. Also change the <code>price</code> array in offerings to be a decimal value instead of an array.</p>
+</li>
+<li>
+<p>The <code>*_on_property</code> values should match the <code>property_id</code> values, but only if those properties affect the price, quantity or sku. See the sample below for handling variations.</p>
+</li>
+<li>
+<p>The <code>*_on_property</code> fields can be empty, have one property, or all the properties used for variations.</p>
+</li>
+<li>
+<p>Use <a href="#custom-variations">Custom Variations</a> if any of the existing properties don't exist or fit your use case.</p>
+</li>
+</ol>
+<h3 id="handling-variations-in-inventory-updates">Handling Variations in Inventory Updates</h3>
+<p>The following example updates a listing inventory where there are two variations:</p>
+<ol>
+<li>
+<p>Material - "Pine", "Oak", "Walnut"</p>
+</li>
+<li>
+<p>Height - "3", "4", "5"</p>
+</li>
+</ol>
+<p>In this example, the material variation affects the price, while the height variation affects the quantity and sku of the product.</p>
+<p>In the <code>products</code> array, you will have 9 entries (3 materials x 3 heights).</p>
+<p>Due to the height affecting both quantity and sku, when quantity is updated it must be the same value across all products sharing the same sku. The sku "woodthing3" has 3 entries in the array, but the <code>quantity</code> value for all three of those arrays (inside <code>offerings</code>) must be the same value (33 in this example).</p>
+<p>Similarly, because material affects pricing, in each product you will see that the "Walnut" property value indicates the <code>price</code> in <code>offerings</code> is 8.00 while "Oak" is 7.00 and "Pine" is 6.00.</p>
+<p>Note that since there is only one variation that affects the price, the <code>price_on_property</code> value is a single value of <code>47626760362</code>, which is the property_id for "Material". Since height affects both quantity and sku, the <code>quantity_on_property</code> and <code>sku_on_property</code> values are a single value of <code>47626759834</code>, which is the property_id for "Height".</p>
+<p>The processing profile is shared across all offerings, which means that the profile is set at a listing level. See <a href="#adding-an-processing-profile-to-a-listing"><code>Adding a processing profile to a listing</code></a> for more details about processing profiles.</p>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/json&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var productsArray = {
+    products: [
+        {
+            sku: &quot;woodthing3&quot;,
+            offerings: [
+                {
+                    quantity: 33,
+                    is_enabled: true,
+                    price: 8.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18156809190],
+                    values: [&quot;3&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [283],
+                    values: [&quot;Walnut&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing3&quot;,
+            offerings: [
+                {
+                    quantity: 33,
+                    is_enabled: true,
+                    price: 7.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18156809190],
+                    values: [&quot;3&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [188],
+                    values: [&quot;Oak&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing3&quot;,
+            offerings: [
+                {
+                    quantity: 33,
+                    is_enabled: true,
+                    price: 6.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18156809190],
+                    values: [&quot;3&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [203],
+                    values: [&quot;Pine&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing4&quot;,
+            offerings: [
+                {
+                    quantity: 44,
+                    is_enabled: true,
+                    price: 8.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107494140],
+                    values: [&quot;4&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [283],
+                    values: [&quot;Walnut&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing4&quot;,
+            offerings: [
+                {
+                    quantity: 44,
+                    is_enabled: true,
+                    price: 7.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107494140],
+                    values: [&quot;4&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [188],
+                    values: [&quot;Oak&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing4&quot;,
+            offerings: [
+                {
+                    quantity: 44,
+                    is_enabled: true,
+                    price: 6.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107494140],
+                    values: [&quot;4&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [203],
+                    values: [&quot;Pine&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing5&quot;,
+            offerings: [
+                {
+                    quantity: 55,
+                    is_enabled: true,
+                    price: 8.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107397735],
+                    values: [&quot;5&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [283],
+                    values: [&quot;Walnut&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing5&quot;,
+            offerings: [
+                {
+                    quantity: 55,
+                    is_enabled: true,
+                    price: 7.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107397735],
+                    values: [&quot;5&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [188],
+                    values: [&quot;Oak&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing5&quot;,
+            offerings: [
+                {
+                    quantity: 55,
+                    is_enabled: true,
+                    price: 6.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107397735],
+                    values: [&quot;5&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [203],
+                    values: [&quot;Pine&quot;],
+                },
+            ],
+        },
+    ],
+    price_on_property: [47626760362],
+    quantity_on_property: [47626759834],
+    sku_on_property: [47626759834],
+    readiness_state_on_property: [],
+};
+
+var requestOptions = {
+    method: &quot;PUT&quot;,
+    headers: headers,
+    body: JSON.stringify(productsArray),
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/listings/192837465/inventory&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/listings/192837465/inventory',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PUT',
+    CURLOPT_POSTFIELDS =&gt;'{
+        &quot;products&quot;: [
+            {
+                &quot;sku&quot;: &quot;woodthing3&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 33,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 8.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18156809190
+                        ],
+                        &quot;values&quot;: [
+                            &quot;3&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            283
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Walnut&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing3&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 33,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 7.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18156809190
+                        ],
+                        &quot;values&quot;: [
+                            &quot;3&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            188
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Oak&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing3&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 33,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 6.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18156809190
+                        ],
+                        &quot;values&quot;: [
+                            &quot;3&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            203
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Pine&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing4&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 44,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 8.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107494140
+                        ],
+                        &quot;values&quot;: [
+                            &quot;4&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            283
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Walnut&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing4&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 44,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 7.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107494140
+                        ],
+                        &quot;values&quot;: [
+                            &quot;4&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            188
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Oak&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing4&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 44,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 6.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107494140
+                        ],
+                        &quot;values&quot;: [
+                            &quot;4&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            203
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Pine&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing5&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 55,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 8.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107397735
+                        ],
+                        &quot;values&quot;: [
+                            &quot;5&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            283
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Walnut&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing5&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 55,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 7.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107397735
+                        ],
+                        &quot;values&quot;: [
+                            &quot;5&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            188
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Oak&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing5&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 55,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 6.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107397735
+                        ],
+                        &quot;values&quot;: [
+                            &quot;5&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            203
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Pine&quot;
+                        ]
+                    }
+                ]
+            }
+        ],
+        &quot;price_on_property&quot;: [47626760362],
+        &quot;quantity_on_property&quot;: [47626759834],
+        &quot;sku_on_property&quot;: [47626759834],
+        &quot;readiness_state_on_property&quot;: []
+        }',
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/json',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<h3 id="custom-variations">Custom Variations</h3>
+<p>Custom Variations behave just like normal variations, except you can assign your own custom name to them instead of needing to adhere to properties. There can be at most 2 custom variations. The <code>property_ids</code> for custom variations are <code>513</code> and <code>514</code>. Use either of these when creating a custom variation.</p>
+<h3 id="how-to-fetch-property-values-for-the-products-array">How to Fetch Property Values for the <code>Products</code> Array?</h3>
+<p>Since variations can not be added at the time of creation of a new listing, the following procedure should help with creating the products array for your <a href="https://developer.etsy.com/documentation/reference/#operation/updateListingInventory"><code>updateListingInventory</code></a> call.</p>
+<p>The <code>property_values</code> is required but may be empty when attempting to post to the endpoint. The properties that may be used for variations on any given listing will depend upon the category the listing is placed in.</p>
+<p>Property ids and possible values are available via the following endpoints: <a href="/documentation/reference/#operation/getSellerTaxonomyNodes"><code>getSellerTaxonomyNodes</code></a> and <a href="/documentation/reference/#operation/getPropertiesByTaxonomyId"><code>getPropertiesByTaxonomyId</code></a>.</p>
+<ol>
+<li>
+<p>If you don't already have a list of property ids for the product properties you wish to use in the new listing, use a <code>GET</code> call to <a href="/documentation/reference/#operation/getSellerTaxonomyNodes"><code>getSellerTaxonomyNodes</code></a> first to retrieve the full hierarchy tree of seller taxonomy nodes.</p>
+</li>
+<li>
+<p>In the taxonomy tree, you can look for the category you wish to use and note the id.</p>
+</li>
+<li>
+<p>Perform a <code>GET</code> call to the <a href="/documentation/reference/#operation/getPropertiesByTaxonomyId"><code>getPropertiesByTaxonomyId</code></a> endpoint with the id of the category. This will give you the possible properties for the category, along with their possible values. Only properties with the field <code>"supports_variations": true</code> can be used in <code>property_values</code>.</p>
+</li>
+</ol>
+<p><strong>Notes about taxonomy:</strong></p>
+<ol>
+<li>
+<p>Some of the common taxonomy node properties that Etsy uses, such as <code>Color</code>, have a list of common values/value ids. When you pass in value_id <code>4</code> we convert that to your shop's unique ID for the color "Green". If it's not already in the system for your shop, it will create one. And then you'll use your shop's unique ID over and over again in the <code>values_ids</code> field any time you provide "Green" for the color in the <code>values</code> field. Subsequent queries to get inventory should return your shop's unique ID and not our known common ID.</p>
+</li>
+<li>
+<p>There are also <a href="/documentation/reference/#operation/getBuyerTaxonomyNodes"><code>getBuyerTaxonomyNodes</code></a> and <a href="/documentation/reference#operation/getPropertiesByBuyerTaxonomyId"><code>getPropertiesByBuyerTaxonomyId</code></a> endpoints for use by more buyer-facing apps. The difference between the two is that the levels of hierarchy in the seller taxonomy is often deeper than that of Buyers. For example, a listing for "blue yarn" is in <code>All categories</code> &rarr; <code>Craft Supplies &amp; Tools</code>. The <code>Craft Supplies &amp; Tools</code> is a buyer taxonomy. But in reality, the listing is inside of <code>All categories</code> &rarr; <code>Craft Supplies &amp; Tools</code> &rarr; <code>Yarn &amp; Fiber</code> &rarr; <code>Yarn</code>. The <code>Yarn &amp; Fiber</code> and <code>Yarn</code> category and sub category are the seller taxonomy. For sellers these are very useful categories for sorting and tracking listings. However, from a Buyer perspective, showing the category and subcategory in the category tree would end up cluttering the buyer experience. Since the yarn is really just a craft supply it makes sense to show it under that more top-level category.</p>
+</li>
+</ol>
+<h2 id="adding-a-shipping-profile-to-a-listing">Adding a shipping profile to a listing</h2>
+<p>Shipping profiles assemble shipping details such as shipping price and processing time for recipients grouped by country or region. Every physical listing requires a shipping profile, so you add shipping profiles to your shop with <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a>, and assign a shipping profile to a listing using a <code>shipping_profile_id</code> when you create or update the listing.</p>
+<p>The following procedure creates a new shipping profile and returns the <code>shipping_profile_id</code> in the response:</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a>, which must include a <code>shop_id</code>. For example, if your <code>shop_id</code> is "12345678", then the <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a> URL is:</p>
+<p>https://api.etsy.com/v3/application/shops/12345678/shipping-profiles</p>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a> request body, which must include at a minimum:</p>
+</li>
+</ol>
+<ul>
+<li><code>title</code>: Use a title that indicates the country or region.</li>
+<li><code>origin_country_iso</code>: The ISO code of the country from which the listing ships.</li>
+<li><code>primary_cost</code>: The cost of shipping to this country/region alone, measured in the store's default currency.</li>
+<li><code>secondary_cost</code>: The cost of shipping to this country/region with another item, measured in the store's default currency.</li>
+<li><code>min_processing_time</code>: The minimum processing time required to process to ship listings with this shipping profile. This field is in deprecation phase and will be removed by Q1 2026.</li>
+<li><code>max_processing_time</code>: The maximum processing time required to process to ship listings with this shipping profile. This field is in deprecation phase and will be removed by Q1 2026.</li>
+<li>One of <code>destination_country_iso</code> (<a href="https://www.iban.com/country-codes">see list of Alpha-2 codes here</a>) OR <code>destination_region</code> (possible values are "eu" "non_eu" or "none"), but not both.</li>
+</ul>
+<ol start="3">
+<li>Execute an <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a> POST request with your <code>shops_w</code> scoped OAuth token and <code>x-api-key</code>, and read the generated <code>shipping_profile_id</code> from the response. For example, a <a href="/documentation/reference/#operation/createShopShippingProfile"><code>createShopShippingProfile</code></a> request for shipments from the US to the EU with free shipping might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;title&quot;, &quot;Free shipping to the EU&quot;);
+urlencoded.append(&quot;origin_country_iso&quot;, &quot;US&quot;);
+urlencoded.append(&quot;primary_cost&quot;, &quot;0&quot;);
+urlencoded.append(&quot;secondary_cost&quot;, &quot;0&quot;);
+urlencoded.append(&quot;min_processing_time&quot;, &quot;1&quot;);
+urlencoded.append(&quot;max_processing_time&quot;, &quot;5&quot;);
+urlencoded.append(&quot;destination_region&quot;, &quot;eu&quot;);
+
+var requestOptions = {
+    method: &quot;POST&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/shipping-profiles&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/shipping-profiles',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+    CURLOPT_POSTFIELDS =&gt; 'title=Free%20shipping%20to%20the%20EU&amp;&quot;origin_country_iso=US&amp;primary_cost=0&amp;secondary_cost=0&amp;min_processing_time=1&amp;max_processing_time=5&amp;destination_region=eu');
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<ol start="4">
+<li>Set the listing's <code>shipping_profile_id</code> to the shipping profile ID read from the response to setting the shipping profile ID with an <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> PATCH request that includes <code>shop_id</code> and <code>listing_id</code> in the URL, a <code>listings_w</code> scoped OAuth token and <code>x-api-key</code> in the header, and the new state in the request body. For example, an <a href="/documentation/reference/#operation/updateListing"><code>updateListing</code></a> request might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;shipping_profile_id&quot;, &quot;6722757781&quot;);
+
+var requestOptions = {
+    method: &quot;PATCH&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/listings/192837465&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/listings/192837465',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PATCH',
+    CURLOPT_POSTFIELDS =&gt; 'shipping_profile_id=6722757781'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff:a1b2c3d4e5',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<h2 id="adding-a-processing-profile-to-a-listing">Adding a processing profile to a listing</h2>
+<p>Processing profiles contain information about the readiness state and processing time of a product. Every physical listing requires at least one processing profile to be linked to it. You can create processing profiles for your shop with <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a>, and link it to a listing using the <code>readiness_state_id</code> when you create a new listing through <a href="/documentation/reference#operation/createDraftListing"><code>createDraftListing</code></a> or to specific products when you update a listing's inventory through <a href="/documentation/reference#operation/updateListingInventory"><code>updateListingInventory</code></a>.</p>
+<p>The following procedure creates a new processing profile and returns the <code>readiness_state_id</code> in the response:</p>
+<ol>
+<li>
+<p>Form a valid URL for <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a>, which must include a <code>shop_id</code>. For example, if your <code>shop_id</code> is "12345678", then the <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a> URL is:</p>
+<p>https://api.etsy.com/v3/application/shops/12345678/readiness-state-definitions</p>
+</li>
+<li>
+<p>Build the <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a> request body, which must include at a minimum:</p>
+</li>
+</ol>
+<ul>
+<li><code>readiness_state</code>: The state a product can be in production wise, values can be either "ready_to_ship" or "made_to_order".</li>
+<li><code>min_processing_time</code>: The minimum processing time required to process to ship listings with this shipping profile. This field is in deprecation phase and will be removed by Q1 2026.</li>
+<li><code>max_processing_time</code>: The maximum processing time required to process to ship listings with this shipping profile. This field is in deprecation phase and will be removed by Q1 2026.</li>
+<li><code>processing_time_unit</code>: The unit used to represent how long a processing time is. A week is equivalent to 5 business days. Values can be "days" or "weeks". If none is provided, the unit is set to "days".</li>
+</ul>
+<ol start="3">
+<li>Execute a <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a> POST request with your <code>shops_w</code> scoped OAuth token and <code>x-api-key</code>, and read the generated <code>readiness_state_id</code> from the response, which you’ll use to link it to specific products later on. For example, a <a href="/documentation/reference/#operation/createShopReadinessStateDefinition"><code>createShopReadinessStateDefinition</code></a> request for a product that’s made to order and the processing time is 5-8 days might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/x-www-form-urlencoded&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var urlencoded = new URLSearchParams();
+urlencoded.append(&quot;readiness_state&quot;, &quot;made_to_order&quot;);
+urlencoded.append(&quot;min_processing_time&quot;, &quot;5&quot;);
+urlencoded.append(&quot;max_processing_time&quot;, &quot;8&quot;);
+urlencoded.append(&quot;processing_time_unit&quot;, &quot;days&quot;);
+
+var requestOptions = {
+    method: &quot;POST&quot;,
+    headers: headers,
+    body: urlencoded,
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/shops/12345678/readiness-state-definitions&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/shops/12345678/readiness-state-definitions',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'POST',
+    CURLOPT_POSTFIELDS =&gt; 'readiness_state=made_to_order&amp;min_processing_time=5&amp;max_processing_time=8&amp;processing_time_unit=days'
+
+    CURLOPT_HTTPHEADER =&gt; array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'x-api-key: 1aa2bb33c44d55eeeeee6fff',
+        'Authorization: Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+</code></pre>
+<p></TabItem><br>
+</Tabs></p>
+<ol start="4">
+<li>Set the listing's <code>readiness_state_id</code> to the readiness state ID read from the response while creating a new listing through <a href="/documentation/reference/#operation/createDraftListing"><code>createDraftListing</code></a> endpoint or while updating the listing through <a href="/documentation/reference#operation/updateListingInventory"><code>updateListingInventory</code></a> endpoint. For example, an <a href="/documentation/reference#operation/updateListingInventory"><code>updateListingInventory</code></a> request might look like the following:</li>
+</ol>
+<p><Tabs
+groupId="restlanguages"
+defaultValue="jsfetch"
+values={[
+{label: 'JavaScript fetch', value: 'jsfetch'},
+{label: 'PHP curl', value: 'php'},
+]}><br>
+<TabItem value="jsfetch"></p>
+<pre><code class="language-js">var headers = new Headers();
+headers.append(&quot;Content-Type&quot;, &quot;application/json&quot;);
+headers.append(&quot;x-api-key&quot;, &quot;1aa2bb33c44d55eeeeee6fff&quot;);
+headers.append(
+    &quot;Authorization&quot;,
+    &quot;Bearer 12345678.jKBPLnOiYt7vpWlsny_lDKqINn4Ny_jwH89hA4IZgggyzqmV_bmQHGJ3HOHH2DmZxOJn5V1qQFnVP9bCn9jnrggCRz&quot;,
+);
+
+var productsArray = {
+    products: [
+        {
+            sku: &quot;woodthing4&quot;,
+            offerings: [
+                {
+                    quantity: 44,
+                    is_enabled: true,
+                    price: 8.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107494140],
+                    values: [&quot;4&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [283],
+                    values: [&quot;Walnut&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing4&quot;,
+            offerings: [
+                {
+                    quantity: 44,
+                    is_enabled: true,
+                    price: 6.0,
+                    readiness_state_id: 18201056977,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107494140],
+                    values: [&quot;4&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [203],
+                    values: [&quot;Pine&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing5&quot;,
+            offerings: [
+                {
+                    quantity: 55,
+                    is_enabled: true,
+                    price: 8.0,
+                    readiness_state_id: 18201076875,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107397735],
+                    values: [&quot;5&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [283],
+                    values: [&quot;Walnut&quot;],
+                },
+            ],
+        },
+        {
+            sku: &quot;woodthing5&quot;,
+            offerings: [
+                {
+                    quantity: 55,
+                    is_enabled: true,
+                    price: 6.0,
+                    readiness_state_id: 18201056977,
+                },
+            ],
+            property_values: [
+                {
+                    property_id: 47626759834,
+                    property_name: &quot;Height&quot;,
+                    scale_id: 5,
+                    value_ids: [18107397735],
+                    values: [&quot;5&quot;],
+                },
+                {
+                    property_id: 47626760362,
+                    property_name: &quot;Material&quot;,
+                    scale_id: null,
+                    value_ids: [203],
+                    values: [&quot;Pine&quot;],
+                },
+            ],
+        },
+    ],
+    price_on_property: [47626760362],
+    quantity_on_property: [47626759834],
+    sku_on_property: [47626759834],
+    readiness_state_on_property: [47626760362],
+};
+
+var requestOptions = {
+    method: &quot;PUT&quot;,
+    headers: headers,
+    body: JSON.stringify(productsArray),
+    redirect: &quot;follow&quot;,
+};
+
+fetch(
+    &quot;https://api.etsy.com/v3/application/listings/192837465/inventory&quot;,
+    requestOptions,
+)
+    .then((response) =&gt; response.text())
+    .then((result) =&gt; console.log(result))
+    .catch((error) =&gt; console.log(&quot;error&quot;, error));
+</code></pre>
+<p></TabItem><br>
+  <TabItem value="php"></p>
+<pre><code class="language-php">&lt;?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL =&gt; 'https://api.etsy.com/v3/application/listings/192837465/inventory',
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_ENCODING =&gt; '',
+    CURLOPT_MAXREDIRS =&gt; 10,
+    CURLOPT_TIMEOUT =&gt; 0,
+    CURLOPT_FOLLOWLOCATION =&gt; true,
+    CURLOPT_HTTP_VERSION =&gt; CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST =&gt; 'PUT',
+    CURLOPT_POSTFIELDS =&gt;'{
+        &quot;products&quot;: [
+            {
+                &quot;sku&quot;: &quot;woodthing4&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 44,
+                        &quot;is_enabled&quot;: true,
+                        &quot;price&quot;: 8.00,
+                        &quot;readiness_state_id&quot;: 18201076875
+                    }
+                ],
+                &quot;property_values&quot;: [
+                    {
+                        &quot;property_id&quot;: 47626759834,
+                        &quot;property_name&quot;: &quot;Height&quot;,
+                        &quot;scale_id&quot;: 5,
+                        &quot;value_ids&quot;: [
+                            18107494140
+                        ],
+                        &quot;values&quot;: [
+                            &quot;4&quot;
+                        ]
+                    },
+                    {
+                        &quot;property_id&quot;: 47626760362,
+                        &quot;property_name&quot;: &quot;Material&quot;,
+                        &quot;scale_id&quot;: null,
+                        &quot;value_ids&quot;: [
+                            283
+                        ],
+                        &quot;values&quot;: [
+                            &quot;Walnut&quot;
+                        ]
+                    }
+                ]
+            },
+            {
+                &quot;sku&quot;: &quot;woodthing4&quot;,
+                &quot;offerings&quot;: [
+                    {
+                        &quot;quantity&quot;: 44,
+                        &

@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog Content Strategy — Timber Trace Crafts Journal</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">PLANS</div>
+      <h1 class="title">Blog Content Strategy — Timber Trace Crafts Journal</h1>
+      <p class="standfirst"><em>Generated 2026-06-25 using /claude-blog strategy</em></p>
+      <div class="meta"><span>7 sections</span><span class="dot">·</span><span class="read">~11 min read</span><span class="dot">·</span><span>blog_content_strategy.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#task-checklist"><span class="n">01</span><span>Task Checklist</span></a><a class="lvl3" href="#technical-phase-1-2-completed-2026-06-25">Technical (Phase 1 &amp;amp; 2) — completed 2026-06-25</a><a class="lvl3" href="#phase-3-enhancements">Phase 3 Enhancements</a><a class="lvl3" href="#flow-90-day-content-calendar-gift-intent-first-added-2026-06-25">FLOW 90-Day Content Calendar (gift-intent first, added 2026-06-25)</a><a class="lvl3" href="#month-1-content-week-34-original-plan">Month 1 Content — Week 3–4 (original plan)</a><a class="lvl3" href="#month-2-content-personalization-hub">Month 2 Content — Personalization Hub</a><a class="lvl3" href="#month-3-content-gift-season-wood-jewelry-cluster">Month 3 Content — Gift Season + Wood Jewelry Cluster</a><a href="#executive-summary"><span class="n">02</span><span>Executive Summary</span></a><a href="#1-current-state-audit"><span class="n">03</span><span>1. Current State Audit</span></a><a class="lvl3" href="#already-built">✅ Already Built</a><a class="lvl3" href="#bugs-fixed-2026-06-25">✅ Bugs Fixed — 2026-06-25</a><a class="lvl3" href="#phase-3-enhancements-not-started">Phase 3 Enhancements — Not Started</a><a href="#2-content-strategy"><span class="n">04</span><span>2. Content Strategy</span></a><a class="lvl3" href="#brand-positioning">Brand Positioning</a><a class="lvl3" href="#what-a-diode-laser-can-make-full-product-range">What a Diode Laser Can Make (Full Product Range)</a><a class="lvl3" href="#content-pillars-cluster-architecture">Content Pillars &amp;amp; Cluster Architecture</a><a href="#3-ai-citation-surface-strategy"><span class="n">05</span><span>3. AI Citation Surface Strategy</span></a><a class="lvl3" href="#on-site-apply-to-every-post">On-Site (Apply to Every Post)</a><a class="lvl3" href="#ai-citation-gap-opportunities">AI Citation Gap Opportunities</a><a href="#4-quality-gate-before-publishing-each-post"><span class="n">06</span><span>4. Quality Gate (Before Publishing Each Post)</span></a><a href="#5-measurement-framework"><span class="n">07</span><span>5. Measurement Framework</span></a><a class="lvl3" href="#traditional-seo-monthly">Traditional SEO (monthly)</a><a class="lvl3" href="#ai-citation-metrics-monthly-manual">AI Citation Metrics (monthly, manual)</a><a class="lvl3" href="#business-impact">Business Impact</a></nav></details>
+    <main>
+
+<hr>
+<h2 id="task-checklist">Task Checklist</h2>
+<h3 id="technical-phase-1-2-completed-2026-06-25">Technical (Phase 1 &amp; 2) — completed 2026-06-25</h3>
+<ul>
+<li>[x] Fix Admin JournalController — status validation, tags sync, <code>$tags</code> variable <em>(done 2026-06-25)</em></li>
+<li>[x] Fix <code>edit()</code> — alias <code>$journal</code> → <code>$post</code> so form partial renders <em>(done 2026-06-25)</em></li>
+<li>[x] Fix Blade <code>@context</code>/<code>@type</code>/<code>@id</code> JSON-LD collision (escaped to <code>@@</code>) <em>(done 2026-06-25)</em></li>
+<li>[x] Add eager-loading (<code>featuredImage</code>, <code>tags</code>, <code>author</code>) to public JournalController <em>(done 2026-06-25)</em></li>
+<li>[x] Add RSS feed at <code>/journal/feed.xml</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Add <code>HasFactory</code> to <code>JournalPost</code> and <code>Tag</code> models <em>(done 2026-06-25)</em></li>
+<li>[x] Create <code>JournalPostFactory</code> and <code>TagFactory</code> <em>(done 2026-06-25)</em></li>
+<li>[x] Write 17 journal feature tests — 51/51 suite passing <em>(done 2026-06-25)</em></li>
+</ul>
+<h3 id="phase-3-enhancements">Phase 3 Enhancements</h3>
+<ul>
+<li>[x] ZenComposer WYSIWYG editor — journal body, pages body <em>(done 2026-06-25)</em></li>
+<li>[x] Featured image upload in admin journal form (inline Media record creation) <em>(done 2026-06-25)</em></li>
+<li>[x] Related posts block on show view (by shared tags, take 3) <em>(done 2026-06-25)</em></li>
+<li>[x] Reading time display (<code>ceil(str_word_count / 200)</code> minutes) <em>(done 2026-06-25)</em></li>
+<li>[x] Tag archive pages — <code>GET /journal/tag/{tag}</code> + view <em>(done 2026-06-25)</em></li>
+<li>[x] Fix journal/show.blade.php JSON-LD — convert @@context escape to json_encode() <em>(done 2026-06-25)</em></li>
+</ul>
+<h3 id="flow-90-day-content-calendar-gift-intent-first-added-2026-06-25">FLOW 90-Day Content Calendar (gift-intent first, added 2026-06-25)</h3>
+<ul>
+<li>[ ] Week 1: Write hub post "The Best Handmade Gifts for Women Who Appreciate the Details" (pillar, ~2,500 words)</li>
+<li>[ ] Week 2: Write "Valentine's Day Jewelry Gift Guide" (listicle, publish by Jan 10)</li>
+<li>[ ] Week 3: Write "How Wood Earrings Are Made: A Look Inside the Workshop" (how-to)</li>
+<li>[ ] Week 4: Write "Personalized Jewelry Box Ideas: How to Make a Gift She'll Keep Forever" (listicle)</li>
+<li>[ ] Week 6: Write "What to Get a Woman Who Has Everything: 7 Handmade Ideas" (listicle)</li>
+<li>[ ] Week 7: Write "Why We Started Timber Trace Crafts" (thought-leadership / brand story)</li>
+<li>[ ] Week 8: Write "Mother's Day Gifts from a Small Maker" (listicle, publish by Apr 1)</li>
+<li>[ ] Week 10: Write hub post "Handmade Wedding Party Gifts: A Complete Guide for Brides" (pillar)</li>
+<li>[ ] Week 12: Write "Wood vs. Metal Earrings: Which Is Better for Sensitive Ears?" (comparison)</li>
+<li>[ ] After each post: run <code>/blog analyze</code>, score 80+, add internal links to product pages, apply tags</li>
+</ul>
+<h3 id="month-1-content-week-34-original-plan">Month 1 Content — Week 3–4 (original plan)</h3>
+<ul>
+<li>[ ] Write Pillar 6 pillar page: "How Laser Cutting and Engraving Works" (~3,000 words)</li>
+<li>[ ] Write Spoke 3.2: "Can you wear wood earrings in the shower?" (FAQ, ~500 words)</li>
+<li>[ ] Write Spoke 5.2: "Are engraved tumblers dishwasher safe?" (FAQ, ~500 words)</li>
+<li>[ ] Publish all three with featured images, tags, and SEO meta filled in</li>
+</ul>
+<h3 id="month-2-content-personalization-hub">Month 2 Content — Personalization Hub</h3>
+<ul>
+<li>[ ] Write Pillar 1: "Ultimate Guide to Personalized Laser-Engraved Gifts" (~3,500 words)</li>
+<li>[ ] Write Spoke 1.1: "How laser engraving personalization works"</li>
+<li>[ ] Write Spoke 1.2: "What can and can't be laser engraved"</li>
+<li>[ ] Write Spoke 1.7: "Laser engraving vs. laser cutting: what's the difference?"</li>
+<li>[ ] Set up Pinterest scheduling — pin every post with image + excerpt on publish day</li>
+<li>[ ] Begin monthly AI citation tracking (10 target queries in ChatGPT + Perplexity)</li>
+</ul>
+<h3 id="month-3-content-gift-season-wood-jewelry-cluster">Month 3 Content — Gift Season + Wood Jewelry Cluster</h3>
+<ul>
+<li>[ ] Write Pillar 2 gift guide hub + first 2 seasonal spokes (next upcoming holiday)</li>
+<li>[ ] Write Pillar 3 pillar page: "The Complete Guide to Wood Earrings" (~3,000 words)</li>
+<li>[ ] Write Spoke 3.3: "Are wood earrings hypoallergenic?"</li>
+<li>[ ] Run <code>/blog analyze</code> on all published posts; update any scoring below 70</li>
+<li>[ ] Add related posts block to journal show view (Phase 3 enhancement)</li>
+<li>[ ] Review AI citation tracking results; adjust content angle based on what's being extracted</li>
+</ul>
+<hr>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>The Timber Trace Crafts "Journal" blog is <strong>substantially already built</strong> — the model, database schema, admin CRUD, public routes, styled views, navigation links, and BlogPosting JSON-LD schema are all in place. The implementation work is primarily <strong>bug-fixing the admin controller</strong> (completed) and adding <strong>SEO infrastructure</strong> (completed). The larger opportunity is <strong>content</strong>: zero posts currently exist.</p>
+<p>The store sells all types of <strong>laser cut and laser engraved items</strong> — wood is the primary material, but products span acrylic, leather, slate, anodized aluminum, and more. Product categories include jewelry (earrings), drinkware (tumblers), home décor, personalized gifts, ornaments, signage, and pet accessories. The blog should reflect this full breadth.</p>
+<p><strong>Content velocity target</strong>: 2 posts/month<br>
+<strong>Primary goals</strong>: Organic traffic, AI citation presence, brand storytelling, product cross-sells</p>
+<hr>
+<h2 id="1-current-state-audit">1. Current State Audit</h2>
+<h3 id="already-built">✅ Already Built</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JournalPost</code> model</td>
+<td>Complete</td>
+<td>title, slug, excerpt, body, featured_image_id, status, published_at, meta_title, meta_description</td>
+</tr>
+<tr>
+<td>Database migrations</td>
+<td>Complete</td>
+<td><code>journal_posts</code> + <code>journal_post_tags</code> pivot</td>
+</tr>
+<tr>
+<td>Public routes</td>
+<td>Complete</td>
+<td><code>GET /journal</code>, <code>GET /journal/{slug}</code>, <code>GET /journal/feed.xml</code></td>
+</tr>
+<tr>
+<td>Admin CRUD routes</td>
+<td>Complete</td>
+<td>Full resource at <code>/admin/journal</code></td>
+</tr>
+<tr>
+<td>Public index view</td>
+<td>Complete</td>
+<td>3-col grid, pagination, date, excerpt, "Read More"</td>
+</tr>
+<tr>
+<td>Public show view</td>
+<td>Complete</td>
+<td>Prose styling, tags, breadcrumb, OG meta, BlogPosting JSON-LD</td>
+</tr>
+<tr>
+<td>Admin form</td>
+<td>Complete</td>
+<td>Auto-slug, status dropdown, tags checkboxes, SEO meta section</td>
+</tr>
+<tr>
+<td>Navigation links</td>
+<td>Complete</td>
+<td>Desktop nav, mobile nav, footer</td>
+</tr>
+<tr>
+<td>Admin sidebar link</td>
+<td>Complete</td>
+<td><code>/admin/journal</code> link present</td>
+</tr>
+<tr>
+<td>BlogPosting schema</td>
+<td>Complete</td>
+<td>Emitted via <code>@push('schema')</code> in show view</td>
+</tr>
+<tr>
+<td>Canonical tags</td>
+<td>Complete</td>
+<td>Default <code>url()-&gt;current()</code> in layout</td>
+</tr>
+<tr>
+<td>Sitemap entries</td>
+<td>Complete</td>
+<td>Journal posts already in <code>SitemapController</code></td>
+</tr>
+<tr>
+<td>RSS feed</td>
+<td>Complete</td>
+<td>Added 2026-06-25 at <code>/journal/feed.xml</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="bugs-fixed-2026-06-25">✅ Bugs Fixed — 2026-06-25</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bug</th>
+<th>Location</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$tags</code> not passed to <code>create()</code> or <code>edit()</code> views</td>
+<td><code>Admin/JournalController</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td><code>store()</code> validated <code>published</code> (boolean) instead of <code>status</code> (string)</td>
+<td><code>Admin/JournalController::store()</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td>Tags not in validation or sync logic</td>
+<td><code>Admin/JournalController::store()</code> / <code>update()</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td><code>edit()</code> passed <code>$journal</code> but form partial expected <code>$post</code></td>
+<td><code>Admin/JournalController::edit()</code></td>
+<td>✅ Fixed</td>
+</tr>
+<tr>
+<td><code>@context</code>/<code>@type</code>/<code>@id</code> in JSON-LD parsed as Blade directives</td>
+<td><code>journal/show.blade.php</code></td>
+<td>✅ Fixed (escaped to <code>@@</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="phase-3-enhancements-not-started">Phase 3 Enhancements — Not Started</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Priority</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Featured image upload in admin form</td>
+<td>Medium</td>
+<td>Use existing <code>Media</code> model upload pattern</td>
+</tr>
+<tr>
+<td>Related posts block</td>
+<td>Low</td>
+<td><code>whereHas('tags')-&gt;where('id','!=',$post-&gt;id)-&gt;take(3)</code></td>
+</tr>
+<tr>
+<td>Reading time display</td>
+<td>Low</td>
+<td><code>ceil(str_word_count(strip_tags($post-&gt;body)) / 200)</code></td>
+</tr>
+<tr>
+<td>Tag archive pages (<code>/journal/tag/{tag}</code>)</td>
+<td>Low</td>
+<td>Additional SEO surface</td>
+</tr>
+<tr>
+<td>WYSIWYG editor</td>
+<td>Low</td>
+<td>EasyMDE (CDN, no build step) — already noted in form.blade.php</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-content-strategy">2. Content Strategy</h2>
+<h3 id="brand-positioning">Brand Positioning</h3>
+<p>Timber Trace Crafts should own the intersection of <strong>"laser craft + personal meaning"</strong>. The common thread across wood earrings, engraved tumblers, custom signs, pet tags, ornaments, and coasters is <em>personalization with craft integrity</em>: items that feel designed for someone, made by hand, not mass-produced.</p>
+<p><strong>Voice</strong>: Warm, specific, maker-proud. The person behind the laser speaking to someone who wants more than an Amazon order.</p>
+<p><strong>Content Tone</strong>: Practical and personal. Explain the "why" behind material choices. Avoid generic "10 gift ideas" fluff — every post should have detail only a laser crafter can provide.</p>
+<hr>
+<h3 id="what-a-diode-laser-can-make-full-product-range">What a Diode Laser Can Make (Full Product Range)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Example Products</th>
+<th>Blog Angle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Jewelry</strong></td>
+<td>Wood earrings, acrylic earrings, leather earrings</td>
+<td>Care, style, material comparisons</td>
+</tr>
+<tr>
+<td><strong>Drinkware</strong></td>
+<td>Engraved tumblers, engraved wine glasses</td>
+<td>Care, gifting, personalization options</td>
+</tr>
+<tr>
+<td><strong>Home Décor</strong></td>
+<td>Signs, wall art, coasters, keychains, bookmarks</td>
+<td>Style, gifting, customization</td>
+</tr>
+<tr>
+<td><strong>Personalized Gifts</strong></td>
+<td>Name signs, wedding gifts, memorial items, pet gifts</td>
+<td>Gift guides, "how to personalize" guides</td>
+</tr>
+<tr>
+<td><strong>Seasonal / Holiday</strong></td>
+<td>Ornaments, gift tags, holiday décor</td>
+<td>Seasonal gift guides, deadline-driven content</td>
+</tr>
+<tr>
+<td><strong>Pet Accessories</strong></td>
+<td>Engraved pet tags, pet portrait items</td>
+<td>Pet owner gifting niche</td>
+</tr>
+<tr>
+<td><strong>Wedding &amp; Events</strong></td>
+<td>Place cards, favors, venue signs, keepsakes</td>
+<td>Wedding niche search traffic</td>
+</tr>
+<tr>
+<td><strong>Materials</strong></td>
+<td>Wood (primary), acrylic, leather, slate, aluminum</td>
+<td>Material education, care comparisons</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h3 id="content-pillars-cluster-architecture">Content Pillars &amp; Cluster Architecture</h3>
+<h4 id="pillar-1-personalized-custom-laser-engraved-gifts">Pillar 1: Personalized &amp; Custom Laser-Engraved Gifts</h4>
+<p><em>Highest-traffic opportunity — "personalized gifts" searched millions of times monthly</em></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spoke Topic</th>
+<th>Template</th>
+<th>Target Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P</td>
+<td>Ultimate guide to personalized laser-engraved gifts</td>
+<td><code>pillar-page</code></td>
+<td><code>personalized laser engraved gifts</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>How laser engraving personalization works: fonts, designs, limits</td>
+<td><code>how-to-guide</code></td>
+<td><code>how does laser engraving work</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>What can and can't be laser engraved (honest guide)</td>
+<td><code>faq-knowledge</code></td>
+<td><code>what can be laser engraved</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>How to choose what to engrave: names, dates, coordinates, quotes</td>
+<td><code>how-to-guide</code></td>
+<td><code>what to engrave on a gift</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Personalized gifts for women: laser-engraved ideas by budget</td>
+<td><code>listicle</code></td>
+<td><code>personalized gifts for women</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Personalized gifts for men: laser-engraved options that aren't cheesy</td>
+<td><code>listicle</code></td>
+<td><code>personalized gifts for men</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>How far in advance to order custom laser gifts</td>
+<td><code>faq-knowledge</code></td>
+<td><code>how long does custom engraving take</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Laser engraving vs. laser cutting: what's the difference?</td>
+<td><code>comparison</code></td>
+<td><code>laser engraving vs laser cutting</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h4 id="pillar-2-gift-guides-by-occasion">Pillar 2: Gift Guides by Occasion</h4>
+<p><em>Seasonal traffic spikes; publish each guide 6–8 weeks before the holiday</em></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spoke Topic</th>
+<th>Template</th>
+<th>Target Keyword</th>
+<th>Publish By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P</td>
+<td>Handcrafted gifts for every occasion</td>
+<td><code>pillar-page</code></td>
+<td><code>handmade laser cut gifts</code></td>
+<td>Evergreen</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Mother's Day gifts: personalized laser-engraved picks</td>
+<td><code>listicle</code></td>
+<td><code>personalized mothers day gifts</code></td>
+<td>~March 25</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Christmas gift guide: laser-cut and engraved for everyone on your list</td>
+<td><code>listicle</code></td>
+<td><code>laser cut christmas gifts</code></td>
+<td>~Nov 1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Valentine's Day: wood and laser-engraved gift ideas</td>
+<td><code>listicle</code></td>
+<td><code>laser engraved valentines day gifts</code></td>
+<td>~Jan 1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Wedding gifts that aren't on the registry: custom laser options</td>
+<td><code>listicle</code></td>
+<td><code>custom laser engraved wedding gifts</code></td>
+<td>Evergreen</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Graduation gifts: personalized laser-engraved keepsakes</td>
+<td><code>listicle</code></td>
+<td><code>personalized graduation gifts</code></td>
+<td>~April 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Birthday gift guide: unique laser-crafted presents under $75</td>
+<td><code>listicle</code></td>
+<td><code>unique birthday gifts laser engraved</code></td>
+<td>Evergreen</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Memorial and sympathy gifts: meaningful laser-engraved keepsakes</td>
+<td><code>thought-leadership</code></td>
+<td><code>personalized sympathy gifts</code></td>
+<td>Evergreen</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Pet lover gifts: laser-engraved items for dog and cat owners</td>
+<td><code>listicle</code></td>
+<td><code>laser engraved pet gifts</code></td>
+<td>Evergreen</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h4 id="pillar-3-wood-jewelry-care-choosing-and-wearing">Pillar 3: Wood Jewelry — Care, Choosing, and Wearing</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spoke Topic</th>
+<th>Template</th>
+<th>Target Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P</td>
+<td>Complete guide to wood earrings</td>
+<td><code>pillar-page</code></td>
+<td><code>wood earrings guide</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>How to care for wood earrings (cleaning, oiling, storage)</td>
+<td><code>how-to-guide</code></td>
+<td><code>how to care for wood earrings</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Can you wear wood earrings in the shower?</td>
+<td><code>faq-knowledge</code></td>
+<td><code>can wood earrings get wet</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Are wood earrings hypoallergenic? The truth for sensitive ears</td>
+<td><code>faq-knowledge</code></td>
+<td><code>are wood earrings hypoallergenic</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Wood vs. acrylic earrings: which are better?</td>
+<td><code>comparison</code></td>
+<td><code>wood earrings vs acrylic earrings</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Why wood earrings are so lightweight (and why that matters)</td>
+<td><code>thought-leadership</code></td>
+<td><code>lightweight earrings for sensitive ears</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Cherry vs. maple vs. walnut earrings: does the wood species matter?</td>
+<td><code>comparison</code></td>
+<td><code>types of wood for earrings</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>How to style wood earrings with any outfit</td>
+<td><code>how-to-guide</code></td>
+<td><code>how to style wood earrings</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h4 id="pillar-4-laser-crafted-home-decor-signs">Pillar 4: Laser-Crafted Home Décor &amp; Signs</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spoke Topic</th>
+<th>Template</th>
+<th>Target Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P</td>
+<td>Buyer's guide to custom laser-cut wood signs</td>
+<td><code>pillar-page</code></td>
+<td><code>custom laser cut wood signs</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Personalized family name signs: what to know before you order</td>
+<td><code>how-to-guide</code></td>
+<td><code>personalized family name sign wood</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Laser-cut wood signs for the home: décor ideas by room</td>
+<td><code>listicle</code></td>
+<td><code>laser cut wood signs home decor</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Custom wood signs as housewarming gifts</td>
+<td><code>listicle</code></td>
+<td><code>custom wood sign housewarming gift</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Wood coasters: laser-engraved sets as gifts or home accents</td>
+<td><code>listicle</code></td>
+<td><code>laser engraved wood coasters gift</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>How to hang and care for a wood sign (so it lasts)</td>
+<td><code>how-to-guide</code></td>
+<td><code>how to care for wood wall sign</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h4 id="pillar-5-engraved-drinkware-tumblers-mugs-more">Pillar 5: Engraved Drinkware — Tumblers, Mugs &amp; More</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spoke Topic</th>
+<th>Template</th>
+<th>Target Keyword</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P</td>
+<td>Custom engraved tumblers: everything you need to know</td>
+<td><code>pillar-page</code></td>
+<td><code>custom engraved tumbler</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>How to care for a laser-engraved tumbler</td>
+<td><code>how-to-guide</code></td>
+<td><code>how to care for engraved tumbler</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Are engraved tumblers dishwasher safe?</td>
+<td><code>faq-knowledge</code></td>
+<td><code>engraved tumbler dishwasher safe</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Personalized tumblers as gifts: what to engrave and wh

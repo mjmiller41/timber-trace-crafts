@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etsy Listing Playbook — Timber Trace Crafts</title>
+<style>
+  :root{
+  --color-oak-sand:#F4F1EA;      /* page surface / parchment */
+  --color-charcoal:#333333;      /* primary ink + solid buttons */
+  --color-forest-green:#2C4C3B;  /* primary accent — hero, footer */
+  --color-mahogany:#4A2C11;      /* accents, sale price */
+  --color-pine-shadow:#1E3529;   /* deep bg — admin sidebar */
+  --color-walnut:#8C7B6C;        /* meta text, hairlines, focus */
+  --color-surface:#fff8f4;       /* elevated / alternating panel */
+  --color-error:#ba1a1a;
+
+  /* Offline system-stack approximations of the real variable faces */
+  --font-heading:'Fraunces','Hoefler Text',Georgia,'Times New Roman',serif;
+  --font-body:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:'Source Code Pro',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* radius scale — theme.json (storefront runs mostly square, radius:0) */
+  --r-sm:.125rem; --r:.25rem; --r-md:.375rem; --r-lg:.5rem; --r-xl:.75rem; --r-full:9999px;
+
+  /* spacing scale — theme.json */
+  --s-tiny:10px; --s-xs:20px; --s-sm:30px;
+  --s-reg:clamp(30px,5vw,50px); --s-lg:clamp(30px,7vw,70px);
+  --s-xl:clamp(50px,7vw,90px); --s-xxl:clamp(70px,10vw,140px);
+  --content-max:645px; --wide-max:1340px;
+}
+
+  :root{--serif:"Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,Cambria,serif}
+  *{box-sizing:border-box}
+  html{scrollbar-width:thin;scrollbar-color:var(--line) var(--ink);scroll-behavior:smooth}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-track{background:var(--ink)}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;border:2px solid var(--ink)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+  html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--sans)}
+  body{font-size:16px;line-height:1.72;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 420px at 15% -260px,rgba(227,165,82,.12),transparent 60%),
+      radial-gradient(900px 500px at 100% -60px,rgba(124,140,224,.06),transparent 55%),
+      var(--ink);
+    padding:0 20px 96px}
+  ::selection{background:rgba(227,165,82,.28);color:#fff}
+
+  /* reading-progress rail */
+  #prog{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--brass-dim),var(--brass));
+    z-index:50;transition:width .08s linear}
+
+  .page{max-width:720px;margin:0 auto}
+
+  /* ---------------- hero ---------------- */
+  .hero{padding:66px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px;position:relative}
+  .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--brass);margin-bottom:22px}
+  .kicker::before{content:"";width:26px;height:1px;background:var(--brass-dim)}
+  h1.title{font-size:clamp(31px,6.4vw,46px);line-height:1.04;font-weight:800;letter-spacing:-.022em;
+    margin:0 0 .5em;color:#fff;text-wrap:balance}
+  .standfirst{font-size:18.5px;line-height:1.58;color:var(--muted);font-weight:400;margin:0;max-width:58ch;
+    padding-left:16px;border-left:2px solid var(--brass-dim)}
+  .standfirst strong{color:var(--text);font-weight:600}
+  .hero .meta{margin-top:26px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--faint);
+    display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+  .hero .meta .dot{color:var(--line2)}
+  .hero .meta .read{color:var(--brass-dim)}
+
+  /* ---------------- table of contents ---------------- */
+  .toc{margin:28px 0 8px;background:linear-gradient(180deg,var(--ink2),var(--surface));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:6px 18px 14px}
+  .toc>summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--faint);padding:12px 0 8px;display:flex;align-items:center;gap:9px}
+  .toc>summary::-webkit-details-marker{display:none}
+  .toc>summary::before{content:"▸";color:var(--brass);transition:transform .18s}
+  .toc[open]>summary::before{transform:rotate(90deg)}
+  .toc nav{display:flex;flex-direction:column;gap:1px;padding-top:4px}
+  .toc a{display:flex;gap:12px;text-decoration:none;color:var(--muted);font-size:13.5px;padding:6px 10px 6px 8px;
+    border-radius:6px;border-left:2px solid transparent;transition:color .12s,border-color .12s}
+  .toc a .n{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:22px}
+  .toc a.lvl3{padding-left:33px;font-size:12.5px;color:var(--faint)}
+  .toc a:hover{color:var(--brass)}
+  .toc a.active{color:#fff;border-left-color:var(--brass);background:rgba(227,165,82,.06)}
+  .toc a.active .n{color:var(--brass)}
+
+  /* ---------------- article ---------------- */
+  main{padding-top:14px;counter-reset:sec}
+  main>*{max-width:68ch}
+  main p{margin:1.05em 0;color:#DDDBD2;font-family:var(--serif);font-size:16.5px;line-height:1.78}
+  main a{color:var(--brass);text-decoration:none;border-bottom:1px solid rgba(227,165,82,.35)}
+  main a:hover{border-bottom-color:var(--brass)}
+  main strong{color:#fff;font-weight:600}
+  main em{color:var(--text)}
+
+  main h2{counter-increment:sec;font-size:25px;font-weight:800;letter-spacing:-.015em;line-height:1.18;color:#fff;
+    margin:2.5em 0 .7em;padding-top:1.2em;border-top:1px solid var(--line)}
+  main h2::before{content:counter(sec,decimal-leading-zero);display:block;font-family:var(--mono);
+    font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--brass);margin-bottom:.7em}
+  main h3{font-size:18px;font-weight:700;color:var(--text);margin:2em 0 .5em}
+  main h4{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--brass);margin:1.7em 0 .5em}
+  main h2:target,main h3:target{scroll-margin-top:20px}
+
+  main ul,main ol{margin:1em 0;padding-left:1.5em;font-family:var(--serif);font-size:16.5px}
+  main li{margin:.45em 0;padding-left:.25em;line-height:1.7}
+  main li::marker{color:var(--brass-dim)}
+  main ul ul,main ol ol{margin:.3em 0}
+
+  main code{font-family:var(--mono);font-size:.82em;color:#EBD9B6;background:var(--ink2);
+    padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+  main pre{background:linear-gradient(180deg,var(--ink2),#12141d);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:16px 18px;overflow:auto;line-height:1.55;margin:1.4em 0;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset}
+  main pre code{background:none;border:none;padding:0;color:#C9CEDF;font-size:12.5px}
+
+  main blockquote{margin:1.5em 0;padding:6px 22px;border-left:3px solid var(--brass);
+    background:linear-gradient(90deg,rgba(227,165,82,.06),transparent);border-radius:0 var(--r-md) var(--r-md) 0}
+  main blockquote p{color:var(--text);font-size:17px;font-style:italic}
+
+  .table-wrap{margin:1.5em 0;border:1px solid var(--line);border-radius:var(--r-md);overflow:auto}
+  main table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:min(100%,520px)}
+  main thead{background:var(--ink2)}
+  main th{text-align:left;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--brass);border-bottom:1px solid var(--line2);white-space:nowrap}
+  main td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:#D3D1C9;
+    font-family:var(--serif);font-size:14.5px;line-height:1.6}
+  main tbody tr:last-child td{border-bottom:none}
+  main tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+  main hr{border:none;height:1px;background:linear-gradient(90deg,var(--line),transparent);margin:2.4em 0}
+  main img{max-width:100%;height:auto;border-radius:var(--r-md);border:1px solid var(--line)}
+  main input[type=checkbox]{accent-color:var(--brass);margin-right:8px;transform:translateY(1px)}
+
+  .foot{max-width:68ch;margin:56px 0 0;border-top:1px solid var(--line);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;color:var(--faint);display:flex;gap:8px;flex-wrap:wrap}
+  .foot .dot{color:var(--line2)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero,.toc{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+    .toc{animation-delay:.05s}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  @media (max-width:600px){
+    .hero{padding-top:44px}
+    .standfirst{font-size:16.5px}
+  }
+
+</style>
+</head>
+<body>
+  <div id="prog"></div>
+  <div class="page">
+    <header class="hero">
+      <div class="kicker">ETSY</div>
+      <h1 class="title">Etsy Listing Playbook — Timber Trace Crafts</h1>
+      <p class="standfirst"><strong>Owner:</strong> Founding Engineer · <strong>Status:</strong> living doc · <strong>Last updated:</strong> 2026-07-04 (TIM-4)</p>
+      <div class="meta"><span>8 sections</span><span class="dot">·</span><span class="read">~6 min read</span><span class="dot">·</span><span>listing-playbook.md</span></div>
+    </header>
+    <details class="toc" open><summary>On this page</summary><nav><a href="#1-the-8-part-listing-template"><span class="n">01</span><span>1. The 8-part listing template</span></a><a href="#2-title-formula"><span class="n">02</span><span>2. Title formula</span></a><a href="#3-the-13-tag-strategy"><span class="n">03</span><span>3. The 13-tag strategy</span></a><a href="#4-description-skeleton"><span class="n">04</span><span>4. Description skeleton</span></a><a href="#5-photo-mockup-slots-10"><span class="n">05</span><span>5. Photo &amp;amp; mockup slots (10)</span></a><a href="#6-copy-paste-fill-in-template"><span class="n">06</span><span>6. Copy-paste fill-in template</span></a><a href="#7-publish-workflow-mechanical-steps"><span class="n">07</span><span>7. Publish workflow (mechanical steps)</span></a><a class="lvl3" href="#path-a-author-directly-in-etsy-fastest-no-local-seeding">Path A — author directly in Etsy (fastest, no local seeding)</a><a class="lvl3" href="#path-b-seed-locally-push-to-etsy-for-cross-channel-products">Path B — seed locally, push to Etsy (for cross-channel products)</a><a class="lvl3" href="#readiness-states-etsy">Readiness states (Etsy)</a><a href="#8-definition-of-done-for-a-new-listing"><span class="n">08</span><span>8. Definition of done for a new listing</span></a></nav></details>
+    <main>
+
+<p>The repeatable, low-effort workflow for taking a laser-engraved product from idea to a<br>
+live, search-optimized Etsy listing. The technical sync machinery already exists (see<br>
+<a href="../superpowers/specs/2026-06-24-etsy-sync-design.md">Etsy sync design</a> and the<br>
+<code>etsy:*</code> artisan commands); this doc is the <strong>content + process</strong> layer that makes each<br>
+new listing cheap and consistent.</p>
+<p>Etsy is the <strong>source of truth</strong> for a listing's title, description, tags, and stock.<br>
+The local store mirrors it. Write the listing content here first (using the template<br>
+below), get founder confirmation, then create it — either directly in Etsy's editor or<br>
+by seeding the local product and running the push commands.</p>
+<hr>
+<h2 id="1-the-8-part-listing-template">1. The 8-part listing template</h2>
+<p>Every new listing is authored by filling in these 8 slots. Copy the block in<br>
+<a href="#6-copy-paste-fill-in-template">§6 Fill-in template</a> for each product.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Slot</th>
+<th>Rule of thumb</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Title</strong></td>
+<td>Front-load the strongest keyword. Etsy weights the first ~40 chars and the whole title (max 140). Use <code>\|</code> pipes to stack keyword phrases.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Tags (13)</strong></td>
+<td>All 13, every time. Multi-word long-tail phrases, ≤20 chars each. Mirror how a gift buyer searches, not how a maker describes.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Description</strong></td>
+<td>Benefit-first opening line, then the story, then a scannable <strong>Item Details</strong> block, then personalization + gift framing, then the Avon Park signature.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Photos (10 slots)</strong></td>
+<td>Hero on white → in-use/styled → scale/size → detail/engraving → variation grid → personalization example → packaging → back/interior → sizing chart/graphic → lifestyle.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Variations</strong></td>
+<td>Wood species / color / size / personalization text. Each combination = a variant SKU with its own price + stock.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Pricing</strong></td>
+<td>Placeholder only — <strong>founder confirms</strong> (materials + labor + Etsy fees). Anchor to current catalog: earrings $15, tumbler $25, keepsake box $40.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Category / attributes</strong></td>
+<td>Taxonomy ID + shop section + made-to-order vs ready-to-ship readiness state.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Shipping profile</strong></td>
+<td>Reuse an existing profile (<code>etsy.shipping_profile_id = 303514857493</code>) unless size/weight differs materially.</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-title-formula">2. Title formula</h2>
+<pre><code>[Primary keyword / product] | [Material or style qualifier] | [Occasion / gift angle] | [Audience or bonus keyword]
+</code></pre>
+<p>Proven live examples (keep this voice):</p>
+<ul>
+<li><code>Personalized Heart Jewelry Box | Laser-Cut Wooden Keepsake Box | Wedding, Anniversary, or Valentine's Gift</code></li>
+<li><code>Solid Hardwood Butterfly Earrings | Laser-Cut Dangle Jewelry | Natural Boho | Eco-Friendly Gift</code></li>
+<li><code>Laser Etched Stainless Steel Travel Mug, 1776-2026 Eagle Patriotic Cup</code> (occasion-led)</li>
+</ul>
+<p>Rules:<br>
+- First 2–4 words carry the search. "Personalized", "Custom", "Handmade", "Laser-Cut",<br>
+  "Solid Hardwood" are high-intent openers when true.<br>
+- Name the <strong>occasion</strong> ("Wedding", "Anniversary", "Valentine's", "Bridesmaid",<br>
+  "Housewarming") — gift buyers search occasions.<br>
+- No keyword stuffing past readability; Etsy penalizes and buyers bounce.</p>
+<hr>
+<h2 id="3-the-13-tag-strategy">3. The 13-tag strategy</h2>
+<p>Etsy gives every listing 13 tags — <strong>use all 13</strong>, it is the single biggest free ranking<br>
+lever. Guidelines:</p>
+<ul>
+<li><strong>Multi-word, long-tail.</strong> "wooden jewelry box" beats "jewelry". Each tag ≤ 20 chars.</li>
+<li><strong>Cover 4 buckets:</strong> (a) what it is, (b) material/style, (c) occasion/recipient,<br>
+  (d) long-tail buyer phrases.</li>
+<li>Don't repeat a single word across many tags — vary the phrasing to widen the net.</li>
+<li>Tags should echo the title but not just duplicate it word-for-word.</li>
+</ul>
+<p>Reusable tag bank by product family (pick/adjust 13):</p>
+<ul>
+<li><strong>Wood jewelry:</strong> <code>wooden earrings</code>, <code>laser cut earrings</code>, <code>boho jewelry</code>,<br>
+<code>lightweight earrings</code>, <code>natural wood jewelry</code>, <code>eco friendly gift</code>,<br>
+<code>dangle earrings</code>, <code>gift for her</code>, <code>handmade jewelry</code>, <code>hardwood earrings</code>.</li>
+<li><strong>Keepsake / boxes:</strong> <code>wooden keepsake box</code>, <code>personalized jewelry box</code>,<br>
+<code>custom wood box</code>, <code>anniversary gift</code>, <code>wedding keepsake</code>, <code>ring box</code>,<br>
+<code>engraved wood box</code>, <code>valentines gift</code>, <code>bridesmaid gift</code>.</li>
+<li><strong>Drinkware:</strong> <code>engraved tumbler</code>, <code>personalized travel mug</code>, <code>laser etched cup</code>,<br>
+<code>stainless steel mug</code>, <code>patriotic gift</code>, <code>coffee lover gift</code>, <code>custom tumbler</code>.</li>
+<li><strong>Home / signs:</strong> <code>personalized sign</code>, <code>custom wood sign</code>, <code>housewarming gift</code>,<br>
+<code>wall decor</code>, <code>wedding sign</code>, <code>family name sign</code>, <code>engraved wood sign</code>.</li>
+</ul>
+<blockquote>
+<p><strong>Resolved (TIM-10):</strong> the launch catalog now stores <code>etsy_tags</code> <strong>and</strong> <code>etsy_materials</code><br>
+locally, and <code>etsy:sync-products</code> pushes both (<code>buildListingPayload</code> emits <code>tags</code> +<br>
+<code>materials</code>). New products carry them from creation via the admin editor — <strong>Etsy Tags</strong>,<br>
+<strong>Materials</strong>, and <strong>Storefront Tags</strong> fields on the product form. The one-time backfill<br>
+for the first 6 products lives in <code>etsy:backfill-materials</code> (idempotent, data-only; run<br>
+with <code>--apply</code>). After backfilling materials, a prod <code>etsy:sync-products</code> run pushes them<br>
+to the live listings.</p>
+</blockquote>
+<hr>
+<h2 id="4-description-skeleton">4. Description skeleton</h2>
+<p>Match the established Timber Trace voice (benefit-led, warm, specific, lightly emoji-accented):</p>
+<pre><code>[One-line hook: the benefit / feeling, not the specs.]
+
+[1–2 sentences of story: what it is, how it's made, why it's special.]
+
+Item Details:
+* Material: [exact — e.g. 3mm Baltic Birch Plywood / 3mm Solid Hardwood / stainless steel]
+* Finish: [e.g. Tried &amp; True Danish Oil — 100% natural, zero-VOC, skin-safe]
+* Size: [dimensions]
+* Design: [what the laser does — engraved / cut / etched]
+* Personalization: [what the buyer provides, if any — name, date, short ph
